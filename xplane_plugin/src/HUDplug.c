@@ -282,6 +282,13 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     
     TranslateToCenter();
     DrawSpeed();
+    DrawAlpha();
+    
+    TranslateToCenter();
+    DrawAltitude();
+    
+    TranslateToCenter();
+    DrawHorizionLines();
     // /* Do the actual drawing.  use GL_LINES to draw sets of discrete lines.
     //  * Each one will go 100 meters in any direction from the plane. */
     // TranslateToCenter();

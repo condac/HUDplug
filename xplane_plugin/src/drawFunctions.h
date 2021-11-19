@@ -3,11 +3,17 @@
 #define DRAWFUNC_H_INCLUDED
 
 
+extern int screen_width;
+extern int screen_height;
+extern float fov;
+extern float fov_pixels;
+
 void CalculateCenter(void) ;
 void TranslateToCenter(void);
 void initGlResources();
 void DrawCircle(int radius);
 
+float CalcFOVAngle(float input) ;
 
 #endif
 

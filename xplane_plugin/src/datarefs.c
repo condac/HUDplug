@@ -18,10 +18,14 @@ XPLMDataRef drIAS;
 XPLMDataRef drGroundSpeed;
 
 XPLMDataRef drMachSpeed;
+XPLMDataRef drAlpha;
+XPLMDataRef drBeta;
 //XPLMDataRef  drCurrentView;
 XPLMDataRef drViewIsExternal;
 XPLMDataRef drBalInd;
 XPLMDataRef drYawStr;
+XPLMDataRef drFOV;
+XPLMDataRef drGForce;
 
 // torque
 XPLMDataRef drTrq;
@@ -120,6 +124,11 @@ int initDataRefs() {
     
     lTmp += findDataRef("sim/cockpit2/gauges/indicators/mach_pilot", &drMachSpeed);
     lTmp += findDataRef("sim/flightmodel/position/groundspeed", &drGroundSpeed);
+    
+    lTmp += findDataRef("sim/flightmodel/position/alpha", &drAlpha);
+    lTmp += findDataRef("sim/flightmodel/position/beta", &drBeta);
+    
+    lTmp += findDataRef("sim/flightmodel/forces/g_nrml", &drGForce);
     //lTmp += findDataRef("sim/flightmodel/position/magnetic_variation", &drMagVar);
     //lTmp += findDataRef("sim/graphics/view/view_type", &drCurrentView);
     lTmp += findDataRef("sim/graphics/view/view_is_external", &drViewIsExternal);
@@ -134,7 +143,8 @@ int initDataRefs() {
     lTmp += findDataRef("sim/aircraft/limits/red_lo_TRQ", &drTrqRedLo);
     lTmp += findDataRef("sim/aircraft/limits/red_hi_TRQ", &drTrqRedHi);
     lTmp += findDataRef("sim/aircraft/controls/acf_trq_max_eng", &drMaxTrq);
-
+    
+lTmp += findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV);
     lTmp += registerDataRefs();
 
     return lTmp;
@@ -155,6 +165,15 @@ float getHeading() {
 }
 float getTrueHeading() {
     return XPLMGetDataf(drTrueHeading);
+}
+float getAlphaA() {
+    return XPLMGetDataf(drAlpha);
+}
+float getBetaA() {
+    return XPLMGetDataf(drBeta);
+}
+float getGForce() {
+    return XPLMGetDataf(drGForce);
 }
 float getVX() {
     return XPLMGetDataf(drVX);
@@ -196,6 +215,9 @@ float getYawStringAngle() {
     return XPLMGetDataf(drYawStr);
 }
 
+float getFOV() {
+    return XPLMGetDataf(drFOV);
+}
 //int getCurrentView() {
 //  return XPLMGetDatai(drCurrentView);
 //}

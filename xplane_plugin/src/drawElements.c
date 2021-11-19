@@ -5,50 +5,174 @@
 #include "datarefs.h"
 #include <math.h>
 
+float color[] = {0.0, 1.0, 0.0, 1.0};
+
 void DrawTest() {
-    glLineWidth(3);
-    int line_length = 20;
-    int box_size = 200;
-    float lSize = 1;
-    glBegin(GL_LINES);
-    // left bottom
-    glVertex2i(0, 0);
-    glVertex2f(line_length * lSize, 0);
-    glVertex2i(0, 0);
-    glVertex2f(0, line_length * lSize);
-    // left top
-    glVertex2f(0, box_size * lSize);
-    glVertex2f(line_length * lSize, box_size * lSize);
-    glVertex2f(0, box_size * lSize);
-    glVertex2f(0, box_size * lSize - line_length * lSize);
-    // right bottom
-    glVertex2f(box_size * lSize, 0);
-    glVertex2f(box_size * lSize - line_length * lSize, 0);
-    glVertex2f(box_size * lSize, 0);
-    glVertex2f(box_size * lSize, line_length * lSize);
-    // right top
-    glVertex2f(box_size * lSize, box_size * lSize);
-    glVertex2f(box_size * lSize - line_length * lSize, box_size * lSize);
-    glVertex2f(box_size * lSize, box_size * lSize);
-    glVertex2f(box_size * lSize, box_size * lSize - line_length * lSize);
-    glEnd();
 
     // Draw Text
     SetGLText(); // turn on blending
     float color[] = {0.0, 1.0, 0.0, 1.0};
-    DrawHUDNumber((int)getHeading(), &fontBig, -3, 0, lSize / 2 - fontBig.charHeight, 0, color);
+    DrawHUDNumber((int)getHeading(), &fontBig, -3, 0, 300, 0, color);
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
-    DrawMovementArrow(getTrueHeading(), getVX(), getVY(), getVZ());
+    //DrawMovementArrow(getTrueHeading(), getVX(), getVY(), getVZ());
 }
 
 #define MOVEMENT_ARROW_RADIUS_PX 20
 #define MOVEMENT_ARROW_LEG_SIZE 10
 
 void DrawVector() {
-    float color[] = {0.0, 1.0, 1.0};
-    glColor3fv(color);
+    float y_pos = CalcFOVAngle(getAlphaA());
+    float x_pos = CalcFOVAngle(getBetaA());
+    float tail_pos = 0.0;
+    y_pos = fov_pixels * getAlphaA();
+    glColor4fv(color);
 
-    DrawCircle(20);
+    glTranslatef(-x_pos, -y_pos, 0);
+
+    DrawCircle(10 * HUD_SCALE);
+    glLineWidth(LINE_WIDTH);
+    glBegin(GL_LINES);
+
+    glVertex2f(10 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(30 * HUD_SCALE, 0 * HUD_SCALE);
+
+    glVertex2f(-10 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(-30 * HUD_SCALE, 0 * HUD_SCALE);
+
+    glVertex2f(0 * HUD_SCALE, tail_pos + 10 * HUD_SCALE);
+    glVertex2f(0 * HUD_SCALE, tail_pos + 30 * HUD_SCALE);
+
+    glEnd();
+
+    glTranslatef(x_pos, y_pos, 0); // set position back
+
+    // char buffer[255];
+    // sprintf(buffer, "Alpha: %f, Pitch %f, FOV %f, FOVPixel %f, y_pos %f", getAlphaA(), getPitch(), getFOV(), fov_pixels, y_pos);
+    //  XPLMDrawString(color, -200, 300, buffer, NULL, xplmFont_Basic);
+}
+
+void DrawHorizionLines() {
+    float y_pos = CalcFOVAngle(getPitch());
+    float angle = getRoll();
+    char tempText[10];
+    float smallTextScale = 0.75;
+
+    glColor4fv(color);
+
+    glRotatef(angle, 0, 0, 1);
+    glTranslatef(0, -y_pos, 0);
+
+    // 0 horizonten
+
+    glLineWidth(LINE_WIDTH);
+    glBegin(GL_LINES);
+
+    for (float i = -160; i < 160; i += 40) {
+        glVertex2f((i)*HUD_SCALE, 0 * HUD_SCALE);
+        glVertex2f((i + (LINE_WIDTH * 2)) * HUD_SCALE, 0 * HUD_SCALE);
+    }
+    glVertex2f(160 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(295 * HUD_SCALE, 0 * HUD_SCALE);
+
+    glVertex2f(410 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(480 * HUD_SCALE, 0 * HUD_SCALE);
+
+    glVertex2f(-160 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(-295 * HUD_SCALE, 0 * HUD_SCALE);
+
+    glVertex2f(-410 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(-480 * HUD_SCALE, 0 * HUD_SCALE);
+
+    glEnd();
+
+    // linjer
+
+    for (int i = 10; i < 90; i += 10) {
+        if  ( (i > getPitch() - 10) && (i < getPitch() + 10) ){
+            glLineWidth(LINE_WIDTH);
+            glBegin(GL_LINES);
+
+            glVertex2f(40 * HUD_SCALE, CalcFOVAngle(i));
+            glVertex2f(200 * HUD_SCALE, CalcFOVAngle(i));
+
+            glVertex2f(-40 * HUD_SCALE, CalcFOVAngle(i));
+            glVertex2f(-200 * HUD_SCALE, CalcFOVAngle(i));
+            glEnd();
+            // char buffer2[10];
+            // sprintf(buffer2, "%d", i);
+            // XPLMDrawString(color, -200 * HUD_SCALE, CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
+        }
+    }
+
+    for (int i = -10; i > -90; i -= 10) {
+        if  ( (i > getPitch() - 10) && (i < getPitch() + 10) ){
+            glLineWidth(LINE_WIDTH);
+            glBegin(GL_LINES);
+
+            glVertex2f(40 * HUD_SCALE, CalcFOVAngle(i));
+            glVertex2f(200 * HUD_SCALE, CalcFOVAngle(i));
+
+            glVertex2f(-40 * HUD_SCALE, CalcFOVAngle(i));
+            glVertex2f(-200 * HUD_SCALE, CalcFOVAngle(i));
+            glEnd();
+            // char buffer2[10];
+            // sprintf(buffer2, "%d", i);
+            // XPLMDrawString(color, -200 * HUD_SCALE, CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
+        }
+    }
+
+    SetGLText(); // turn on blending
+    glPushMatrix();
+    glScalef(smallTextScale, smallTextScale, 0);
+    for (int i = 10; i < 90; i += 10) {
+        if  ( (i > getPitch() - 10) && (i < getPitch() + 10) ){
+            // glLineWidth(LINE_WIDTH);
+            // glBegin(GL_LINES);
+            //
+            // glVertex2f(40 * HUD_SCALE, CalcFOVAngle(i));
+            // glVertex2f(200 * HUD_SCALE, CalcFOVAngle(i));
+            //
+            // glVertex2f(-40 * HUD_SCALE, CalcFOVAngle(i));
+            // glVertex2f(-200 * HUD_SCALE, CalcFOVAngle(i));
+            // glEnd();
+
+            sprintf(tempText, "%d", i);
+            DrawHUDText(tempText, &fontBig, -200 * HUD_SCALE / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
+
+            // char buffer2[10];
+            // sprintf(buffer2, "%d", i);
+            // XPLMDrawString(color, -200 * HUD_SCALE, CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
+        }
+    }
+    for (int i = -10; i > -90; i -= 10) {
+        if  ( (i > getPitch() - 10) && (i < getPitch() + 10) ){
+            // glLineWidth(LINE_WIDTH);
+            // glBegin(GL_LINES);
+            //
+            // glVertex2f(40 * HUD_SCALE, CalcFOVAngle(i));
+            // glVertex2f(200 * HUD_SCALE, CalcFOVAngle(i));
+            //
+            // glVertex2f(-40 * HUD_SCALE, CalcFOVAngle(i));
+            // glVertex2f(-200 * HUD_SCALE, CalcFOVAngle(i));
+            // glEnd();
+
+            sprintf(tempText, "%d", i);
+            DrawHUDText(tempText, &fontBig, -200 * HUD_SCALE / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
+
+            // char buffer2[10];
+            // sprintf(buffer2, "%d", i);
+            // XPLMDrawString(color, -200 * HUD_SCALE, CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
+        }
+    }
+    glPopMatrix();
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+
+    glTranslatef(0, y_pos, 0);
+    glRotatef(-angle, 0, 0, 1);
+
+    // char buffer[255];
+    // sprintf(buffer, "Roll: %f, Pitch %f, FOV %f, FOVPixel %f, y_pos %f", getRoll(), getPitch(), getFOV(), fov_pixels, y_pos);
+    // XPLMDrawString(color, -250, 350, buffer, NULL, xplmFont_Basic);
 }
 
 #define SPEED_POS_X -315
@@ -57,9 +181,10 @@ void DrawVector() {
 void DrawSpeed() {
     char temp[20];
     float airspeed = getIAS();
-    float groundspeed = 135.0;
-    float mach = 0.21;
-    float color[] = {0.0, 1.0, 0.0, 1.0};
+    float groundspeed = getGroundSpeed() * 1.944;
+    float mach = getMachSpeed();
+    
+    glColor4fv(color);
 
     // lodrät linje för hastighetsmätaren
     glLineWidth(LINE_WIDTH);
@@ -79,13 +204,64 @@ void DrawSpeed() {
 
     SetGLText(); // turn on blending
     sprintf(temp, "%.0f", airspeed);
-    DrawHUDText(temp, &fontBig, (SPEED_POS_X-20) * HUD_SCALE, (SPEED_POS_Y * HUD_SCALE) - (fontBig.charHeight/2), 1, color);
-    
+    DrawHUDText(temp, &fontBig, (SPEED_POS_X - 20) * HUD_SCALE, (SPEED_POS_Y * HUD_SCALE) - (fontBig.charHeight / 2), 1, color);
+
     sprintf(temp, "M %.2f", mach);
-    DrawHUDText(temp, &fontBig, (SPEED_POS_X) * HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - (fontBig.charHeight), 1, color);
-    
+    DrawHUDText(temp, &fontBig, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - (fontBig.charHeight), 1, color);
+
     sprintf(temp, "GS%.0f", groundspeed);
-    DrawHUDText(temp, &fontBig, (SPEED_POS_X) * HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - (fontBig.charHeight*2), 1, color);
+    DrawHUDText(temp, &fontBig, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - (fontBig.charHeight * 2), 1, color);
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+}
+
+void DrawAlpha() {
+    char temp[20];
+    float alpha = getAlphaA();
+    float gforce = getGForce();
+    
+    glColor4fv(color);
+
+    
+
+    SetGLText(); // turn on blending
+
+    sprintf(temp, "G %.1f", gforce);
+    DrawHUDText(temp, &fontBig, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + (fontBig.charHeight), 1, color);
+
+    sprintf(temp, "a %.0f", alpha);
+    DrawHUDText(temp, &fontBig, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + (fontBig.charHeight * 2), 1, color);
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+}
+
+#define ALT_POS_X 315
+#define ALT_POS_Y 0
+
+void DrawAltitude() {
+    char temp[20];
+    float altitude = getAltitude();
+    
+    glColor4fv(color);
+    // lodrät linje för hastighetsmätaren
+    glLineWidth(LINE_WIDTH);
+    glBegin(GL_LINES);
+
+    glVertex2f(ALT_POS_X * HUD_SCALE, -100 * HUD_SCALE);
+    glVertex2f(ALT_POS_X * HUD_SCALE, 100 * HUD_SCALE);
+
+    // pil vid hastighetstexten
+    glVertex2f(ALT_POS_X * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f((ALT_POS_X - 20) * HUD_SCALE, 10 * HUD_SCALE);
+
+    glVertex2f(ALT_POS_X * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f((ALT_POS_X - 20) * HUD_SCALE, -10 * HUD_SCALE);
+
+    glEnd();
+
+    SetGLText(); // turn on blending
+    sprintf(temp, "%.0f", altitude);
+    DrawHUDText(temp, &fontBig, (ALT_POS_X - 10) * HUD_SCALE, (ALT_POS_Y * HUD_SCALE) - (fontBig.charHeight / 2), 1, color);
+
+    
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
 
@@ -131,14 +307,14 @@ void DrawMovementArrow(float trueHeading, float vx, float vy, float vz) {
     glEnd();
     glRotatef(angle, 0, 0, 1);
 
-    float color[] = {1.0, 1.0, 1.0}; /* RGB White */
-    char buffer[255];
-    sprintf(buffer, "True heading: %f", trueHeading);
-    XPLMDrawString(color, -200, 200, buffer, NULL, xplmFont_Basic);
-    sprintf(buffer, "Angle: %f", angle);
-    XPLMDrawString(color, -200, 180, buffer, NULL, xplmFont_Basic);
-    sprintf(buffer, "Vx: %f", vx);
-    XPLMDrawString(color, -200, 160, buffer, NULL, xplmFont_Basic);
-    sprintf(buffer, "Vz: %f", vz);
-    XPLMDrawString(color, -200, 140, buffer, NULL, xplmFont_Basic);
+    // float color[] = {1.0, 1.0, 1.0}; /* RGB White */
+    // char buffer[255];
+    // sprintf(buffer, "True heading: %f", trueHeading);
+    // XPLMDrawString(color, -200, 200, buffer, NULL, xplmFont_Basic);
+    // sprintf(buffer, "Angle: %f", angle);
+    // XPLMDrawString(color, -200, 180, buffer, NULL, xplmFont_Basic);
+    // sprintf(buffer, "Vx: %f", vx);
+    // XPLMDrawString(color, -200, 160, buffer, NULL, xplmFont_Basic);
+    // sprintf(buffer, "Vz: %f", vz);
+    // XPLMDrawString(color, -200, 140, buffer, NULL, xplmFont_Basic);
 }

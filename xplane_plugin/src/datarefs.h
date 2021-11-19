@@ -16,6 +16,9 @@ int registerDataRefs();
 int initDataRefs();
 void unregisterData();
 
+float getAlphaA();
+float getBetaA();
+float getFOV();
 float getPitch();
 float getRoll();
 float getHeading();
@@ -31,6 +34,10 @@ float getWindDirection();
 float getIAS();
 float getBalance();
 float getYawStringAngle();
+
+float getGroundSpeed();
+float getMachSpeed();
+float getGForce();
 
 //int getCurrentView();
 

@@ -10,12 +10,16 @@
 #include "XPLMGraphics.h"
 #include "drawFunctions.h"
 #include "fonts.h"
+#include "datarefs.h"
+
 
 #define CIRCLE_LINES_COUNT 50
 
 
 int screen_width;
 int screen_height;
+float fov;
+float fov_pixels;
 
 void CalculateCenter(void) {
     int screen_width;
@@ -25,6 +29,8 @@ void CalculateCenter(void) {
     // HudConfig* lConfig = getHudConfig();
 
     glTranslated(screen_width / 2, screen_height / 2, 0);
+    fov = getFOV();
+    fov_pixels = screen_height / fov;
 }
 
 void TranslateToCenter(void) {
@@ -47,4 +53,11 @@ void DrawCircle(int radius) {
     glVertex2f((cos(angle) * radius), (sin(angle) * radius));
   }
   glEnd();
+}
+
+float CalcFOVAngle(float input) {
+    float out = input*fov_pixels;
+    
+    
+    return out;
 }

@@ -1,7 +1,7 @@
 
 
 
-#define LINE_WIDTH 1
+#define LINE_WIDTH 2
 
 #define HUD_SCALE 1.0f
 
