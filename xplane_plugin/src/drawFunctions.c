@@ -18,8 +18,13 @@
 
 int screen_width;
 int screen_height;
+int line_width = 2;
 float fov;
 float fov_pixels;
+float hud_scale = 1.0;
+float text_scale = 1.0;
+float color[] = {0.0, 1.0, 0.0, 1.0};
+int viggen_mode = 1;
 
 void CalculateCenter(void) {
     int screen_width;
@@ -31,6 +36,7 @@ void CalculateCenter(void) {
     glTranslated(screen_width / 2, screen_height / 2, 0);
     fov = getFOV();
     fov_pixels = screen_height / fov;
+    line_width = LINE_WIDTH*hud_scale;
 }
 
 void TranslateToCenter(void) {
@@ -56,7 +62,7 @@ void DrawCircle(int radius) {
 }
 
 float CalcFOVAngle(float input) {
-    float out = input*fov_pixels;
+    float out = input*(fov_pixels / hud_scale);
     
     
     return out;

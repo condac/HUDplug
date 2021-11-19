@@ -110,9 +110,16 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     /* Append a few menu items to our submenu.  We will use the refcon to
      * store the amount we want to change the radio by. */
 
-    XPLMAppendMenuItem(myMenu, "Toggle debug", (void*)1, 1);
-    XPLMAppendMenuItem(myMenu, "Show input status", (void*)5, 1);
-    XPLMAppendMenuItem(myMenu, "Send config", (void*)4, 1);
+    XPLMAppendMenuItem(myMenu, "Skala 1", (void*)1, 1);
+    XPLMAppendMenuItem(myMenu, "Skala 2", (void*)2, 1);
+    XPLMAppendMenuItem(myMenu, "Text 1", (void*)3, 1);
+    XPLMAppendMenuItem(myMenu, "Text 2", (void*)4, 1);
+    XPLMAppendMenuItem(myMenu, "Color Green", (void*)5, 1);
+    XPLMAppendMenuItem(myMenu, "Color Green Dark", (void*)6, 1);
+    XPLMAppendMenuItem(myMenu, "Color Red", (void*)7, 1);
+    XPLMAppendMenuItem(myMenu, "Color Green Transparent", (void*)8, 1);
+    
+    XPLMAppendMenuItem(myMenu, "Viggen Mode", (void*)20, 1);
     /* Look up our data ref.  You find the string name of the data ref
      * in the master list of data refs, including in HTML form in the
      * plugin SDK.  In this case, we want the nav1 frequency. */
@@ -184,36 +191,48 @@ void MyMenuHandlerCallback(void* inMenuRef, void* inItemRef) {
     int incommand = (uintptr_t)inItemRef;
     if (incommand == 1) {
         // toggle console
-        TeensyControls_show = !TeensyControls_show;
-        TeensyControls_display_toggle();
+        hud_scale = 1.0;
     }
     if (incommand == 2) {
-        // set pitot
-        if (gDataRef != NULL) {
-            /* We read the data ref, add the increment and set it again.
-             * This changes the nav frequency. */
-            XPLMSetDatai(gDataRef, 1);
-        }
+        hud_scale = 2.0;
     }
     if (incommand == 3) {
-        // set pitot
-        if (gDataRef != NULL) {
-            /* We read the data ref, add the increment and set it again.
-             * This changes the nav frequency. */
-            XPLMSetDatai(gDataRef, 0);
-        }
+        text_scale = 1.0;
     }
     if (incommand == 4) {
-        // reloadConfig();
-        // sendConfigReset();
+        text_scale = 2.0;
     }
     if (incommand == 5) {
-        if (statusDisplayShow == 0) {
-            statusDisplayShow = 1;
-        } else {
-            statusDisplayShow = 0;
-        }
-        statusDisplayToggle();
+        // green
+        color[0] = 0.0;
+        color[1] = 1.0;
+        color[2] = 0.0;
+        color[3] = 1.0;
+    }
+    if (incommand == 6) {
+        // green dark
+        color[0] = 0.0;
+        color[1] = 0.50;
+        color[2] = 0.0;
+        color[3] = 1.0;
+    }
+    if (incommand == 7) {
+         // red
+         color[0] = 1.0;
+         color[1] = 0.0;
+         color[2] = 0.0;
+         color[3] = 1.0;
+    }
+    if (incommand == 8) {
+        // transparent
+        color[0] = 0.0;
+        color[1] = 1.0;
+        color[2] = 0.0;
+        color[3] = 0.50;
+    }
+    if (incommand == 20) {
+        // transparent
+        viggen_mode = !viggen_mode;
     }
     /* This is our handler for the menu item.  Our inItemRef is the refcon
      * we registered in our XPLMAppendMenuItem calls.  It is either +1000 or
@@ -274,21 +293,34 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
 
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
     CalculateCenter();
-    TranslateToCenter();
-    DrawTest();
+    glPushMatrix();
+    glScalef(hud_scale, hud_scale, 0);
     
-    TranslateToCenter();
-    DrawVector();
+    if (viggen_mode) {
+        DrawViggen();
+        TranslateToCenter();
+        DrawSpeed();
+        DrawAlpha();
+    } else {
+        TranslateToCenter();
+        DrawTest();
+        
+        TranslateToCenter();
+        DrawVector();
+        
+        TranslateToCenter();
+        DrawSpeed();
+        DrawAlpha();
+        
+        TranslateToCenter();
+        DrawAltitude();
+        
+        TranslateToCenter();
+        DrawHorizionLines();
+    }
     
-    TranslateToCenter();
-    DrawSpeed();
-    DrawAlpha();
     
-    TranslateToCenter();
-    DrawAltitude();
-    
-    TranslateToCenter();
-    DrawHorizionLines();
+    glPopMatrix();
     // /* Do the actual drawing.  use GL_LINES to draw sets of discrete lines.
     //  * Each one will go 100 meters in any direction from the plane. */
     // TranslateToCenter();

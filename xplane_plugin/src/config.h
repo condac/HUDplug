@@ -1,8 +1,6 @@
 #ifndef CONFIG_H_INCLUDED
 #define CONFIG_H_INCLUDED
 
-
-
 void readConfig();
 int getNrOfLines(char* filename);
 int getNrOfMasters(char* filename);

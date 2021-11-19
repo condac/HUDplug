@@ -1,4 +1,6 @@
 #include "HUDplug.h"
+#include "drawFunctions.h"
+#include "datarefs.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,68 +43,36 @@ HUDFontProperties fontBig = {
     256         //texSize
 };
 HUDFontProperties fontSmall = {
-    "cnew.bmp", //fileName
-    ' ',        // firstChar
-    0,          //texId
-    0,          //dispListBase
-    10,         //rowsCount
-    10,         //colsCount
-    25,         //charWidth
-    25,         //charHeight
-    -6,         //spacing
-    256         //texSize
+    "arial.bmp", //fileName
+    ' ',         // firstChar
+    0,           //texId
+    0,           //dispListBase
+    10,          //rowsCount
+    10,          //colsCount
+    25,          //charWidth
+    24,          //charHeight
+    -6,          //spacing
+    256          //texSize
 };
+HUDFontProperties fontMain = {
+    "arial.bmp", //fileName
+    ' ',         // firstChar
+    0,           //texId
+    0,           //dispListBase
+    10,          //rowsCount
+    10,          //colsCount
+    24,          //charWidth
+    24,          //charHeight
+    -10,          //spacing
+    256          //texSize
+};
+
 void InitFonts(void) {
 
-    // fontBig = HUDFontProperties {
-    //     "cnew.bmp", //fileName
-    //     ' ',        // firstChar
-    //     0,          //texId
-    //     0,          //dispListBase
-    //     10,         //rowsCount
-    //     10,         //colsCount
-    //     25,         //charWidth
-    //     25,         //charHeight
-    //     -6,         //spacing
-    //     256         //texSize
-    // };
-    // fontBig.fileName = "cnew.bmp";
-    // fontBig.firstChar= ' ';
-    // fontBig.texId = 0;
-    // fontBig.dispListBase= 0;
-    // fontBig.rowsCount = 10;
-    // fontBig.colsCount = 10;
-    // fontBig.charWidth = 25;
-    // fontBig.charHeight = 25;
-    // fontBig.spacing = -6;
-    // fontBig.texSize = 256;
-    //  fontSmall = {
-    //                                 "arial.bmp",  //fileName
-    //                                 ' ', // firstChar
-    //                                 0, //texId
-    //                                 0, //dispListBase
-    //                                 6, //rowsCount
-    //                                 16, //colsCount
-    //                                 16, //charWidth
-    //                                 19, //charHeight
-    //                                 -2, //spacing
-    //                                 256 //texSize
-    //                               };
-    // fontSmall = HUDFontProperties {
-    //     "cnew.bmp", //fileName
-    //     ' ',        // firstChar
-    //     0,          //texId
-    //     0,          //dispListBase
-    //     10,         //rowsCount
-    //     10,         //colsCount
-    //     25,         //charWidth
-    //     25,         //charHeight
-    //     -6,         //spacing
-    //     256         //texSize
-    // };
     LoadFontTextures();
     CreateHUDFont(&fontBig);
     CreateHUDFont(&fontSmall);
+    CreateHUDFont(&fontMain);
 }
 
 void CreateHUDFont(HUDFontProperties* f) {
@@ -135,9 +105,13 @@ void CreateHUDFont(HUDFontProperties* f) {
     debugLog("loaded font %s, base %d.\n", f->fileName, f->dispListBase);
 }
 
-void DrawHUDText(const char* pValue, HUDFontProperties* f, int pX, int pY, char pAllign, float *color) {
+void DrawHUDText(const char* pValue, HUDFontProperties* f, int pX, int pY, char pAllign, float* color) {
     XPLMBindTexture2d(f->texId, 0);
     glColor4f(color[0], color[1], color[2], color[3]);
+    glPushMatrix();
+    glScalef(text_scale, text_scale, 0);
+    pX = pX /text_scale;
+    pY = pY /text_scale;
     int lLen = strlen(pValue);
     if (pAllign >= 0) { // center+right
         int textWidth = getTextWidth(f, lLen);
@@ -153,9 +127,10 @@ void DrawHUDText(const char* pValue, HUDFontProperties* f, int pX, int pY, char 
         glTranslatef(f->charWidth + f->spacing, 0, 0);
     }
     glTranslatef(-pX - (f->charWidth + f->spacing) * lLen, -pY, 0);
+    glPopMatrix();
 }
 
-void DrawHUDNumber(int pValue, HUDFontProperties* f, int pDigits, int pX, int pY, char pAllign, float * color) {
+void DrawHUDNumber(int pValue, HUDFontProperties* f, int pDigits, int pX, int pY, char pAllign, float* color) {
     char buffer[20];
     char lFormat[10];
     int lPos = 0;
@@ -181,6 +156,8 @@ void LoadFontTextures(void) {
     if (!LoadHUDFontTexture(&fontBig))
         debugLog("Font texture failed to load\n");
     if (!LoadHUDFontTexture(&fontSmall))
+        debugLog("Font texture failed to load\n");
+    if (!LoadHUDFontTexture(&fontMain))
         debugLog("Font texture failed to load\n");
 }
 

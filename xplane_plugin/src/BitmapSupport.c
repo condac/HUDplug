@@ -40,7 +40,7 @@ void SwapEndian(uint32_t* Data) {
 /// Swap the red and blue pixels.
 void SwapRedBlue(IMAGEDATA* ImageData) {
     unsigned char* srcPixel;
-    uint32_t count;
+    //uint32_t count;
     uint32_t x, y;
     unsigned char sTemp;
 
@@ -50,7 +50,7 @@ void SwapRedBlue(IMAGEDATA* ImageData) {
 
     /// Do the swap
     srcPixel = ImageData->pData;
-    count = ImageData->Width * ImageData->Height;
+    //count = ImageData->Width * ImageData->Height;
     for (y = 0; y < ImageData->Height; ++y)
         for (x = 0; x < ImageData->Width; ++x) {
             sTemp = srcPixel[0];

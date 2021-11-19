@@ -39,6 +39,8 @@ float getGroundSpeed();
 float getMachSpeed();
 float getGForce();
 
+int getGear();
+
 //int getCurrentView();
 
 int getViewIsExternal();

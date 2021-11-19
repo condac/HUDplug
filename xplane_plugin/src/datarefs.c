@@ -38,6 +38,8 @@ XPLMDataRef drTrqRedLo;
 XPLMDataRef drTrqRedHi;
 XPLMDataRef drMaxTrq;
 
+XPLMDataRef drGear;
+
 XPLMDataRef hudVisibleDR = NULL;
 XPLMCommandRef toggleHudCommand = NULL;
 
@@ -121,13 +123,13 @@ int initDataRefs() {
     lTmp += findDataRef("sim/cockpit2/gauges/indicators/wind_heading_deg_mag", &drWindDirection);
     //lTmp += findDataRef("sim/weather/wind_direction_degt[0]", &drWindDirection);
     lTmp += findDataRef("sim/flightmodel/position/indicated_airspeed", &drIAS);
-    
+
     lTmp += findDataRef("sim/cockpit2/gauges/indicators/mach_pilot", &drMachSpeed);
     lTmp += findDataRef("sim/flightmodel/position/groundspeed", &drGroundSpeed);
-    
+
     lTmp += findDataRef("sim/flightmodel/position/alpha", &drAlpha);
     lTmp += findDataRef("sim/flightmodel/position/beta", &drBeta);
-    
+
     lTmp += findDataRef("sim/flightmodel/forces/g_nrml", &drGForce);
     //lTmp += findDataRef("sim/flightmodel/position/magnetic_variation", &drMagVar);
     //lTmp += findDataRef("sim/graphics/view/view_type", &drCurrentView);
@@ -144,7 +146,9 @@ int initDataRefs() {
     lTmp += findDataRef("sim/aircraft/limits/red_hi_TRQ", &drTrqRedHi);
     lTmp += findDataRef("sim/aircraft/controls/acf_trq_max_eng", &drMaxTrq);
     
-lTmp += findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV);
+    lTmp += findDataRef("sim/cockpit/switches/gear_handle_status", &drGear);
+
+    lTmp += findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV);
     lTmp += registerDataRefs();
 
     return lTmp;
@@ -217,6 +221,10 @@ float getYawStringAngle() {
 
 float getFOV() {
     return XPLMGetDataf(drFOV);
+}
+
+int getGear() {
+    return XPLMGetDatai(drGear);
 }
 //int getCurrentView() {
 //  return XPLMGetDatai(drCurrentView);

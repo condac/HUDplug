@@ -32,6 +32,7 @@ extern HUDFontProperties fontBig;
 //                                 256 //texSize
 //                               };
 extern HUDFontProperties fontSmall;
+extern HUDFontProperties fontMain;
 
 void LoadFontTextures(void);
 void CreateHUDFont(HUDFontProperties* f);
