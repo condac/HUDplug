@@ -26,6 +26,7 @@ float text_scale = 1.0;
 float color[] = {0.0, 1.0, 0.0, 1.0};
 int viggen_mode = 1;
 
+
 void CalculateCenter(void) {
     int screen_width;
     int screen_height;
@@ -62,8 +63,14 @@ void DrawCircle(int radius) {
 }
 
 float CalcFOVAngle(float input) {
-    float out = input*(fov_pixels / hud_scale);
-    
+    float out = (input*fov_pixels) / hud_scale;
     
     return out;
+}
+
+float getLandingSpeed() {
+    float mass = getTotalWeight();
+    float delta = (landing_speed2 - landing_speed1) / (landing_weight2- landing_weight1);
+    float speed = ( (mass - landing_weight1) * delta) + landing_speed1;
+    return speed;
 }

@@ -22,11 +22,11 @@ void DrawVector() {
     float airspeed = getIAS();
     float y_pos = CalcFOVAngle(getAlphaA());
     float x_pos = CalcFOVAngle(getBetaA());
-    float tail_pos = airspeed - LANDING_SPEED;
+    float tail_pos = airspeed - getLandingSpeed();
     int gear = getGear();
     tail_pos = fmin(tail_pos, 40);
     tail_pos = fmax(tail_pos, -40);
-    y_pos = fov_pixels * getAlphaA();
+    //y_pos = fov_pixels * getAlphaA();
     glColor4fv(color);
 
     glTranslatef(-x_pos, -y_pos, 0);
@@ -50,9 +50,9 @@ void DrawVector() {
 
     glTranslatef(x_pos, y_pos, 0); // set position back
 
-    // char buffer[255];
-    // sprintf(buffer, "Alpha: %f, Pitch %f, FOV %f, FOVPixel %f, y_pos %f", getAlphaA(), getPitch(), getFOV(), fov_pixels, y_pos);
-    //  XPLMDrawString(color, -200, 300, buffer, NULL, xplmFont_Basic);
+     char buffer[255];
+     sprintf(buffer, "Alpha: %f, Beta %f, Pitch %f, FOV %f, FOVPixel %f, y_pos %f", getAlphaA(),getBetaA(), getPitch(), getFOV(), fov_pixels, y_pos);
+      XPLMDrawString(color, -200, 300, buffer, NULL, xplmFont_Basic);
 }
 
 void DrawHorizionLines() {

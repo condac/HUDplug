@@ -25,6 +25,8 @@ XPLMDataRef drViewIsExternal;
 XPLMDataRef drBalInd;
 XPLMDataRef drYawStr;
 XPLMDataRef drFOV;
+float fov;
+int fov_notfound = 0;
 XPLMDataRef drGForce;
 
 // torque
@@ -39,6 +41,7 @@ XPLMDataRef drTrqRedHi;
 XPLMDataRef drMaxTrq;
 
 XPLMDataRef drGear;
+XPLMDataRef drTotalWeight;
 
 XPLMDataRef hudVisibleDR = NULL;
 XPLMCommandRef toggleHudCommand = NULL;
@@ -114,7 +117,7 @@ int initDataRefs() {
     //lTmp += findDataRef("sim/weather/wind_direction_degt[0]", &drWindDirection);
     lTmp += findDataRef("sim/flightmodel/position/indicated_airspeed", &drIAS);
 
-    lTmp += findDataRef("sim/cockpit2/gauges/indicators/mach_pilot", &drMachSpeed);
+    lTmp += findDataRef("sim/flightmodel/misc/machno", &drMachSpeed);
     lTmp += findDataRef("sim/flightmodel/position/groundspeed", &drGroundSpeed);
 
     lTmp += findDataRef("sim/flightmodel/position/alpha", &drAlpha);
@@ -137,8 +140,12 @@ int initDataRefs() {
     lTmp += findDataRef("sim/aircraft/controls/acf_trq_max_eng", &drMaxTrq);
     
     lTmp += findDataRef("sim/cockpit/switches/gear_handle_status", &drGear);
+    lTmp += findDataRef("sim/flightmodel/weight/m_total", &drTotalWeight);
 
-    lTmp += findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV);
+    if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
+        fov = 30;
+        fov_notfound = 1;
+    }
     lTmp += registerDataRefs();
 
     return lTmp;
@@ -210,9 +217,15 @@ float getYawStringAngle() {
 }
 
 float getFOV() {
+    if (fov_notfound) {
+        return fov;
+    }
     return XPLMGetDataf(drFOV);
 }
 
+float getTotalWeight() {
+    return XPLMGetDataf(drTotalWeight);
+}
 int getGear() {
     return XPLMGetDatai(drGear);
 }

@@ -12,6 +12,11 @@
 
 #define LANDING_SPEED 145.0f
 
+extern float landing_speed1;
+extern float landing_speed2;
+extern float landing_weight1;
+extern float landing_weight2;
+
 void readConfig();
 int getNrOfLines(char* filename);
 int getNrOfMasters(char* filename);

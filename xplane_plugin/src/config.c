@@ -8,6 +8,11 @@
 
 char filename[512];
 
+float landing_speed1 = 140;
+float landing_speed2 = 180;
+float landing_weight1 = 18000;
+float landing_weight2 = 48000;
+
 void readConfig() {
     debugLog("readConfig \n");
     //FILE* configFile;
@@ -18,16 +23,16 @@ void readConfig() {
     char* lFilePart = XPLMExtractFileAndPath(lDirName);
     const char* lSep = XPLMGetDirectorySeparator();
     if (lFilePart != NULL) {
-       *lFilePart = 0;
-       strcat(lDirName, lSep);
+        *lFilePart = 0;
+        strcat(lDirName, lSep);
     }
     strcat(lDirName, "..");
     strcat(lDirName, lSep);
     sprintf(filename, "%sconfig.txt", lDirName);
-    
+
     debugLog("read file %s \n", filename);
-    
-    int  nrOfLines = 0;
+
+    int nrOfLines = 0;
     //XPLMDebugString("HUDplug.readConfig: getNrOfLines\n");
     nrOfLines = getNrOfLines(filename);
     char test[100];
@@ -36,31 +41,57 @@ void readConfig() {
     XPLMDebugString("HUDplug:config: Done\n");
 }
 
+void parseLine(char* line) {
 
-void parseLine(char * line) {
-    
     if (strncmp("viggen_mode=", line, 12) == 0) {
         //Viggen mode
         int i = 0;
-        XPLMDebugString(line+12);
-        sscanf (line+12, "%d", &i);
+        XPLMDebugString(line + 12);
+        sscanf(line + 12, "%d", &i);
         viggen_mode = i;
     }
     if (strncmp("text_scale=", line, 11) == 0) {
         //text_scale
         float i = 0;
-        XPLMDebugString(line+11);
-        sscanf (line+11, "%f", &i);
+        XPLMDebugString(line + 11);
+        sscanf(line + 11, "%f", &i);
         text_scale = i;
     }
     if (strncmp("hud_scale=", line, 10) == 0) {
         //hud_scale
         float i = 0;
-        XPLMDebugString(line+10);
-        sscanf (line+10, "%f", &i);
+        XPLMDebugString(line + 10);
+        sscanf(line + 10, "%f", &i);
         hud_scale = i;
     }
-    
+    if (strncmp("landing_speed1=", line, 15) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 15);
+        sscanf(line + 15, "%f", &i);
+        landing_speed1 = i;
+    }
+    if (strncmp("landing_speed2=", line, 15) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 15);
+        sscanf(line + 15, "%f", &i);
+        landing_speed2 = i;
+    }
+    if (strncmp("landing_weight1=", line, 16) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 16);
+        sscanf(line + 16, "%f", &i);
+        landing_weight1 = i;
+    }
+    if (strncmp("landing_weight2=", line, 16) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 16);
+        sscanf(line + 16, "%f", &i);
+        landing_weight2 = i;
+    }
 }
 
 #if defined(WINDOWS) || defined(WINDOWS64)

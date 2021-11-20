@@ -38,6 +38,7 @@ float getYawStringAngle();
 float getGroundSpeed();
 float getMachSpeed();
 float getGForce();
+float getTotalWeight();
 
 int getGear();
 
