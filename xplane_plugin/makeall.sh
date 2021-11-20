@@ -69,8 +69,9 @@ make -s clean
 OS=LINUX CFLAGS=-m64 LDFLAGS=-m64 TARGET=$TARGETDIR/64/lin.xpl make -s
 
 # build Windows32 version
-##make clean
-##OS=WINDOWS CC=i686-w64-mingw32-gcc TARGET=$TARGETDIR/32/win.xpl make
+echo "#### Windows 32"
+make -s clean
+OS=WINDOWS CC=i686-w64-mingw32-gcc TARGET=$TARGETDIR/32/win.xpl make -s
 
 # build Windows64 version
 echo "#### Windows64"
@@ -84,10 +85,12 @@ OS=WINDOWS64 CC=x86_64-w64-mingw32-gcc TARGET=$TARGETDIR/64/win.xpl make -s
 # clean up
 ##make clean
 
+
 rm -f target/HUDplug.zip
 
-# Copy exampleconfigs
-cp example*.txt $TARGETDIR/
+# Copy images
+cp res/* $TARGETDIR/64/
+
 cd target
 zip -q -r HUDplug HUDplug
 cd ..

@@ -34,12 +34,15 @@ TARGET ?= mac.xpl
 else ifeq ($(OS), WINDOWS)
 #  sudo apt-get install mingw32 mingw32-binutils mingw32-runtime
 #  sudo apt-get install mono-devel wine
-CC ?= i586-mingw32msvc-gcc
+#  sudo apt install gcc-mingw-w64-i686
+
+
+CC ?= i686-w64-mingw32-gcc
 INC += -ISDK/CHeaders/XPLM -ISDK/CHeaders/Widgets
 CFLAGS += -Wall -O2 -D$(OS) $(INC) -g
 LDFLAGS += -Wl,--version-script=exports.txt -g
 LDDYNFLAGS += -shared
-LIBS += SDK/Libraries/Win/XPLM.lib -lhid -lsetupapi -lwsock32
+LIBS += SDK/Libraries/Win/XPLM.lib -lhid -lsetupapi -lwsock32 -lopengl32 -lglu32
 TARGET ?= win.xpl
 
 else ifeq ($(OS), WINDOWS64)
