@@ -74,3 +74,42 @@ float getLandingSpeed() {
     float speed = ( (mass - landing_weight1) * delta) + landing_speed1;
     return speed;
 }
+
+float to_degrees(float radians) {
+    return radians * (180.0 / M_PI);
+}
+
+float myGetAlpha() {
+    float vx = getVX();
+    float vy = getVY();
+    float vz = getVZ();
+    float pitch = getPitch();
+    
+    float length = sqrt(vy *vy + vx*vx + vz*vz);
+    if (length >1.0) {
+        float alpha = asin(vy/length);
+        alpha = pitch - to_degrees (alpha );
+        return alpha ;
+    } else {
+        return 0.0;
+    }
+    
+}
+
+float myGetBeta() {
+    float beta = getTrueHeading() - myGetHead();
+    if (beta < -180) {
+        beta += 360;
+    }
+    if (beta > 180) {
+        beta -= 360;
+    }
+    return beta;
+}
+
+float myGetHead() {
+    float out = to_degrees ( atan2(-getVX(),getVZ()) ) + 180;
+    
+    return out ;
+}
+

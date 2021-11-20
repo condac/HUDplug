@@ -25,7 +25,7 @@ XPLMDataRef drViewIsExternal;
 XPLMDataRef drBalInd;
 XPLMDataRef drYawStr;
 XPLMDataRef drFOV;
-float fov;
+float fov2;
 int fov_notfound = 0;
 XPLMDataRef drGForce;
 
@@ -143,7 +143,7 @@ int initDataRefs() {
     lTmp += findDataRef("sim/flightmodel/weight/m_total", &drTotalWeight);
 
     if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
-        fov = 30;
+        fov2 = 30;
         fov_notfound = 1;
     }
     lTmp += registerDataRefs();
@@ -218,7 +218,7 @@ float getYawStringAngle() {
 
 float getFOV() {
     if (fov_notfound) {
-        return fov;
+        return fov2;
     }
     return XPLMGetDataf(drFOV);
 }

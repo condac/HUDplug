@@ -20,16 +20,19 @@ void DrawTest() {
 
 void DrawVector() {
     float airspeed = getIAS();
-    float y_pos = CalcFOVAngle(getAlphaA());
-    float x_pos = CalcFOVAngle(getBetaA());
+    float y_pos = CalcFOVAngle(myGetAlpha());
+    float x_pos = CalcFOVAngle(myGetBeta());
     float tail_pos = airspeed - getLandingSpeed();
+    float angle = getRoll();
     int gear = getGear();
     tail_pos = fmin(tail_pos, 40);
     tail_pos = fmax(tail_pos, -40);
     //y_pos = fov_pixels * getAlphaA();
     glColor4fv(color);
 
+    glRotatef(angle, 0, 0, 1);
     glTranslatef(-x_pos, -y_pos, 0);
+    glRotatef(-angle, 0, 0, 1);
 
     DrawCircle(10 * HUD_SCALE);
     glLineWidth(line_width);
@@ -47,12 +50,17 @@ void DrawVector() {
     }
 
     glEnd();
-
+    glRotatef(angle, 0, 0, 1);
     glTranslatef(x_pos, y_pos, 0); // set position back
-
-     char buffer[255];
-     sprintf(buffer, "Alpha: %f, Beta %f, Pitch %f, FOV %f, FOVPixel %f, y_pos %f", getAlphaA(),getBetaA(), getPitch(), getFOV(), fov_pixels, y_pos);
-      XPLMDrawString(color, -200, 300, buffer, NULL, xplmFont_Basic);
+    glRotatef(-angle, 0, 0, 1);
+    
+    char buffer[255];
+    // sprintf(buffer, "Alpha: %f, Beta %f, Pitch %f, FOV %f, FOVPixel %f, y_pos %f", getAlphaA(), getBetaA(), getPitch(), getFOV(), fov_pixels, y_pos);
+    // XPLMDrawString(color, -200, 300, buffer, NULL, xplmFont_Basic);
+    // sprintf(buffer, "Vx: %f, Vy %f, Vz %f, newalpha %f, newbeta %f, heading %f, truehead %f", getVX(), getVY(), getVZ(), myGetAlpha(), myGetBeta(), newhead, 0.0);
+    // XPLMDrawString(color, -200, 350, buffer, NULL, xplmFont_Basic);
+    sprintf(buffer, "LandingSpeed: %f, Mass %f, speed1 %f, speed2 %f, mass1 %f, mass2 %f", getLandingSpeed(), getTotalWeight(), landing_speed1, landing_speed2, landing_weight1, landing_weight2);
+    XPLMDrawString(color, -200, 250, buffer, NULL, xplmFont_Basic);
 }
 
 void DrawHorizionLines() {
@@ -99,7 +107,7 @@ void DrawHorizionLines() {
         glBegin(GL_LINES);
         glVertex2f(40 * HUD_SCALE, yy * HUD_SCALE);
         glVertex2f(200 * HUD_SCALE, yy * HUD_SCALE);
-        
+
         glVertex2f(-40 * HUD_SCALE, yy * HUD_SCALE);
         glVertex2f(-200 * HUD_SCALE, yy * HUD_SCALE);
         glEnd();
@@ -183,7 +191,9 @@ void DrawSpeed() {
     float airspeed = getIAS();
     float groundspeed = getGroundSpeed() * 1.944;
     float mach = getMachSpeed();
-    float tail_pos = airspeed - LANDING_SPEED;
+    float landingspeed = getLandingSpeed();
+    float tail_pos = airspeed - landingspeed;
+    
 
     glColor4fv(color);
 
@@ -193,12 +203,12 @@ void DrawSpeed() {
 
     glVertex2f(SPEED_POS_X * HUD_SCALE, -100 * HUD_SCALE);
     glVertex2f(SPEED_POS_X * HUD_SCALE, 100 * HUD_SCALE);
-    
+
     // Markör för landningshastighet
-    if (airspeed < LANDING_SPEED+50 && airspeed > LANDING_SPEED-50) {
-        tail_pos = -tail_pos*2;
+    if (airspeed < landingspeed + 50 && airspeed > landingspeed - 50) {
+        tail_pos = -tail_pos * 2;
         glVertex2f(SPEED_POS_X * HUD_SCALE, tail_pos * HUD_SCALE);
-        glVertex2f(SPEED_POS_X +10 * HUD_SCALE, tail_pos * HUD_SCALE);
+        glVertex2f(SPEED_POS_X + 10 * HUD_SCALE, tail_pos * HUD_SCALE);
     }
     glVertex2f(SPEED_POS_X * HUD_SCALE, -100 * HUD_SCALE);
     glVertex2f(SPEED_POS_X * HUD_SCALE, 100 * HUD_SCALE);
@@ -221,20 +231,18 @@ void DrawSpeed() {
 
     sprintf(temp, "GS%.0f", groundspeed);
     DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((fontMain.charHeight * text_scale) * 2), 1, color);
-    
-    if (airspeed < LANDING_SPEED+50 && airspeed > LANDING_SPEED-50) {
-        
-        
-        DrawHUDText("L", &fontMain, SPEED_POS_X +10 * HUD_SCALE, tail_pos * HUD_SCALE - ((fontMain.charHeight/2 * text_scale) ), 0, color);
-        
+
+    if (airspeed < landingspeed + 50 && airspeed > landingspeed - 50) {
+
+        DrawHUDText("L", &fontMain, SPEED_POS_X + 10 * HUD_SCALE, tail_pos * HUD_SCALE - ((fontMain.charHeight / 2 * text_scale)), 0, color);
     }
-    
+
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
 
 void DrawAlpha() {
     char temp[20];
-    float alpha = getAlphaA();
+    float alpha = myGetAlpha();
     float gforce = getGForce();
 
     glColor4fv(color);
@@ -284,13 +292,15 @@ void DrawViggen() {
     // Viggen mode
     float airspeed = getIAS();
     float altitude = getAltitude();
-    float alpha = getAlphaA();
+    float alpha = myGetAlpha();
+    float beta = myGetBeta();
     //float gforce = getGForce();
     float mach = getMachSpeed();
     float y_pos = CalcFOVAngle(alpha);
-    float x_pos = CalcFOVAngle(getBetaA());
+    float x_pos = CalcFOVAngle(beta);
     float heading = getHeading();
     float angle = getRoll();
+    float pitch = getPitch();
     char tempText[32];
     float smallTextScale = 0.85;
     float tail_pos = airspeed - LANDING_SPEED;
@@ -298,10 +308,15 @@ void DrawViggen() {
     tail_pos = fmin(tail_pos, 40);
     tail_pos = fmax(tail_pos, -40);
     y_pos = fov_pixels * alpha;
-    
-    glColor4fv(color);
 
+    glColor4fv(color);
+    
+    glPushMatrix();
+    glRotatef(angle, 0, 0, 1);
     glTranslatef(-x_pos, -y_pos, 0);
+    glRotatef(-angle, 0, 0, 1);
+    
+    
 
     DrawCircle(10 * HUD_SCALE);
     glLineWidth(line_width);
@@ -318,11 +333,11 @@ void DrawViggen() {
 
     glEnd();
 
-    glTranslatef(x_pos, y_pos, 0); // set position back
-
+    //glTranslatef(x_pos, y_pos, 0); // set position back
+    glPopMatrix();// set position back
     // Horizontal lines
 
-    y_pos = CalcFOVAngle(getPitch());
+    y_pos = CalcFOVAngle(pitch);
 
     glColor4fv(color);
 
@@ -375,7 +390,7 @@ void DrawViggen() {
     alt = alt / 10;
     alt = alt * 10;
     snprintf(tempText, 13, "%03d", alt);
-    DrawHUDText(tempText, &fontMain, 200 * HUD_SCALE , yy , 1, color);
+    DrawHUDText(tempText, &fontMain, 200 * HUD_SCALE, yy, 1, color);
 
     glPopMatrix();
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
@@ -383,7 +398,7 @@ void DrawViggen() {
     // linjer
     glColor4fv(color);
     for (int i = 5; i < 90; i += 5) {
-        if ((i > getPitch() - 8) && (i < getPitch() + 8)) {
+        if ((i > pitch - 8) && (i < pitch + 8)) {
             glLineWidth(line_width);
             glBegin(GL_LINES);
 
@@ -403,7 +418,7 @@ void DrawViggen() {
         start = -10;
     }
     for (int i = start; i > -90; i -= 5) {
-        if ((i > getPitch() - 8) && (i < getPitch() + 8)) {
+        if ((i > pitch - 8) && (i < pitch + 8)) {
             glLineWidth(line_width);
             glBegin(GL_LINES);
 
@@ -445,7 +460,7 @@ void DrawViggen() {
     glPushMatrix();
     glScalef(smallTextScale, smallTextScale, 0);
     for (int i = 5; i < 90; i += 5) {
-        if ((i > getPitch() - 8) && (i < getPitch() + 8)) {
+        if ((i > pitch - 8) && (i < pitch + 8)) {
 
             sprintf(tempText, "%d", i);
             DrawHUDText(tempText, &fontMain, 200 * HUD_SCALE / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
@@ -456,7 +471,7 @@ void DrawViggen() {
         start = -10;
     }
     for (int i = start; i > -90; i -= 5) {
-        if ((i > getPitch() - 8) && (i < getPitch() + 8)) {
+        if ((i > pitch - 8) && (i < pitch + 8)) {
 
             sprintf(tempText, "%d", i);
             DrawHUDText(tempText, &fontMain, 200 * HUD_SCALE / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
@@ -483,20 +498,15 @@ void DrawViggen() {
     }
     glPopMatrix();
 
-
-    
-
     sprintf(tempText, "$ %.0f", alpha); // $ is replaced with alpha sign in bitmap
     DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((fontMain.charHeight * text_scale) * 2), 1, color);
 
     sprintf(tempText, "%.0f", airspeed);
-    DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) , 1, color);
-    
+    DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE), 1, color);
+
     sprintf(tempText, "M %.2f", mach);
     DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((fontMain.charHeight * text_scale)), 1, color);
 
-    
-    
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 
     glTranslatef(0, y_pos, 0);
