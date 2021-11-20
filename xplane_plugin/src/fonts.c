@@ -182,19 +182,23 @@ int LoadHUDFontTexture(HUDFontProperties* f) {
     int Result = 0;
 #endif
 
-    /// Need to get the actual texture path
-    /// and append the filename to it.
-    char lFileName[512];
+    
+    char lDirName[512];
     // find out plugin path
     XPLMPluginID lMyID = XPLMGetMyID();
-    XPLMGetPluginInfo(lMyID, NULL, lFileName, NULL, NULL);
-    char* lFilePart = XPLMExtractFileAndPath(lFileName);
+    XPLMGetPluginInfo(lMyID, NULL, lDirName, NULL, NULL);
+    char* lFilePart = XPLMExtractFileAndPath(lDirName);
     const char* lSep = XPLMGetDirectorySeparator();
     if (lFilePart != NULL) {
-        *lFilePart = 0;
-        strcat(lFileName, lSep);
+       *lFilePart = 0;
+       strcat(lDirName, lSep);
     }
-    strcpy(TextureFileName, lFileName);
+    strcat(lDirName, "..");
+    strcat(lDirName, lSep);
+    strcat(lDirName, "res");
+    strcat(lDirName, lSep);
+    
+    strcpy(TextureFileName, lDirName);
     strcat(TextureFileName, f->fileName);
 
 #if APL && __MACH__

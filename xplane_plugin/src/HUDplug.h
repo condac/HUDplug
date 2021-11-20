@@ -94,7 +94,7 @@ XPLM200—X-Plane 9.00 & newer
 //#define XPLM300 1
 //#define XPLM301 1
 
-#include "settings.h"
+#include "config.h"
 
 
 #include "XPLMDisplay.h" // download xplane SDK and put in SDK folder https://developer.x-plane.com/sdk/plugin-sdk-downloads/
@@ -103,6 +103,8 @@ XPLM200—X-Plane 9.00 & newer
 #include "XPLMDataAccess.h"
 #include "XPLMProcessing.h"
 #include "XPLMMenus.h"
+#include "XPLMPlugin.h"
+#include "XPLMPlanes.h"
 
 void MyMenuHandlerCallback(void* inMenuRef, void* inItemRef);
 

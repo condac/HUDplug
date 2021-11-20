@@ -7,7 +7,7 @@
 #include "XPLMPlugin.h"
 #include "XPLMPlanes.h"
 
-void debugLog(const char* fmt, ...);
+
 
 int findDataRef(const char* name, XPLMDataRef* result);
 

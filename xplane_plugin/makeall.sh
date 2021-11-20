@@ -89,7 +89,7 @@ OS=WINDOWS64 CC=x86_64-w64-mingw32-gcc TARGET=$TARGETDIR/64/win.xpl make -s
 rm -f target/HUDplug.zip
 
 # Copy images
-cp res/* $TARGETDIR/64/
+cp -r res $TARGETDIR/
 
 cd target
 zip -q -r HUDplug HUDplug

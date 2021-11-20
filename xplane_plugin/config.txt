@@ -1,0 +1,4 @@
+viggen_mode=0
+text_scale=1.1
+hud_scale=1.1
+

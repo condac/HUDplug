@@ -244,7 +244,7 @@ void DrawAlpha() {
     sprintf(temp, "G %.1f", gforce);
     DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((fontMain.charHeight * text_scale)), 1, color);
 
-    sprintf(temp, "a %.0f", alpha);
+    sprintf(temp, "$ %.0f", alpha);
     DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((fontMain.charHeight * text_scale) * 2), 1, color);
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
@@ -284,17 +284,21 @@ void DrawViggen() {
     // Viggen mode
     float airspeed = getIAS();
     float altitude = getAltitude();
-    float y_pos = CalcFOVAngle(getAlphaA());
+    float alpha = getAlphaA();
+    //float gforce = getGForce();
+    float mach = getMachSpeed();
+    float y_pos = CalcFOVAngle(alpha);
     float x_pos = CalcFOVAngle(getBetaA());
     float heading = getHeading();
     float angle = getRoll();
-    char tempText[13];
+    char tempText[32];
     float smallTextScale = 0.85;
     float tail_pos = airspeed - LANDING_SPEED;
     int gear = getGear();
     tail_pos = fmin(tail_pos, 40);
     tail_pos = fmax(tail_pos, -40);
-    y_pos = fov_pixels * getAlphaA();
+    y_pos = fov_pixels * alpha;
+    
     glColor4fv(color);
 
     glTranslatef(-x_pos, -y_pos, 0);
@@ -477,8 +481,22 @@ void DrawViggen() {
             DrawHUDText(tempText, &fontMain, offset / smallTextScale, compas_y / smallTextScale * HUD_SCALE, 1, color);
         }
     }
-
     glPopMatrix();
+
+
+    
+
+    sprintf(tempText, "$ %.0f", alpha); // $ is replaced with alpha sign in bitmap
+    DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((fontMain.charHeight * text_scale) * 2), 1, color);
+
+    sprintf(tempText, "%.0f", airspeed);
+    DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) , 1, color);
+    
+    sprintf(tempText, "M %.2f", mach);
+    DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((fontMain.charHeight * text_scale)), 1, color);
+
+    
+    
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 
     glTranslatef(0, y_pos, 0);

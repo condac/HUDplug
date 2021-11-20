@@ -65,7 +65,7 @@ OBJ := $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 
 
-all: HUDplug.xpl copy
+all: HUDplug.xpl 
 
 OBJS = HUDplug.o display.o  statusDisplay.o  config.o
 
@@ -73,10 +73,7 @@ HUDplug.xpl: $(OBJ)
 	$(CC) $(LDFLAGS) $(LDDYNFLAGS) $(OBJ) -o HUDplug.xpl $(LIBS)
 	cp HUDplug.xpl $(TARGET)
 
-copy:
-ifeq ($(OS), WINDOWS)
-	./cp_win32.sh HUDplug.xpl
-endif
+
 
 # %.o: ./src/%.c HUDplug.h Makefile
 # 	$(CC) $(CFLAGS) -c $<

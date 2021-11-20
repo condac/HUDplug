@@ -79,13 +79,13 @@ int BitmapLoader(const char* FilePath, IMAGEDATA* ImageData, int pChannels) {
 
     BitmapFile = fopen(FilePath, "rb");
     if (BitmapFile != NULL) {
-        debugLog("true fopen \n");
+        //debugLog("true fopen \n");
 
         if (fread(&Header, sizeof(Header), 1, BitmapFile) == 1) {
-            debugLog("true fread1 \n");
+            //debugLog("true fread1 \n");
             if (fread(&ImageInfo, sizeof(ImageInfo), 1, BitmapFile) == 1) {
-                debugLog("true fread2 \n");
-                debugLog("Header.bfType %c  %c %d %d %d \n", (Header.bfType & 0xff), (Header.bfType >> 8), ImageInfo.biBitCount, ImageInfo.biWidth, ImageInfo.biHeight);
+                //debugLog("true fread2 \n");
+                //debugLog("Header.bfType %c  %c %d %d %d \n", (Header.bfType & 0xff), (Header.bfType >> 8), ImageInfo.biBitCount, ImageInfo.biWidth, ImageInfo.biHeight);
 /// Handle Header endian.
 #if APL
                 SwapEndian(&Header.bfSize);
@@ -96,7 +96,7 @@ int BitmapLoader(const char* FilePath, IMAGEDATA* ImageData, int pChannels) {
                 SwapEndian(&ImageInfo.biHeight);
                 SwapEndian(&ImageInfo.biBitCount);
 #endif
-                debugLog("Header.bfType %c  %c %d %d %d \n", (Header.bfType & 0xff), (Header.bfType >> 8), ImageInfo.biBitCount, ImageInfo.biWidth, ImageInfo.biHeight);
+                //debugLog("Header.bfType %c  %c %d %d %d \n", (Header.bfType & 0xff), (Header.bfType >> 8), ImageInfo.biBitCount, ImageInfo.biWidth, ImageInfo.biHeight);
                 /// Make sure that it is a bitmap.
 #if APL && defined(__POWERPC__)
 
@@ -106,18 +106,21 @@ int BitmapLoader(const char* FilePath, IMAGEDATA* ImageData, int pChannels) {
 #endif
 
                     (ImageInfo.biBitCount == 24) && (ImageInfo.biWidth > 0) && (ImageInfo.biHeight > 0)) {
-                    debugLog("true header1 \n");
+                    //debugLog("true header1 \n");
                     /// Sandy Barbour - I have found that "Header.bfSize" does not always
                     /// agree with the actual file size and can sometimes be
                     /// "ImageInfo.biSize"  smaller. So add it in for good measure
                     if ((Header.bfSize + ImageInfo.biSize - Header.bfOffBits) >= (ImageInfo.biWidth * ImageInfo.biHeight * 3)) {
-                        debugLog("true header2 \n");
+                        //debugLog("true header2 \n");
                         Padding = (ImageInfo.biWidth * 3 + 3) & ~3;
                         Padding -= ImageInfo.biWidth * 3;
+                        
 
                         ImageData->Width = ImageInfo.biWidth;
                         ImageData->Height = ImageInfo.biHeight;
                         ImageData->Padding = Padding;
+                        
+                        debugLog("Padding %d biwidth %d offbits %d \n", Padding, ImageInfo.biWidth, Header.bfOffBits);
 
                         /// Allocate memory for the actual image.
                         if (pChannels < 1 || pChannels > 4)
@@ -132,15 +135,23 @@ int BitmapLoader(const char* FilePath, IMAGEDATA* ImageData, int pChannels) {
                         ImageData->pData = (unsigned char*)malloc(lTexDataSize);
                         lLineData = (unsigned char*)malloc(ImageInfo.biWidth * 3 + Padding);
                         if (ImageData->pData != NULL && lLineData != NULL) {
-                            debugLog("true ImageData \n");
+                            //debugLog("true ImageData \n");
                             /// Get the actual image - line by line
+                            
+                            // Close file and open and move to acual start position of pixelarray as defined by header data Header.bfOffBits
+                            debugLog("tell innan %d \n", ftell(BitmapFile));
+                            fclose(BitmapFile);
+                            BitmapFile = fopen(FilePath, "rb");
+                            char junk[1000];
+                            fread(junk, Header.bfOffBits, 1, BitmapFile);
+                            debugLog("tell efter %d \n", ftell(BitmapFile));
                             lPtr = ImageData->pData;
                             RetCode = 1;
                             for (int i = 0; i < ImageInfo.biHeight; i++) {
-                                debugLog("for biHeight \n");
+                                //debugLog("for biHeight \n");
                                 // read each line and convert 3 BMP channels to pChanells
                                 if (fread(lLineData, ImageInfo.biWidth * 3 + Padding, 1, BitmapFile) != 1) {
-                                    debugLog("if fread  lLineData \n");
+                                    //debugLog("if fread  lLineData \n");
                                     RetCode = 0;
                                     break;
                                 }

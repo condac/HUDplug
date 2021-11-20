@@ -119,6 +119,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     XPLMAppendMenuItem(myMenu, "Color Red", (void*)7, 1);
     XPLMAppendMenuItem(myMenu, "Color Green Transparent", (void*)8, 1);
     
+    XPLMAppendMenuItem(myMenu, "Read Config", (void*)19, 1);
     XPLMAppendMenuItem(myMenu, "Viggen Mode", (void*)20, 1);
     /* Look up our data ref.  You find the string name of the data ref
      * in the master list of data refs, including in HTML form in the
@@ -134,6 +135,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     statusDisplayInit();
 
     XPLMDebugString("HUDplug:read config\n");
+    readConfig();
 
     //asock = createUDPSocket("192.168.0.105", 34555);
     /* Register our callback for once a second.  Positive intervals
@@ -230,6 +232,10 @@ void MyMenuHandlerCallback(void* inMenuRef, void* inItemRef) {
         color[2] = 0.0;
         color[3] = 0.50;
     }
+    if (incommand == 19) {
+        // 
+        readConfig();
+    }
     if (incommand == 20) {
         // transparent
         viggen_mode = !viggen_mode;
@@ -298,9 +304,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     
     if (viggen_mode) {
         DrawViggen();
-        TranslateToCenter();
-        DrawSpeed();
-        DrawAlpha();
+        
     } else {
         TranslateToCenter();
         DrawTest();
