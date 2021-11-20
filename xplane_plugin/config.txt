@@ -1,4 +1,10 @@
 viggen_mode=0
 text_scale=1.1
-hud_scale=1.1
-
+hud_scale=0.7
+landing_speed1=130
+landing_speed2=200
+landing_weight1=9500
+landing_weight2=18500
+draw_glass=1
+glass_type=0
+glass_type2=4

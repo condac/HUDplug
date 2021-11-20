@@ -11,7 +11,6 @@
 #include "XPLMGraphics.h"
 #include <string.h>
 
-
 //#ifndef XPLM300
 //      #error This is made to be compiled against the XPLM300 SDK
 //#endif
@@ -42,7 +41,6 @@ static XPLMDataRef testDataRef = NULL;
 
 int TeensyControls_show = 0;
 int statusDisplayShow = 0;
-
 
 PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     strcpy(outName, "HUDplug");
@@ -96,7 +94,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     /* First we put a new menu item into the plugin menu.
      * This menu item will contain a submenu for us. */
     mySubMenuItem = XPLMAppendMenuItem(XPLMFindPluginsMenu(), /* Put in plugins menu */
-                                       "HUDplug",           /* Item Title */
+                                       "HUDplug",             /* Item Title */
                                        0,                     /* Item Ref */
                                        1);                    /* Force English */
 
@@ -118,7 +116,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     XPLMAppendMenuItem(myMenu, "Color Green Dark", (void*)6, 1);
     XPLMAppendMenuItem(myMenu, "Color Red", (void*)7, 1);
     XPLMAppendMenuItem(myMenu, "Color Green Transparent", (void*)8, 1);
-    
+
     XPLMAppendMenuItem(myMenu, "Read Config", (void*)19, 1);
     XPLMAppendMenuItem(myMenu, "Viggen Mode", (void*)20, 1);
     /* Look up our data ref.  You find the string name of the data ref
@@ -148,11 +146,11 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     initGlResources();
     initDataRefs();
     XPLMRegisterDrawCallback(MyDrawCallback,
-                             xplm_Phase_Window, /* Draw when sim is doing windows */
-                             1,                 /* Before plugin windows */
-                             NULL);             /* No refcon needed */
+                             xplm_Phase_FirstCockpit, /* Draw when sim is doing windows */
+                             1,                       /* Before plugin windows */
+                             NULL);                   /* No refcon needed */
 
-    return 1;                                            //g_window != NULL;
+    return 1; //g_window != NULL;
 }
 
 PLUGIN_API void XPluginStop(void) {
@@ -161,7 +159,7 @@ PLUGIN_API void XPluginStop(void) {
     XPLMDestroyWindow(g_window);
     g_window = NULL;
 #endif
-   XPLMUnregisterDrawCallback(MyDrawCallback, xplm_Phase_Window, 1, NULL);
+    XPLMUnregisterDrawCallback(MyDrawCallback, xplm_Phase_Window, 1, NULL);
 }
 
 PLUGIN_API void XPluginDisable(void) {
@@ -219,11 +217,11 @@ void MyMenuHandlerCallback(void* inMenuRef, void* inItemRef) {
         color[3] = 1.0;
     }
     if (incommand == 7) {
-         // red
-         color[0] = 1.0;
-         color[1] = 0.0;
-         color[2] = 0.0;
-         color[3] = 1.0;
+        // red
+        color[0] = 1.0;
+        color[1] = 0.0;
+        color[2] = 0.0;
+        color[3] = 1.0;
     }
     if (incommand == 8) {
         // transparent
@@ -233,7 +231,7 @@ void MyMenuHandlerCallback(void* inMenuRef, void* inItemRef) {
         color[3] = 0.50;
     }
     if (incommand == 19) {
-        // 
+        //
         readConfig();
     }
     if (incommand == 20) {
@@ -249,12 +247,6 @@ void MyMenuHandlerCallback(void* inMenuRef, void* inItemRef) {
     //XPLMSetDatai(gDataRef,(int) inItemRef);
     //}
 }
-
-
-
-
-
-
 
 int ifCharInArray(char* str, char val) {
     char x;
@@ -279,12 +271,9 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 
     //float elapsed = XPLMGetElapsedTime();
 
-    
-
     /* Return 1.0 to indicate that we want to be called again in 1 second. */
     return 0.01;
 }
-
 
 int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
 
@@ -298,32 +287,41 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     // }
 
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+    //glClearColor(0.0, 0.0, 0.0, 0.0);
+    //XPLMSetGraphicsState(0 /*Fog*/, 1 /*TexUnits*/, 0 /*Lighting*/, 1 /*AlphaTesting*/, 1 /*AlphaBlending*/, 0 /*DepthTesting*/, 0 /*DepthWriting*/);
+
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     CalculateCenter();
     glPushMatrix();
     glScalef(hud_scale, hud_scale, 0);
-    
+
     if (viggen_mode) {
+        TranslateToCenter();
+        DrawGlass();
         DrawViggen();
-        
+
     } else {
         TranslateToCenter();
+        DrawGlass();
         DrawTest();
-        
+
         TranslateToCenter();
         DrawVector();
-        
+
         TranslateToCenter();
         DrawSpeed();
         DrawAlpha();
-        
+
         TranslateToCenter();
         DrawAltitude();
-        
+
         TranslateToCenter();
         DrawHorizionLines();
     }
-    
-    
+
     glPopMatrix();
     // /* Do the actual drawing.  use GL_LINES to draw sets of discrete lines.
     //  * Each one will go 100 meters in any direction from the plane. */
@@ -349,7 +347,6 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //     DrawTorque(lTorqs);
     // }
     // DrawTexts();
-    
+
     return 1;
 }
-

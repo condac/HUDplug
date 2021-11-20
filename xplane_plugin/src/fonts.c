@@ -63,7 +63,7 @@ HUDFontProperties fontMain = {
     10,          //colsCount
     24,          //charWidth
     24,          //charHeight
-    -10,          //spacing
+    -10,         //spacing
     256          //texSize
 };
 
@@ -110,8 +110,8 @@ void DrawHUDText(const char* pValue, HUDFontProperties* f, int pX, int pY, char 
     glColor4f(color[0], color[1], color[2], color[3]);
     glPushMatrix();
     glScalef(text_scale, text_scale, 0);
-    pX = pX /text_scale;
-    pY = pY /text_scale;
+    pX = pX / text_scale;
+    pY = pY / text_scale;
     int lLen = strlen(pValue);
     if (pAllign >= 0) { // center+right
         int textWidth = getTextWidth(f, lLen);
@@ -182,7 +182,6 @@ int LoadHUDFontTexture(HUDFontProperties* f) {
     int Result = 0;
 #endif
 
-    
     char lDirName[512];
     // find out plugin path
     XPLMPluginID lMyID = XPLMGetMyID();
@@ -190,14 +189,14 @@ int LoadHUDFontTexture(HUDFontProperties* f) {
     char* lFilePart = XPLMExtractFileAndPath(lDirName);
     const char* lSep = XPLMGetDirectorySeparator();
     if (lFilePart != NULL) {
-       *lFilePart = 0;
-       strcat(lDirName, lSep);
+        *lFilePart = 0;
+        strcat(lDirName, lSep);
     }
     strcat(lDirName, "..");
     strcat(lDirName, lSep);
     strcat(lDirName, "res");
     strcat(lDirName, lSep);
-    
+
     strcpy(TextureFileName, lDirName);
     strcat(TextureFileName, f->fileName);
 
@@ -245,4 +244,10 @@ void SetGLText(void) {
     XPLMSetGraphicsState(0 /*Fog*/, 1 /*TexUnits*/, 0 /*Lighting*/, 0 /*AlphaTesting*/, 1 /*AlphaBlending*/, 0 /*DepthTesting*/, 0 /*DepthWriting*/);
     //glBlendFunc(GL_ONE, GL_ONE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void SetGLTransparentLines(void) {
+    XPLMSetGraphicsState(0 /*Fog*/, 0 /*TexUnits*/, 0 /*Lighting*/, 0 /*AlphaTesting*/, 1 /*AlphaBlending*/, 0 /*DepthTesting*/, 0 /*DepthWriting*/);
+    //glBlendFunc(GL_ONE, GL_ONE);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

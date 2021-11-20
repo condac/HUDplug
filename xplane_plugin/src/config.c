@@ -13,6 +13,14 @@ float landing_speed2 = 180;
 float landing_weight1 = 18000;
 float landing_weight2 = 48000;
 
+float glass_width = 1000;
+float glass_height = 500;
+float glass_x;
+float glass_y;
+int draw_glass = 1;
+int glass_type = 6;
+int glass_type2 = 4;
+
 void readConfig() {
     debugLog("readConfig \n");
     //FILE* configFile;
@@ -91,6 +99,27 @@ void parseLine(char* line) {
         XPLMDebugString(line + 16);
         sscanf(line + 16, "%f", &i);
         landing_weight2 = i;
+    }
+    if (strncmp("draw_glass=", line, 11) == 0) {
+        //hud_scale
+        int i = 0;
+        XPLMDebugString(line + 11);
+        sscanf(line + 11, "%d", &i);
+        draw_glass = i;
+    }
+    if (strncmp("glass_type=", line, 11) == 0) {
+        //hud_scale
+        int i = 0;
+        XPLMDebugString(line + 11);
+        sscanf(line + 11, "%d", &i);
+        glass_type = i;
+    }
+    if (strncmp("glass_type2=", line, 12) == 0) {
+        //hud_scale
+        int i = 0;
+        XPLMDebugString(line + 12);
+        sscanf(line + 12, "%d", &i);
+        glass_type2 = i;
     }
 }
 

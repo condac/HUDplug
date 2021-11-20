@@ -7,3 +7,4 @@ void DrawAltitude();
 void DrawSpeed();
 void DrawAlpha();
 void DrawViggen();
+void DrawGlass();

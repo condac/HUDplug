@@ -71,12 +71,16 @@
 #if LIN
 #    include <GL/gl.h> // apt install mesa-common-dev
 #    include <GL/glu.h>
+#    include <GL/glext.h>
+
 #elif __GNUC__
 #    include <GL/gl.h>
 #    include <GL/glu.h>
+#    include <GL/glext.h>
 #else
 #    include <GL/gl.h>
 #    include <GL/glu.h>
+#    include <GL/glext.h>
 #endif
 
 #define FALSE 0
@@ -95,7 +99,6 @@ XPLM200—X-Plane 9.00 & newer
 //#define XPLM301 1
 
 #include "config.h"
-
 
 #include "XPLMDisplay.h" // download xplane SDK and put in SDK folder https://developer.x-plane.com/sdk/plugin-sdk-downloads/
 #include "XPLMGraphics.h"

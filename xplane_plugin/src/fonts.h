@@ -16,7 +16,6 @@ typedef struct HUDFontProperties {
     int texSize;
 } HUDFontProperties;
 
-
 extern HUDFontProperties fontBig;
 
 // HUDFontProperties fontSmall = {
@@ -36,8 +35,8 @@ extern HUDFontProperties fontMain;
 
 void LoadFontTextures(void);
 void CreateHUDFont(HUDFontProperties* f);
-void DrawHUDText(const char* pValue, HUDFontProperties* f, int pX, int pY, char pAllign, float *color);
-void DrawHUDNumber(int pValue, HUDFontProperties* f, int pDigits, int pX, int pY, char pAllign, float *color);
+void DrawHUDText(const char* pValue, HUDFontProperties* f, int pX, int pY, char pAllign, float* color);
+void DrawHUDNumber(int pValue, HUDFontProperties* f, int pDigits, int pX, int pY, char pAllign, float* color);
 void DrawTexts(void);
 void InitFonts(void);
 int LoadHUDFontTexture(HUDFontProperties* f);
@@ -45,5 +44,6 @@ HUDFontProperties* GetBigFont(void);
 HUDFontProperties* GetSmallFont(void);
 int getTextWidth(HUDFontProperties* f, int numberOfChars);
 void SetGLText(void);
+void SetGLTransparentLines(void);
 
 #endif
