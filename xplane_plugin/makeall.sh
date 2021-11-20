@@ -88,6 +88,9 @@ OS=WINDOWS64 CC=x86_64-w64-mingw32-gcc TARGET=$TARGETDIR/64/win.xpl make -s
 
 rm -f target/HUDplug.zip
 
+# copy config file
+cp -r config.txt $TARGETDIR/config_example.txt
+
 # Copy images
 cp -r res $TARGETDIR/
 
