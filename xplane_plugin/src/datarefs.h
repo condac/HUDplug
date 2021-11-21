@@ -38,6 +38,7 @@ float getMachSpeed();
 float getGForce();
 float getTotalWeight();
 float getThrottlePos();
+int getSpeedBrake();
 
 int getGear();
 

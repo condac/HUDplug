@@ -43,6 +43,7 @@ XPLMDataRef drMaxTrq;
 
 XPLMDataRef drGear;
 XPLMDataRef drTotalWeight;
+XPLMDataRef drSpeedBrake;
 
 XPLMDataRef hudVisibleDR = NULL;
 XPLMCommandRef toggleHudCommand = NULL;
@@ -141,6 +142,7 @@ int initDataRefs() {
     lTmp += findDataRef("sim/cockpit/switches/gear_handle_status", &drGear);
     lTmp += findDataRef("sim/flightmodel/weight/m_total", &drTotalWeight);
     lTmp += findDataRef("sim/cockpit2/engine/actuators/throttle_ratio_all", &drThrottlePos);
+    lTmp += findDataRef("sim/cockpit/warnings/annunciators/speedbrake", &drSpeedBrake);
 
     if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
         fov2 = 30;
@@ -231,6 +233,9 @@ float getThrottlePos() {
 }
 int getGear() {
     return XPLMGetDatai(drGear);
+}
+int getSpeedBrake() {
+    return XPLMGetDatai(drSpeedBrake);
 }
 //int getCurrentView() {
 //  return XPLMGetDatai(drCurrentView);

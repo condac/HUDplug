@@ -374,7 +374,7 @@ void DrawSpeed() {
     glEnd();
 
     SetGLText(); // turn on blending
-    sprintf(temp, "%.0f", airspeed);
+    sprintf(temp, "%.0f", knotsTokmh(airspeed));
     DrawHUDText(temp, &fontMain, (SPEED_POS_X - 20) * HUD_SCALE, (SPEED_POS_Y * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 1, color);
 
     sprintf(temp, "M %.2f", mach);
@@ -386,6 +386,11 @@ void DrawSpeed() {
     if (airspeed < landingspeed + 50 && airspeed > landingspeed - 50) {
 
         DrawHUDText("L", &fontMain, SPEED_POS_X + 10 * HUD_SCALE, SPEED_POS_Y + tail_pos * HUD_SCALE - ((fontMain.charHeight / 2 * text_scale)), 0, color);
+    }
+    if (getSpeedBrake()) {
+        sprintf(temp, "LUFTBROMS UTE");
+        DrawHUDText(temp, &fontMain, (0)*HUD_SCALE, ((200) * HUD_SCALE) - ((fontMain.charHeight * text_scale) * 2), 1, color);
+
     }
 
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
@@ -435,7 +440,7 @@ void DrawAltitude() {
     glEnd();
 
     SetGLText(); // turn on blending
-    sprintf(temp, "%.0f", altitude);
+    sprintf(temp, "%.0f", feetTom(altitude) );
     DrawHUDText(temp, &fontMain, (ALT_POS_X - 20) * HUD_SCALE, (ALT_POS_Y * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 1, color);
 
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
@@ -539,7 +544,7 @@ void DrawViggen() {
     SetGLText(); // turn on blending
     //glScalef(smallTextScale, smallTextScale, 0);
 
-    int alt = altitude * 0.3048;
+    int alt = altitude;// * 0.3048;
     alt = alt / 10;
     alt = alt * 10;
     snprintf(tempText, 13, "%03d", alt);

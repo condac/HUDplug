@@ -60,6 +60,15 @@ void CalculateColors() {
     }
 }
 
+float knotsTokmh(float in) {
+    return in*1.85200;
+}
+
+
+float feetTom(float in) {
+    return in*0.3048;
+}
+
 void TranslateToCenter(void) {
 
     glTranslated(screen_width / 2, screen_height / 2, 0);

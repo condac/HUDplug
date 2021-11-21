@@ -23,6 +23,11 @@ float myGetAlpha();
 
 float myGetBeta();
 float myGetHead();
+float knotsTokmh(float in);
+
+
+float feetTom(float in);
+
 
 void CalculateColors();
 
