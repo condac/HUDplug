@@ -22,6 +22,7 @@ extern float glass_y;
 extern int draw_glass;
 extern int glass_type;
 extern int glass_type2;
+extern int th1;
 
 void readConfig();
 int getNrOfLines(char* filename);

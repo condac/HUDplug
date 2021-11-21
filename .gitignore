@@ -4,3 +4,4 @@ SDK/*
 *.zip
 target/
 *.gch
+SDK*

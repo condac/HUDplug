@@ -28,6 +28,7 @@ XPLMDataRef drFOV;
 float fov2;
 int fov_notfound = 0;
 XPLMDataRef drGForce;
+XPLMDataRef drThrottlePos;
 
 // torque
 XPLMDataRef drTrq;
@@ -54,8 +55,6 @@ float tqYellowHi;
 float tqRedLo;
 float tqRedHi;
 float tqMax;
-
-
 
 int findDataRef(const char* name, XPLMDataRef* result) {
     *result = XPLMFindDataRef(name);
@@ -138,9 +137,10 @@ int initDataRefs() {
     lTmp += findDataRef("sim/aircraft/limits/red_lo_TRQ", &drTrqRedLo);
     lTmp += findDataRef("sim/aircraft/limits/red_hi_TRQ", &drTrqRedHi);
     lTmp += findDataRef("sim/aircraft/controls/acf_trq_max_eng", &drMaxTrq);
-    
+
     lTmp += findDataRef("sim/cockpit/switches/gear_handle_status", &drGear);
     lTmp += findDataRef("sim/flightmodel/weight/m_total", &drTotalWeight);
+    lTmp += findDataRef("sim/cockpit2/engine/actuators/throttle_ratio_all", &drThrottlePos);
 
     if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
         fov2 = 30;
@@ -225,6 +225,9 @@ float getFOV() {
 
 float getTotalWeight() {
     return XPLMGetDataf(drTotalWeight);
+}
+float getThrottlePos() {
+    return XPLMGetDataf(drThrottlePos);
 }
 int getGear() {
     return XPLMGetDatai(drGear);

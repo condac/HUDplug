@@ -7,8 +7,6 @@
 #include "XPLMPlugin.h"
 #include "XPLMPlanes.h"
 
-
-
 int findDataRef(const char* name, XPLMDataRef* result);
 
 int registerDataRefs();
@@ -39,6 +37,7 @@ float getGroundSpeed();
 float getMachSpeed();
 float getGForce();
 float getTotalWeight();
+float getThrottlePos();
 
 int getGear();
 

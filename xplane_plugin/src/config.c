@@ -20,6 +20,7 @@ float glass_y;
 int draw_glass = 1;
 int glass_type = 6;
 int glass_type2 = 4;
+int th1 = 0;
 
 void readConfig() {
     debugLog("readConfig \n");
@@ -120,6 +121,13 @@ void parseLine(char* line) {
         XPLMDebugString(line + 12);
         sscanf(line + 12, "%d", &i);
         glass_type2 = i;
+    }
+    if (strncmp("th1=", line, 4) == 0) {
+        //hud_scale
+        int i = 0;
+        XPLMDebugString(line + 4);
+        sscanf(line + 4, "%d", &i);
+        th1 = i;
     }
 }
 

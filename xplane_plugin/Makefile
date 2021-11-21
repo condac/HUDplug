@@ -38,11 +38,11 @@ else ifeq ($(OS), WINDOWS)
 
 
 CC ?= i686-w64-mingw32-gcc
-INC += -ISDK/CHeaders/XPLM -ISDK/CHeaders/Widgets
+INC += -ISDK2/CHeaders/XPLM -ISDK2/CHeaders/Widgets
 CFLAGS += -Wall -O2 -D$(OS) $(INC) -g
 LDFLAGS += -Wl,--version-script=exports.txt -g
 LDDYNFLAGS += -shared
-LIBS += SDK/Libraries/Win/XPLM.lib -lhid -lsetupapi -lwsock32 -lopengl32 -lglu32
+LIBS += SDK2/Libraries/Win/XPLM.lib -lhid -lsetupapi -lwsock32 -lopengl32 -lglu32
 TARGET ?= win.xpl
 
 else ifeq ($(OS), WINDOWS64)

@@ -19,9 +19,11 @@ void DrawCircle(int radius);
 
 float CalcFOVAngle(float input);
 float getLandingSpeed();
-float myGetAlpha() ;
+float myGetAlpha();
 
-float myGetBeta() ;
+float myGetBeta();
 float myGetHead();
+
+void CalculateColors();
 
 #endif
