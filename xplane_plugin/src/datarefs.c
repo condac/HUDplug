@@ -44,8 +44,11 @@ XPLMDataRef drMaxTrq;
 XPLMDataRef drGear;
 XPLMDataRef drTotalWeight;
 XPLMDataRef drSpeedBrake;
+XPLMDataRef drSpeedBrakeAnalog;
 
 XPLMDataRef hudVisibleDR = NULL;
+XPLMDataRef stabilisatorStatusDR = NULL;
+int stabilisatorStatusValue = 0;
 XPLMCommandRef toggleHudCommand = NULL;
 
 int numberOfEngines = 1;
@@ -94,6 +97,31 @@ int registerDataRefs() {
         return -1;
     else {
         XPLMSetDatai(hudVisibleDR, 0);
+        //return 0;
+    }
+    stabilisatorStatusDR = XPLMRegisterDataAccessor("HUDplug/stabilisatorStatus",
+                                                    xplmType_Int, // The types we support
+                                                    1,            // Writable
+                                                    GetStabilisatorStatusCB,
+                                                    SetStabilisatorStatusCB, // Integer accessors
+                                                    NULL,
+                                                    NULL, // Float accessors
+                                                    NULL,
+                                                    NULL, // Doubles accessors
+                                                    NULL,
+                                                    NULL, // Int array accessors
+                                                    NULL,
+                                                    NULL, // Float array accessors
+                                                    NULL,
+                                                    NULL, // Raw data accessors
+                                                    NULL,
+                                                    NULL); // Refcons not used
+    // Find and intialize our dataref
+    stabilisatorStatusDR = XPLMFindDataRef("HUDplug/stabilisatorStatus");
+    if (stabilisatorStatusDR == NULL)
+        return -1;
+    else {
+        XPLMSetDatai(stabilisatorStatusDR, 0);
         return 0;
     }
 }
@@ -143,6 +171,7 @@ int initDataRefs() {
     lTmp += findDataRef("sim/flightmodel/weight/m_total", &drTotalWeight);
     lTmp += findDataRef("sim/cockpit2/engine/actuators/throttle_ratio_all", &drThrottlePos);
     lTmp += findDataRef("sim/cockpit/warnings/annunciators/speedbrake", &drSpeedBrake);
+    lTmp += findDataRef("sim/cockpit2/controls/speedbrake_ratio", &drSpeedBrakeAnalog);
 
     if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
         fov2 = 30;
@@ -235,8 +264,20 @@ int getGear() {
     return XPLMGetDatai(drGear);
 }
 int getSpeedBrake() {
+    if (XPLMGetDataf(drSpeedBrakeAnalog) > 0.0) {
+        return 1;
+    } else {
+        return 0;
+    }
     return XPLMGetDatai(drSpeedBrake);
 }
+int getStabStatus() {
+    return XPLMGetDatai(stabilisatorStatusDR);
+}
+void setStabStatus(int value) {
+    XPLMSetDatai(stabilisatorStatusDR, value);
+}
+
 //int getCurrentView() {
 //  return XPLMGetDatai(drCurrentView);
 //}
@@ -250,5 +291,14 @@ int GetHudVisibleCB(void* inRefcon) {
 }
 
 void SetHudVisibleCB(void* inRefcon, int inValue) {
+    //visible = inValue
+}
+
+int GetStabilisatorStatusCB(void* inRefcon) {
+    return stabilisatorStatusValue;
+}
+
+void SetStabilisatorStatusCB(void* inRefcon, int inValue) {
+    stabilisatorStatusValue = inValue;
     //visible = inValue
 }

@@ -55,16 +55,16 @@ HUDFontProperties fontSmall = {
     256          //texSize
 };
 HUDFontProperties fontMain = {
-    "arial.bmp", //fileName
-    ' ',         // firstChar
-    0,           //texId
-    0,           //dispListBase
-    10,          //rowsCount
-    10,          //colsCount
-    24,          //charWidth
-    24,          //charHeight
-    -10,         //spacing
-    256          //texSize
+    "jas.bmp", //fileName
+    ' ',       // firstChar
+    0,         //texId
+    0,         //dispListBase
+    10,        //rowsCount
+    10,        //colsCount
+    50,        //charWidth
+    50,        //charHeight
+    -10,       //spacing
+    512        //texSize
 };
 
 void InitFonts(void) {
@@ -243,6 +243,7 @@ int LoadHUDFontTexture(HUDFontProperties* f) {
 void SetGLText(void) {
     XPLMSetGraphicsState(0 /*Fog*/, 1 /*TexUnits*/, 0 /*Lighting*/, 0 /*AlphaTesting*/, 1 /*AlphaBlending*/, 0 /*DepthTesting*/, 0 /*DepthWriting*/);
     //glBlendFunc(GL_ONE, GL_ONE);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 

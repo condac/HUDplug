@@ -14,7 +14,7 @@
 
 int screen_width;
 int screen_height;
-int line_width = 2;
+float line_width = 2.0;
 float fov;
 float fov_pixels;
 float hud_scale = 1.0;
@@ -61,12 +61,11 @@ void CalculateColors() {
 }
 
 float knotsTokmh(float in) {
-    return in*1.85200;
+    return in * 1.85200;
 }
 
-
 float feetTom(float in) {
-    return in*0.3048;
+    return in * 0.3048;
 }
 
 void TranslateToCenter(void) {
@@ -78,13 +77,23 @@ void initGlResources() {
     InitFonts();
 }
 
-void DrawCircle(int radius) {
+void DrawCircle(float radius) {
     double angle;
     int i;
     glBegin(GL_LINE_LOOP);
     for (i = 0; i < CIRCLE_LINES_COUNT; i++) {
         angle = i * 2 * M_PI / CIRCLE_LINES_COUNT;
         glVertex2f((cos(angle) * radius), (sin(angle) * radius));
+    }
+    glEnd();
+}
+void DrawCircleXY(float radius, float x, float y) {
+    double angle;
+    int i;
+    glBegin(GL_LINE_LOOP);
+    for (i = 0; i < CIRCLE_LINES_COUNT; i++) {
+        angle = i * 2 * M_PI / CIRCLE_LINES_COUNT;
+        glVertex2f(x + (cos(angle) * radius), y + (sin(angle) * radius));
     }
     glEnd();
 }
@@ -104,6 +113,10 @@ float getLandingSpeed() {
 
 float to_degrees(float radians) {
     return radians * (180.0 / M_PI);
+}
+
+float to_radians(float degrees) {
+    return degrees / (180.0 / M_PI);
 }
 
 float myGetAlpha() {

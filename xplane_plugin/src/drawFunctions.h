@@ -8,14 +8,15 @@ extern float fov;
 extern float fov_pixels;
 extern float hud_scale;
 extern float text_scale;
-extern int line_width;
+extern float line_width;
 extern float color[4];
 extern int viggen_mode;
 
 void CalculateCenter(void);
 void TranslateToCenter(void);
 void initGlResources();
-void DrawCircle(int radius);
+void DrawCircle(float radius);
+void DrawCircleXY(float radius, float x, float y);
 
 float CalcFOVAngle(float input);
 float getLandingSpeed();
@@ -25,10 +26,10 @@ float myGetBeta();
 float myGetHead();
 float knotsTokmh(float in);
 
-
 float feetTom(float in);
 
-
 void CalculateColors();
+float to_radians(float degrees);
+float to_degrees(float radians);
 
 #endif

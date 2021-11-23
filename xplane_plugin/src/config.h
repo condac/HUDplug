@@ -1,7 +1,7 @@
 #ifndef CONFIG_H_INCLUDED
 #define CONFIG_H_INCLUDED
 
-#define LINE_WIDTH 2
+#define LINE_WIDTH 3.0f
 
 #define HUD_SCALE 1.0f
 

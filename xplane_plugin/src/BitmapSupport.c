@@ -114,12 +114,11 @@ int BitmapLoader(const char* FilePath, IMAGEDATA* ImageData, int pChannels) {
                         //debugLog("true header2 \n");
                         Padding = (ImageInfo.biWidth * 3 + 3) & ~3;
                         Padding -= ImageInfo.biWidth * 3;
-                        
 
                         ImageData->Width = ImageInfo.biWidth;
                         ImageData->Height = ImageInfo.biHeight;
                         ImageData->Padding = Padding;
-                        
+
                         debugLog("Padding %d biwidth %d offbits %d \n", Padding, ImageInfo.biWidth, Header.bfOffBits);
 
                         /// Allocate memory for the actual image.
@@ -137,7 +136,7 @@ int BitmapLoader(const char* FilePath, IMAGEDATA* ImageData, int pChannels) {
                         if (ImageData->pData != NULL && lLineData != NULL) {
                             //debugLog("true ImageData \n");
                             /// Get the actual image - line by line
-                            
+
                             // Close file and open and move to acual start position of pixelarray as defined by header data Header.bfOffBits
                             debugLog("tell innan %d \n", ftell(BitmapFile));
                             fclose(BitmapFile);
@@ -159,10 +158,10 @@ int BitmapLoader(const char* FilePath, IMAGEDATA* ImageData, int pChannels) {
                                     unsigned char pix = (lLineData[j * 3]) ? 255 : 0;
                                     switch (pChannels) {
                                     case 4:
-                                        lPtr[0] = pix;
+                                        lPtr[0] = lLineData[j * 3];
                                         lPtr[1] = pix;
                                         lPtr[2] = pix;
-                                        lPtr[3] = pix;
+                                        lPtr[3] = lLineData[j * 3];
                                         break;
                                     case 3:
                                         lPtr[0] = 255; // lLineData[j*3];

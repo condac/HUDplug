@@ -122,6 +122,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     /* Look up our data ref.  You find the string name of the data ref
      * in the master list of data refs, including in HTML form in the
      * plugin SDK.  In this case, we want the nav1 frequency. */
+
     gDataRef = XPLMFindDataRef("sim/cockpit/switches/pitot_heat_on");
     testDataRef = XPLMFindDataRef("sim/joystick/yoke_roll_ratio");
 
@@ -285,6 +286,10 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //     acfValuesReloadFrameCount = ACF_VALUES_RELOAD_FRAME;
     //     initAcfValues();
     // }
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_POLYGON_SMOOTH);
+    //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
     //glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -347,6 +352,8 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //     DrawTorque(lTorqs);
     // }
     // DrawTexts();
-
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDisable(GL_LINE_SMOOTH);
+    glDisable(GL_POLYGON_SMOOTH);
     return 1;
 }

@@ -39,8 +39,10 @@ float getGForce();
 float getTotalWeight();
 float getThrottlePos();
 int getSpeedBrake();
-
+int getStabStatus();
 int getGear();
+
+void setStabStatus(int value);
 
 //int getCurrentView();
 
@@ -49,5 +51,7 @@ int getViewIsExternal();
 int GetHudVisibleCB(void* inRefcon);
 
 void SetHudVisibleCB(void* inRefcon, int inValue);
+int GetStabilisatorStatusCB(void* inRefcon);
 
+void SetStabilisatorStatusCB(void* inRefcon, int inValue);
 #endif
