@@ -175,7 +175,10 @@ void DrawGlass() {
     //XPLMSetGraphicsState(0 /*Fog*/, 0 /*TexUnits*/, 0 /*Lighting*/, 0 /*AlphaTesting*/, 1 /*AlphaBlending*/, 0 /*DepthTesting*/, 0 /*DepthWriting*/);
 
     float colorglass[] = {0.2, 0.0, 0.2, 0.5};
-    float colorglassB[] = {0.2, 0., 0.2, 0.0};
+    float colorglassB[] = {0.2, 0., 0.2, 0.2};
+    colorglass[3] = GetGlassDarkness();
+    colorglassB[3] = GetGlassDarkness() - 0.3;
+
     int modes[] = {GL_ZERO,
                    GL_ONE,
                    GL_SRC_COLOR,
@@ -207,8 +210,8 @@ void DrawGlass() {
 
     //glBlendEquation(GL_MIN);
     //glBlendEquationSeparate(GL_MIN);
-    glColor4fv(colorglass);
-    glColor4fv(color);
+    //glColor4fv(colorglass);
+    //glColor4fv(color);
 
     // for (int i = 0; i < 15; i++) {
     //     glBegin(GL_LINES);
@@ -218,8 +221,8 @@ void DrawGlass() {
     //     glEnd();
     // }
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Standard blend, baserat på alpha
-
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Standard blend, baserat på alpha
+    // detta motsvarar mode 6 7
     glBlendFunc(modes[glass_type], modes[glass_type2]);
     glTranslatef(-glass_width / 2, -glass_height / 2, 0);
     if (draw_glass == 1) {
@@ -232,7 +235,7 @@ void DrawGlass() {
         glVertex2f(0, glass_height - 50);
         glVertex2f(100, glass_height);
 
-        glColor4f(0.2, 0.0, 0.2, 0.2);
+        //glColor4f(0.2, 0.0, 0.2, 0.2);
         glVertex2f(glass_width - 100, glass_height);
         glVertex2f(glass_width, glass_height - 50);
 
@@ -243,7 +246,11 @@ void DrawGlass() {
     }
 
     glPopMatrix();
-    SetGLText();
+    SetGLText(); // för att nollställa blendFunc
+    // char tempText[100];
+    // sprintf(tempText, "glass %f", glass_darkness);
+    // DrawHUDText(tempText, &fontMain, 10 * HUD_SCALE, 10, 1, color);
+
     SetGLTransparentLines();
 
     //glBlendEquation(mode1);
@@ -261,7 +268,7 @@ void DrawVector() {
     float tail_pos = airspeed - getLandingSpeed() + 20;
     float angle = getRoll();
     int gear = getGear();
-    tail_pos = fmin(tail_pos, 40);
+    tail_pos = fmin(tail_pos, 40); // Fenans längd ska motsvara 20km/h
     tail_pos = fmax(tail_pos, -40);
     //y_pos = fov_pixels * getAlphaA();
     glColor4fv(color);
@@ -270,7 +277,9 @@ void DrawVector() {
     glTranslatef(-x_pos, -y_pos, 0);
     glRotatef(-angle, 0, 0, 1);
 
-    DrawCircle(10 * HUD_SCALE);
+    if (!markKontakt()) {
+        DrawCircle(10 * HUD_SCALE);
+    }
     glLineWidth(line_width);
     glBegin(GL_LINES);
 
@@ -525,7 +534,18 @@ void DrawSpeed() {
     float groundspeed = getGroundSpeed() * 1.944;
     float mach = getMachSpeed();
     float landingspeed = getLandingSpeed();
+    float landingspeed2 = landingspeed + 30;
+    int gear = getGear();
     float tail_pos = airspeed - landingspeed;
+    float maxSpeed = kmhToknots(2000);
+    float climbSpeed = 500; // 500-550knop 0.85 mach
+
+    if (gear) {
+        maxSpeed = kmhToknots(600);
+    }
+    if (markKontakt()) {
+        maxSpeed = kmhToknots(350);
+    }
 
     SetGLTransparentLines();
     glColor4fv(color);
@@ -537,11 +557,32 @@ void DrawSpeed() {
     glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y - 100 * HUD_SCALE);
     glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y + 100 * HUD_SCALE);
 
+    // Markör för snabbast stigningshastighet
+    if (airspeed < climbSpeed + 50 && airspeed > climbSpeed - 50) {
+        glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y + (airspeed - climbSpeed) * HUD_SCALE);
+        glVertex2f(SPEED_POS_X + 10 * HUD_SCALE, SPEED_POS_Y + (airspeed - climbSpeed) * HUD_SCALE);
+    }
+
     // Markör för landningshastighet
     if (airspeed < landingspeed + 50 && airspeed > landingspeed - 50) {
         tail_pos = -tail_pos * 2;
         glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y + tail_pos * HUD_SCALE);
         glVertex2f(SPEED_POS_X + 10 * HUD_SCALE, SPEED_POS_Y + tail_pos * HUD_SCALE);
+    }
+    // Markör för landningshastighet inflygning
+    if (airspeed < landingspeed2 + 50 && airspeed > landingspeed2 - 50) {
+        //tail_pos = -tail_pos * 2;
+        glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y - (airspeed - landingspeed2) * 2 * HUD_SCALE);
+        glVertex2f(SPEED_POS_X + 20 * HUD_SCALE, SPEED_POS_Y - (airspeed - landingspeed2) * 2 * HUD_SCALE);
+    }
+    // Markör för maxhastighet
+    if (airspeed < maxSpeed + 50 && airspeed > maxSpeed - 50) {
+        //tail_pos = -tail_pos * 2;
+        glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y - (airspeed - maxSpeed) * 2 * HUD_SCALE);
+        glVertex2f(SPEED_POS_X + 20 * HUD_SCALE, SPEED_POS_Y - (airspeed - maxSpeed) * 2 * HUD_SCALE);
+
+        glVertex2f(SPEED_POS_X + 20 * HUD_SCALE, SPEED_POS_Y - (airspeed - maxSpeed) * 2 * HUD_SCALE);
+        glVertex2f(SPEED_POS_X + 20 * HUD_SCALE, SPEED_POS_Y - 15 - (airspeed - maxSpeed) * 2 * HUD_SCALE);
     }
     glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y - 100 * HUD_SCALE);
     glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y + 100 * HUD_SCALE);
@@ -587,6 +628,11 @@ void DrawSpeed() {
 
     } else {
         stab_error++;
+    }
+
+    if (airspeed > maxSpeed) { // Varning när hög fart och landställ ute
+        sprintf(temp, "MINSKA FART");
+        DrawHUDText(temp, &fontMain, (0) * HUD_SCALE, ((175) * HUD_SCALE) - ((fontMain.charHeight * text_scale) * 2), 1, color);
     }
 
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
@@ -698,7 +744,7 @@ void DrawAltitude() {
 
     SetGLText(); // turn on blending
 
-    if (drawRH) {
+    if (drawRH && radaralt < 1500) {
         sprintf(temp, "RH %.0f", radaralt);
         DrawHUDText(temp, &fontMain, (ALT_POS_X - 20) * HUD_SCALE, (ALT_POS_Y - 20 + rhY) - ((fontMain.charHeight * text_scale)), 0, color);
     }
@@ -746,7 +792,7 @@ void DrawFuelTime() {
     char temp[100];
     float totalFuel = getTotalFuel();
     float fuelFlow = getFuelFlow();
-    float vx = getVX();
+    //float vx = getVX();
     float groundspeed = getGroundSpeed();
 
     float eta = totalFuel / fuelFlow;

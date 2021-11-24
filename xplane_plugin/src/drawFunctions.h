@@ -25,6 +25,7 @@ float myGetAlpha();
 float myGetBeta();
 float myGetHead();
 float knotsTokmh(float in);
+float kmhToknots(float in);
 
 float feetTom(float in);
 

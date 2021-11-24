@@ -59,8 +59,12 @@ XPLMDataRef drFuelExtra2m;
 XPLMDataRef drFuelExtra3m;
 XPLMDataRef drFuelFlow;
 
+XPLMDataRef drGearDef;
+
 XPLMDataRef hudVisibleDR = NULL;
 XPLMDataRef stabilisatorStatusDR = NULL;
+XPLMDataRef glasDarknessDR = NULL;
+float glassDarknessValue = 0.2;
 int stabilisatorStatusValue = 0;
 XPLMCommandRef toggleHudCommand = NULL;
 
@@ -110,6 +114,32 @@ int registerDataRefs() {
         return -1;
     else {
         XPLMSetDatai(hudVisibleDR, 0);
+        //return 0;
+    }
+    glasDarknessDR = XPLMRegisterDataAccessor("HUDplug/glass_darkness",
+                                              xplmType_Float, // The types we support
+                                              1,              // Writable
+                                              NULL,
+                                              NULL, // Integer accessors
+                                              GetGlassDarknessCB,
+                                              SetGlassDarknessCB, // Float accessors
+                                              NULL,
+                                              NULL, // Doubles accessors
+                                              NULL,
+                                              NULL, // Int array accessors
+                                              NULL,
+                                              NULL, // Float array accessors
+                                              NULL,
+                                              NULL, // Raw data accessors
+                                              NULL,
+                                              NULL); // Refcons not used
+
+    // Find and intialize our dataref
+    glasDarknessDR = XPLMFindDataRef("HUDplug/glass_darkness");
+    if (glasDarknessDR == NULL)
+        return -1;
+    else {
+        XPLMSetDataf(glasDarknessDR, 0.3);
         //return 0;
     }
     stabilisatorStatusDR = XPLMRegisterDataAccessor("HUDplug/stabilisatorStatus",
@@ -195,6 +225,8 @@ int initDataRefs() {
     lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max", &drFuelExtra1m);
     lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max[2]", &drFuelExtra2m);
     lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max[3]", &drFuelExtra3m);
+
+    lTmp += findDataRef("sim/flightmodel/parts/tire_vrt_def_veh", &drGearDef);
 
     if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
         fov2 = 30;
@@ -334,6 +366,15 @@ float getTotalFuel() {
     return total;
 }
 
+int markKontakt() {
+
+    if (getArrayValue(drGearDef, 0) > 0.0 || getArrayValue(drGearDef, 1) > 0.0 || getArrayValue(drGearDef, 2) > 0.0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 float getFuelFlow() {
     float value[1];
     XPLMGetDatavf(drFuelFlow, value, 0, 1);
@@ -362,5 +403,18 @@ int GetStabilisatorStatusCB(void* inRefcon) {
 
 void SetStabilisatorStatusCB(void* inRefcon, int inValue) {
     stabilisatorStatusValue = inValue;
+    //visible = inValue
+}
+
+float GetGlassDarkness() {
+    return glassDarknessValue;
+}
+
+float GetGlassDarknessCB(void* inRefcon) {
+    return glassDarknessValue;
+}
+
+void SetGlassDarknessCB(void* inRefcon, float inValue) {
+    glassDarknessValue = inValue;
     //visible = inValue
 }

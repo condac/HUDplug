@@ -24,6 +24,8 @@ extern int glass_type;
 extern int glass_type2;
 extern int th1;
 
+extern float glass_darkness;
+
 void readConfig();
 int getNrOfLines(char* filename);
 int getNrOfMasters(char* filename);

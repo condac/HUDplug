@@ -45,6 +45,7 @@ int getGear();
 
 float getFuelFlow();
 float getTotalFuel();
+int markKontakt();
 
 void setStabStatus(int value);
 
@@ -58,4 +59,10 @@ void SetHudVisibleCB(void* inRefcon, int inValue);
 int GetStabilisatorStatusCB(void* inRefcon);
 
 void SetStabilisatorStatusCB(void* inRefcon, int inValue);
+
+float GetGlassDarkness();
+float GetGlassDarknessCB(void* inRefcon);
+
+void SetGlassDarknessCB(void* inRefcon, float inValue);
+
 #endif

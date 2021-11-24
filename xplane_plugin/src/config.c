@@ -17,6 +17,7 @@ float glass_width = 1000;
 float glass_height = 560;
 float glass_x;
 float glass_y;
+float glass_darkness = 0.2;
 int draw_glass = 1;
 int glass_type = 6;
 int glass_type2 = 4;
@@ -128,6 +129,13 @@ void parseLine(char* line) {
         XPLMDebugString(line + 4);
         sscanf(line + 4, "%d", &i);
         th1 = i;
+    }
+    if (strncmp("glass_darkness=", line, 15) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 15);
+        sscanf(line + 15, "%f", &i);
+        glass_darkness = i;
     }
 }
 
