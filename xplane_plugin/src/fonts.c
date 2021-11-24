@@ -113,12 +113,14 @@ void DrawHUDText(const char* pValue, HUDFontProperties* f, int pX, int pY, char 
     pX = pX / text_scale;
     pY = pY / text_scale;
     int lLen = strlen(pValue);
-    if (pAllign >= 0) { // center+right
+    if (pAllign > 0) { // center+right
         int textWidth = getTextWidth(f, lLen);
-        if (pAllign == 0) // center
+        if (pAllign == 1) // center
             pX -= (textWidth / 2);
+        else if (pAllign == 2) // left
+            pX -= textWidth;
         else
-            pX -= textWidth; // right
+            pX += textWidth; // right
     }
     glTranslatef(pX, pY, 0);
     for (int i = 0; i < lLen; i++) {
