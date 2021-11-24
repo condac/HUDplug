@@ -39,8 +39,12 @@ float getGForce();
 float getTotalWeight();
 float getThrottlePos();
 int getSpeedBrake();
+int getParkBrake();
 int getStabStatus();
 int getGear();
+
+float getFuelFlow();
+float getTotalFuel();
 
 void setStabStatus(int value);
 

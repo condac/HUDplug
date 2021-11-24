@@ -69,19 +69,19 @@
 #    include <windows.h>
 #endif
 #if LIN
-#    include <GL/glew.h>
+//#    include <GL/glew.h>
 #    include <GL/gl.h> // apt install mesa-common-dev
 #    include <GL/glu.h>
 
 #    include <GL/glext.h>
 
 #elif __GNUC__
-#    include <GL/glew.h>
+//#    include <GL/glew.h>
 #    include <GL/gl.h>
 #    include <GL/glu.h>
 #    include <GL/glext.h>
 #else
-#    include <GL/glew.h>
+//#    include <GL/glew.h>
 #    include <GL/gl.h>
 #    include <GL/glu.h>
 #    include <GL/glext.h>

@@ -45,6 +45,19 @@ XPLMDataRef drGear;
 XPLMDataRef drTotalWeight;
 XPLMDataRef drSpeedBrake;
 XPLMDataRef drSpeedBrakeAnalog;
+XPLMDataRef drParkBrakeAnalog;
+
+XPLMDataRef drFuel1;
+XPLMDataRef drFuel2;
+XPLMDataRef drFuel3;
+XPLMDataRef drFuel4;
+XPLMDataRef drFuelExtra1;
+XPLMDataRef drFuelExtra2;
+XPLMDataRef drFuelExtra3;
+XPLMDataRef drFuelExtra1m;
+XPLMDataRef drFuelExtra2m;
+XPLMDataRef drFuelExtra3m;
+XPLMDataRef drFuelFlow;
 
 XPLMDataRef hudVisibleDR = NULL;
 XPLMDataRef stabilisatorStatusDR = NULL;
@@ -172,6 +185,16 @@ int initDataRefs() {
     lTmp += findDataRef("sim/cockpit2/engine/actuators/throttle_ratio_all", &drThrottlePos);
     lTmp += findDataRef("sim/cockpit/warnings/annunciators/speedbrake", &drSpeedBrake);
     lTmp += findDataRef("sim/cockpit2/controls/speedbrake_ratio", &drSpeedBrakeAnalog);
+    lTmp += findDataRef("sim/cockpit2/controls/parking_brake_ratio", &drParkBrakeAnalog);
+
+    lTmp += findDataRef("sim/flightmodel/engine/ENGN_FF_", &drFuelFlow);
+    lTmp += findDataRef("sim/flightmodel/weight/m_fuel_total", &drFuel1);
+    lTmp += findDataRef("sim/weapons/fuel_warhead_mass_now", &drFuelExtra1);
+    lTmp += findDataRef("sim/weapons/fuel_warhead_mass_now[2]", &drFuelExtra2);
+    lTmp += findDataRef("sim/weapons/fuel_warhead_mass_now[3]", &drFuelExtra3);
+    lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max", &drFuelExtra1m);
+    lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max[2]", &drFuelExtra2m);
+    lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max[3]", &drFuelExtra3m);
 
     if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
         fov2 = 30;
@@ -271,11 +294,50 @@ int getSpeedBrake() {
     }
     return XPLMGetDatai(drSpeedBrake);
 }
+int getParkBrake() {
+    if (XPLMGetDataf(drParkBrakeAnalog) > 0.0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 int getStabStatus() {
     return XPLMGetDatai(stabilisatorStatusDR);
 }
 void setStabStatus(int value) {
     XPLMSetDatai(stabilisatorStatusDR, value);
+}
+
+float getArrayValue(XPLMDataRef dataref, int index) {
+    float value[1];
+    XPLMGetDatavf(dataref, value, index, 1);
+    return value[0];
+}
+
+float getTotalFuel() {
+    float total = 0.0;
+    total = total + XPLMGetDataf(drFuel1);
+    /* Vi kan inte veta om extra tankarna är bensin eller bomber.
+    För att kolla detta så kikar vi på om extra tanken väger mindre än maxvikten,
+    detta betyder att det försvunnit bensin och då är det en tank
+    */
+    if (getArrayValue(drFuelExtra1, 0) < getArrayValue(drFuelExtra1m, 0)) {
+        total = total + getArrayValue(drFuelExtra1, 0);
+    }
+    if (getArrayValue(drFuelExtra1, 2) < getArrayValue(drFuelExtra1m, 2)) {
+        total = total + getArrayValue(drFuelExtra1, 2);
+    }
+    if (getArrayValue(drFuelExtra1, 3) < getArrayValue(drFuelExtra1m, 3)) {
+        total = total + getArrayValue(drFuelExtra1, 3);
+    }
+
+    return total;
+}
+
+float getFuelFlow() {
+    float value[1];
+    XPLMGetDatavf(drFuelFlow, value, 0, 1);
+    return value[0];
 }
 
 //int getCurrentView() {

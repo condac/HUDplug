@@ -12,7 +12,7 @@ void DrawTest() {
     // Draw Text
     SetGLText(); // turn on blending
     //float color[] = {0.0, 1.0, 0.0, 1.0};
-    DrawHUDNumber((int)getHeading(), &fontMain, -3, 0, 200, 0, color);
+    DrawHUDNumber((int)getHeading(), &fontMain, -3, 0, 200, 1, color);
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
     //DrawMovementArrow(getTrueHeading(), getVX(), getVY(), getVZ());
 }
@@ -116,15 +116,8 @@ void DrawGlass() {
     SetGLTransparentLines();
     glPushMatrix();
 
-    glTranslatef(-500, -500, 0);
-
     glEnable(GL_BLEND);
 
-    // for (int i = 0; i < 15; i++) {
-    //     glBlendFunc(modes[i], GL_DST_COLOR);
-    //     drawCubes(i * 50, 50);
-    // }
-    glTranslatef(500, 500, 0);
     //glBlendEquation(GL_MIN);
     //glBlendEquationSeparate(GL_MIN);
     glColor4fv(colorglass);
@@ -176,7 +169,7 @@ void DrawVector() {
     float airspeed = getIAS();
     float y_pos = CalcFOVAngle(myGetAlpha());
     float x_pos = CalcFOVAngle(myGetBeta());
-    float tail_pos = airspeed - getLandingSpeed();
+    float tail_pos = airspeed - getLandingSpeed() + 20;
     float angle = getRoll();
     int gear = getGear();
     tail_pos = fmin(tail_pos, 40);
@@ -258,6 +251,28 @@ void DrawHorizionLines() {
     glEnd();
 
     glLineWidth(line_width);
+    // Compas lines
+    // Var 5 grad är det ett litet streck på 0 horizonten
+    // float compas_y = 0;
+    // glLineWidth(line_width);
+    // glBegin(GL_LINES);
+    // for (int i = 0; i < 370; i = i + 5) {
+    //
+    //     float offset = (i)-heading + 5;
+    //     if (offset > 180) {
+    //
+    //         offset -= 360;
+    //     }
+    //     if (offset < -180) {
+    //
+    //         offset += 360;
+    //     }
+    //     if ((offset < 90) && (offset > -90)) {
+    //         offset = CalcFOVAngle(offset);
+    //         glVertex2f(offset, compas_y * HUD_SCALE);
+    //         glVertex2f(offset, (compas_y + 10) * HUD_SCALE);
+    //     }
+    // }
 
     // linjer
     if (gear) {
@@ -275,7 +290,7 @@ void DrawHorizionLines() {
     }
 
     for (int i = 10; i < 90; i += 10) {
-        if ((i > getPitch() - 15) && (i < getPitch() + 10)) {
+        if ((i > getPitch() - 35) && (i < getPitch() + 30)) {
             glLineWidth(line_width);
             glBegin(GL_LINES);
 
@@ -292,7 +307,7 @@ void DrawHorizionLines() {
     }
 
     for (int i = -10; i > -90; i -= 10) {
-        if ((i > getPitch() - 15) && (i < getPitch() + 10)) {
+        if ((i > getPitch() - 35) && (i < getPitch() + 30)) {
             glLineWidth(line_width);
             glBegin(GL_LINES);
 
@@ -380,7 +395,7 @@ void DrawHorizionLines() {
     glPushMatrix();
     glScalef(smallTextScale, smallTextScale, 0);
     for (int i = 10; i < 90; i += 10) {
-        if ((i > getPitch() - 15) && (i < getPitch() + 10)) {
+        if ((i > getPitch() - 35) && (i < getPitch() + 30)) {
 
             sprintf(tempText, "%d", i);
             DrawHUDText(tempText, &fontMain, -200 * HUD_SCALE / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
@@ -391,7 +406,7 @@ void DrawHorizionLines() {
         }
     }
     for (int i = -10; i > -90; i -= 10) {
-        if ((i > getPitch() - 15) && (i < getPitch() + 10)) {
+        if ((i > getPitch() - 35) && (i < getPitch() + 30)) {
 
             sprintf(tempText, "%d", i);
             DrawHUDText(tempText, &fontMain, -200 * HUD_SCALE / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
@@ -453,13 +468,13 @@ void DrawSpeed() {
 
     SetGLText(); // turn on blending
     sprintf(temp, "%.0f", knotsTokmh(airspeed));
-    DrawHUDText(temp, &fontMain, (SPEED_POS_X - 30) * HUD_SCALE, (SPEED_POS_Y * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 1, color);
+    DrawHUDText(temp, &fontMain, (SPEED_POS_X - 30) * HUD_SCALE, (SPEED_POS_Y * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 2, color);
 
     sprintf(temp, "M %.2f", mach);
-    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((fontMain.charHeight * text_scale)), 1, color);
+    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((fontMain.charHeight * text_scale)), 2, color);
 
     sprintf(temp, "GS%.0f", groundspeed);
-    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((fontMain.charHeight * text_scale) * 2), 1, color);
+    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((fontMain.charHeight * text_scale) * 2), 2, color);
 
     if (airspeed < landingspeed + 50 && airspeed > landingspeed - 50) {
 
@@ -469,9 +484,13 @@ void DrawSpeed() {
         sprintf(temp, "LUFTBROMS UTE");
         DrawHUDText(temp, &fontMain, (0) * HUD_SCALE, ((200) * HUD_SCALE) - ((fontMain.charHeight * text_scale) * 2), 1, color);
     }
+    if (getParkBrake()) {
+        sprintf(temp, "PARKERINGSBROMS");
+        DrawHUDText(temp, &fontMain, (0) * HUD_SCALE, ((150) * HUD_SCALE) - ((fontMain.charHeight * text_scale) * 2), 1, color);
+    }
     if (stab_error > 100) {
         sprintf(temp, "FEL I STABILISERINGS PLUGIN");
-        DrawHUDText(temp, &fontMain, (0) * HUD_SCALE, ((100) * HUD_SCALE) - ((fontMain.charHeight * text_scale) * 2), 2, color);
+        DrawHUDText(temp, &fontMain, (0) * HUD_SCALE, ((100) * HUD_SCALE) - ((fontMain.charHeight * text_scale) * 2), 1, color);
     }
     if (getStabStatus()) {
         stab_error = 0;
@@ -494,7 +513,7 @@ void DrawAlpha() {
     SetGLText(); // turn on blending
 
     sprintf(temp, "G %.1f", gforce);
-    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((fontMain.charHeight * text_scale)), 1, color);
+    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((fontMain.charHeight * text_scale)), 2, color);
 
     if (getIAS() > 50) {
         sprintf(temp, "$ %.0f", alpha);
@@ -502,17 +521,27 @@ void DrawAlpha() {
         sprintf(temp, "$ X");
     }
 
-    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((fontMain.charHeight * text_scale) * 2), 1, color);
+    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((fontMain.charHeight * text_scale) * 2), 2, color);
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
 
 #define ALT_POS_X 315
 #define ALT_POS_Y -50
+#define ALT_SCALE_METER 400.0f
+#define ALT_SCALE_PIXEL 220.0f
+
+float altToPixelY(float value) {
+    return value * (ALT_SCALE_PIXEL / ALT_SCALE_METER);
+}
 
 void DrawAltitude() {
     char temp[20];
     float altitude = getAltitude();
+    float radaralt = getRadarAltitude();
 
+    if (1) {
+        altitude = feetTom(altitude);
+    }
     SetGLTransparentLines();
 
     glColor4fv(color);
@@ -520,10 +549,10 @@ void DrawAltitude() {
     glLineWidth(line_width);
     glBegin(GL_LINES);
 
-    glVertex2f(ALT_POS_X * HUD_SCALE, ALT_POS_Y - 100 * HUD_SCALE);
-    glVertex2f(ALT_POS_X * HUD_SCALE, ALT_POS_Y + 100 * HUD_SCALE);
+    //glVertex2f(ALT_POS_X * HUD_SCALE, ALT_POS_Y - 100 * HUD_SCALE);
+    //glVertex2f(ALT_POS_X * HUD_SCALE, ALT_POS_Y + 100 * HUD_SCALE);
 
-    // pil vid hastighetstexten
+    // pil vid texten
     glVertex2f(ALT_POS_X * HUD_SCALE, ALT_POS_Y + 0 * HUD_SCALE);
     glVertex2f((ALT_POS_X - 20) * HUD_SCALE, ALT_POS_Y + 10 * HUD_SCALE);
 
@@ -532,11 +561,120 @@ void DrawAltitude() {
 
     glEnd();
 
+    int start = (altitude - ALT_SCALE_METER) / 100;
+    int maxA = altitude + ALT_SCALE_METER / 2;
+    int minA = altitude - ALT_SCALE_METER / 2;
+
+    for (int i = start * 100; i < altitude + ALT_SCALE_METER; i += 100) {
+        if (i < maxA && i > minA && i >= 0) {
+
+            if (((i / 100) % 2) == 0) {
+                glLineWidth(line_width);
+                glBegin(GL_LINES);
+                glVertex2f(ALT_POS_X * HUD_SCALE, (ALT_POS_Y + altToPixelY(-altitude) + altToPixelY(i)) * HUD_SCALE);
+                glVertex2f(ALT_POS_X + 20 * HUD_SCALE, (ALT_POS_Y + altToPixelY(-altitude) + altToPixelY(i)) * HUD_SCALE);
+                glEnd();
+            } else {
+                glLineWidth(max(line_width / 2, 1.0));
+                glBegin(GL_LINES);
+                glVertex2f(ALT_POS_X * HUD_SCALE, (ALT_POS_Y + altToPixelY(-altitude) + altToPixelY(i)) * HUD_SCALE);
+                glVertex2f(ALT_POS_X + 10 * HUD_SCALE, (ALT_POS_Y + altToPixelY(-altitude) + altToPixelY(i)) * HUD_SCALE);
+                glEnd();
+            }
+        }
+    }
+
+    // Draw radar altitude lines
+    int drawRH = 0;
+    float rhY = altToPixelY(-radaralt);
+
+    if (rhY < -ALT_SCALE_PIXEL / 2) {
+        drawRH = 1;
+        rhY = -ALT_SCALE_PIXEL / 2;
+    } else {
+
+        glLineWidth(line_width);
+        glBegin(GL_LINES);
+        glVertex2f(ALT_POS_X * HUD_SCALE, (ALT_POS_Y + rhY) * HUD_SCALE);
+        glVertex2f(ALT_POS_X - 30 * HUD_SCALE, (ALT_POS_Y + rhY) * HUD_SCALE);
+
+        glVertex2f(ALT_POS_X * HUD_SCALE, (ALT_POS_Y + rhY) * HUD_SCALE);
+        glVertex2f(ALT_POS_X - 10 * HUD_SCALE, (ALT_POS_Y - 20 + rhY) * HUD_SCALE);
+
+        glVertex2f(ALT_POS_X - 15 * HUD_SCALE, (ALT_POS_Y + rhY) * HUD_SCALE);
+        glVertex2f(ALT_POS_X - 15 - 10 * HUD_SCALE, (ALT_POS_Y - 20 + rhY) * HUD_SCALE);
+
+        glEnd();
+    }
+
     SetGLText(); // turn on blending
-    sprintf(temp, "%.0f", feetTom(altitude));
-    DrawHUDText(temp, &fontMain, (ALT_POS_X - 20) * HUD_SCALE, (ALT_POS_Y * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 1, color);
+
+    if (drawRH) {
+        sprintf(temp, "RH %.0f", radaralt);
+        DrawHUDText(temp, &fontMain, (ALT_POS_X - 20) * HUD_SCALE, (ALT_POS_Y - 20 + rhY) - ((fontMain.charHeight * text_scale)), 0, color);
+    }
+
+    for (int i = start * 100; i < altitude + ALT_SCALE_METER; i += 100) {
+        if (i < maxA && i > minA && i >= 0) {
+
+            if (((i / 100) % 2) == 0) {
+                sprintf(temp, "%d", i);
+                DrawHUDText(temp,
+                            &fontMain,
+                            (ALT_POS_X + 20) * HUD_SCALE,
+                            ((ALT_POS_Y + altToPixelY(-altitude) + altToPixelY(i)) * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2),
+                            0,
+                            color);
+            }
+        }
+    }
+    int altdraw = altitude / 10;
+    sprintf(temp, "%d", altdraw * 10);
+    DrawHUDText(temp, &fontMain, (ALT_POS_X - 30) * HUD_SCALE, (ALT_POS_Y * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 2, color);
 
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+}
+
+void DrawGroundCollision() {
+    char temp[100];
+    float vy = getVY();
+    float radaralt = getRadarAltitude();
+    int gear = getGear();
+
+    if (!gear) {
+        if (vy < 0) {
+            if (-vy * 7 > radaralt) {
+                float timeLeft = radaralt / -vy;
+                SetGLText();
+                sprintf(temp, "MARKKOLLISION %.1f", timeLeft);
+                DrawHUDText(temp, &fontMain, 0 * HUD_SCALE, (50 * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 1, color);
+            }
+        }
+    }
+}
+
+void DrawFuelTime() {
+    char temp[100];
+    float totalFuel = getTotalFuel();
+    float fuelFlow = getFuelFlow();
+    float vx = getVX();
+
+    float eta = totalFuel / fuelFlow;
+    //float range = vx * eta;
+    int sec, h, m, s;
+    sec = eta;
+
+    h = (sec / 3600);
+
+    m = (sec - (3600 * h)) / 60;
+
+    s = (sec - (3600 * h) - (m * 60));
+
+    SetGLText();
+    sprintf(temp, "%.0f %.2f - %d:%d:%d", totalFuel, fuelFlow, h, m, s);
+    DrawHUDText(temp, &fontMain, 0 * HUD_SCALE, (-600 * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 0, color);
+    // sprintf(temp, "Range %.0f km", range / 1000);
+    // DrawHUDText(temp, &fontMain, 0 * HUD_SCALE, (-650 * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 0, color);
 }
 
 void DrawViggen() {

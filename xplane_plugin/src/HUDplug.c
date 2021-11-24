@@ -150,6 +150,10 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
                              xplm_Phase_FirstCockpit, /* Draw when sim is doing windows */
                              1,                       /* Before plugin windows */
                              NULL);                   /* No refcon needed */
+    // GLuint fbo_;
+    // // create a framebuffer object
+    // glGenFramebuffers(1, &fbo_);
+    // glBindFramebuffer(GL_FRAMEBUFFER_EXT, fbo_);
 
     return 1; //g_window != NULL;
 }
@@ -299,8 +303,9 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glEnable(GL_BLEND);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    CalculateCenter();
+
     glPushMatrix();
+    CalculateCenter();
     glScalef(hud_scale, hud_scale, 0);
 
     if (viggen_mode) {
@@ -322,6 +327,8 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
 
         TranslateToCenter();
         DrawAltitude();
+        DrawGroundCollision();
+        DrawFuelTime();
 
         TranslateToCenter();
         DrawHorizionLines();
@@ -352,7 +359,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //     DrawTorque(lTorqs);
     // }
     // DrawTexts();
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     glDisable(GL_LINE_SMOOTH);
     glDisable(GL_POLYGON_SMOOTH);
     return 1;

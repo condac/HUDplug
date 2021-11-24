@@ -8,3 +8,5 @@ void DrawSpeed();
 void DrawAlpha();
 void DrawViggen();
 void DrawGlass();
+void DrawGroundCollision();
+void DrawFuelTime();
