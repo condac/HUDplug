@@ -8,13 +8,100 @@
 int stab_error;
 
 void DrawTest() {
-
+    float compas_y = 220;
+    char tempText[100];
+    float heading = getHeading();
     // Draw Text
-    SetGLText(); // turn on blending
+    //SetGLText(); // turn on blending
     //float color[] = {0.0, 1.0, 0.0, 1.0};
-    DrawHUDNumber((int)getHeading(), &fontMain, -3, 0, 200, 1, color);
+    //DrawHUDNumber((int)getHeading(), &fontMain, -3, 0, compas_y, 1, color);
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
     //DrawMovementArrow(getTrueHeading(), getVX(), getVY(), getVZ());
+
+    SetGLTransparentLines();
+    glColor4fv(color);
+    // pilen som pekar på kursen
+    glBegin(GL_LINES);
+
+    glVertex2f(0 * HUD_SCALE, compas_y + 0 * HUD_SCALE);
+    glVertex2f(0 + 10 * HUD_SCALE, compas_y - 20 * HUD_SCALE);
+    glVertex2f(0 * HUD_SCALE, compas_y + 0 * HUD_SCALE);
+    glVertex2f(0 - 10 * HUD_SCALE, compas_y - 20 * HUD_SCALE);
+
+    glEnd();
+    // Compas lines long
+    for (int i = 0; i < 37; i++) {
+
+        float offset = (i * 10) - heading;
+        if (offset > 180) {
+
+            offset -= 360;
+        }
+        if (offset < -180) {
+
+            offset += 360;
+        }
+        if ((offset < 15) && (offset > -15)) {
+            // 80 pixlar mellan 10 grader
+            float rate = 80 / 10;
+            offset = offset * rate;
+            glLineWidth(line_width);
+            glBegin(GL_LINES);
+
+            glVertex2f(offset * HUD_SCALE, compas_y * HUD_SCALE);
+            glVertex2f(offset * HUD_SCALE, compas_y + 20 * HUD_SCALE);
+
+            glEnd();
+        }
+    }
+    // Compas lines short 5grader
+    for (int i = 0; i < 37; i++) {
+
+        float offset = (i * 10) - heading + 5;
+        if (offset > 180) {
+
+            offset -= 360;
+        }
+        if (offset < -180) {
+
+            offset += 360;
+        }
+        if ((offset < 15) && (offset > -15)) {
+            // 80 pixlar mellan 10 grader
+            float rate = 80 / 10;
+            offset = offset * rate;
+            glLineWidth(line_width);
+            glBegin(GL_LINES);
+
+            glVertex2f(offset * HUD_SCALE, compas_y * HUD_SCALE);
+            glVertex2f(offset * HUD_SCALE, compas_y + 5 * HUD_SCALE);
+
+            glEnd();
+        }
+    }
+    SetGLText();
+    // Compas lines text
+    for (int i = 0; i < 37; i++) {
+
+        float offset = (i * 10) - heading;
+        if (offset > 180) {
+
+            offset -= 360;
+        }
+        if (offset < -180) {
+
+            offset += 360;
+        }
+        if ((offset < 15) && (offset > -15)) {
+            // 80 pixlar mellan 10 grader
+            float rate = 80 / 10;
+            offset = offset * rate;
+            sprintf(tempText, "%02d", i);
+            DrawHUDText(tempText, &fontMain, offset * HUD_SCALE, compas_y + 25 * HUD_SCALE, 1, color);
+        }
+    }
+    // sprintf(tempText, "test%02d", 1);
+    // DrawHUDText(tempText, &fontMain, 0 * HUD_SCALE, compas_y * HUD_SCALE, 1, color);
 }
 
 #define MOVEMENT_ARROW_RADIUS_PX 20
@@ -131,6 +218,8 @@ void DrawGlass() {
     //     glEnd();
     // }
 
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Standard blend, baserat på alpha
+
     glBlendFunc(modes[glass_type], modes[glass_type2]);
     glTranslatef(-glass_width / 2, -glass_height / 2, 0);
     if (draw_glass == 1) {
@@ -143,7 +232,7 @@ void DrawGlass() {
         glVertex2f(0, glass_height - 50);
         glVertex2f(100, glass_height);
 
-        glColor4f(0.25, 0.25, 0.25, 0.1);
+        glColor4f(0.2, 0.0, 0.2, 0.2);
         glVertex2f(glass_width - 100, glass_height);
         glVertex2f(glass_width, glass_height - 50);
 
@@ -253,26 +342,26 @@ void DrawHorizionLines() {
     glLineWidth(line_width);
     // Compas lines
     // Var 5 grad är det ett litet streck på 0 horizonten
-    // float compas_y = 0;
-    // glLineWidth(line_width);
-    // glBegin(GL_LINES);
-    // for (int i = 0; i < 370; i = i + 5) {
-    //
-    //     float offset = (i)-heading + 5;
-    //     if (offset > 180) {
-    //
-    //         offset -= 360;
-    //     }
-    //     if (offset < -180) {
-    //
-    //         offset += 360;
-    //     }
-    //     if ((offset < 90) && (offset > -90)) {
-    //         offset = CalcFOVAngle(offset);
-    //         glVertex2f(offset, compas_y * HUD_SCALE);
-    //         glVertex2f(offset, (compas_y + 10) * HUD_SCALE);
-    //     }
-    // }
+    float compas_y = 0;
+    glLineWidth(line_width);
+    glBegin(GL_LINES);
+    for (int i = 0; i < 370; i = i + 5) {
+
+        float offset = (i)-heading + 5;
+        if (offset > 180) {
+
+            offset -= 360;
+        }
+        if (offset < -180) {
+
+            offset += 360;
+        }
+        if ((offset < 90) && (offset > -90)) {
+            offset = CalcFOVAngle(offset);
+            glVertex2f(offset, compas_y * HUD_SCALE);
+            glVertex2f(offset, (compas_y + 10) * HUD_SCALE);
+        }
+    }
 
     // linjer
     if (gear) {
@@ -658,9 +747,10 @@ void DrawFuelTime() {
     float totalFuel = getTotalFuel();
     float fuelFlow = getFuelFlow();
     float vx = getVX();
+    float groundspeed = getGroundSpeed();
 
     float eta = totalFuel / fuelFlow;
-    //float range = vx * eta;
+    float range = groundspeed * eta;
     int sec, h, m, s;
     sec = eta;
 
@@ -671,10 +761,10 @@ void DrawFuelTime() {
     s = (sec - (3600 * h) - (m * 60));
 
     SetGLText();
-    sprintf(temp, "%.0f %.2f - %d:%d:%d", totalFuel, fuelFlow, h, m, s);
+    sprintf(temp, "%.0f %.2f - %02d:%02d:%02d", totalFuel, fuelFlow, h, m, s);
     DrawHUDText(temp, &fontMain, 0 * HUD_SCALE, (-600 * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 0, color);
-    // sprintf(temp, "Range %.0f km", range / 1000);
-    // DrawHUDText(temp, &fontMain, 0 * HUD_SCALE, (-650 * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 0, color);
+    sprintf(temp, "Range %.0f km", range / 1000);
+    DrawHUDText(temp, &fontMain, 0 * HUD_SCALE, (-650 * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 0, color);
 }
 
 void DrawViggen() {

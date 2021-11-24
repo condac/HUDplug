@@ -146,10 +146,12 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     initGlResources();
     initDataRefs();
+    //xplm_Phase_FirstCockpit
+    //xplm_Phase_Window
     XPLMRegisterDrawCallback(MyDrawCallback,
-                             xplm_Phase_FirstCockpit, /* Draw when sim is doing windows */
-                             1,                       /* Before plugin windows */
-                             NULL);                   /* No refcon needed */
+                             xplm_Phase_Window, /* Draw when sim is doing windows */
+                             1,                 /* Before plugin windows */
+                             NULL);             /* No refcon needed */
     // GLuint fbo_;
     // // create a framebuffer object
     // glGenFramebuffers(1, &fbo_);

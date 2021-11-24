@@ -321,15 +321,15 @@ float getTotalFuel() {
     För att kolla detta så kikar vi på om extra tanken väger mindre än maxvikten,
     detta betyder att det försvunnit bensin och då är det en tank
     */
-    if (getArrayValue(drFuelExtra1, 0) < getArrayValue(drFuelExtra1m, 0)) {
-        total = total + getArrayValue(drFuelExtra1, 0);
-    }
-    if (getArrayValue(drFuelExtra1, 2) < getArrayValue(drFuelExtra1m, 2)) {
-        total = total + getArrayValue(drFuelExtra1, 2);
-    }
-    if (getArrayValue(drFuelExtra1, 3) < getArrayValue(drFuelExtra1m, 3)) {
-        total = total + getArrayValue(drFuelExtra1, 3);
-    }
+    // if (getArrayValue(drFuelExtra1, 0) < getArrayValue(drFuelExtra1m, 0)) {
+    //     total = total + getArrayValue(drFuelExtra1, 0);
+    // }
+    // if (getArrayValue(drFuelExtra1, 2) < getArrayValue(drFuelExtra1m, 2)) {
+    //     total = total + getArrayValue(drFuelExtra1, 2);
+    // }
+    // if (getArrayValue(drFuelExtra1, 3) < getArrayValue(drFuelExtra1m, 3)) {
+    //     total = total + getArrayValue(drFuelExtra1, 3);
+    // }
 
     return total;
 }

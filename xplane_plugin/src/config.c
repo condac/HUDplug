@@ -14,7 +14,7 @@ float landing_weight1 = 18000;
 float landing_weight2 = 48000;
 
 float glass_width = 1000;
-float glass_height = 500;
+float glass_height = 560;
 float glass_x;
 float glass_y;
 int draw_glass = 1;
