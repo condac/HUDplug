@@ -34,6 +34,9 @@ void CalculateCenter(void) {
     fov_pixels = screen_height / fov;
     line_width = LINE_WIDTH * hud_scale;
     CalculateColors();
+
+    glScissor((screen_width / 2) - glass_width * hud_scale / 2, 0, glass_width * hud_scale, screen_height / 2 + glass_height * hud_scale / 2);
+    glEnable(GL_SCISSOR_TEST);
 }
 
 void CalculateColors() {
