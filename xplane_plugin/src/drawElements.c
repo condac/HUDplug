@@ -538,7 +538,9 @@ void DrawSpeed() {
     int gear = getGear();
     float tail_pos = airspeed - landingspeed;
     float maxSpeed = kmhToknots(2000);
-    float climbSpeed = 500; // 500-550knop 0.85 mach
+
+    float machKnotsRatio = airspeed / mach;
+    float climbSpeed = machKnotsRatio * 0.85; // 500-550knop 0.85 mach baserat på viggen innan vi hittat data för jas
 
     if (gear) {
         maxSpeed = kmhToknots(600);
@@ -559,8 +561,8 @@ void DrawSpeed() {
 
     // Markör för snabbast stigningshastighet
     if (airspeed < climbSpeed + 50 && airspeed > climbSpeed - 50) {
-        glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y + (airspeed - climbSpeed) * HUD_SCALE);
-        glVertex2f(SPEED_POS_X + 10 * HUD_SCALE, SPEED_POS_Y + (airspeed - climbSpeed) * HUD_SCALE);
+        glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y - (airspeed - climbSpeed) * 2 * HUD_SCALE);
+        glVertex2f(SPEED_POS_X + 10 * HUD_SCALE, SPEED_POS_Y - (airspeed - climbSpeed) * 2 * HUD_SCALE);
     }
 
     // Markör för landningshastighet
@@ -606,6 +608,10 @@ void DrawSpeed() {
     sprintf(temp, "GS%.0f", groundspeed);
     DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((fontMain.charHeight * text_scale) * 2), 2, color);
 
+    // Markör för snabbast stigningshastighet
+    if (airspeed < climbSpeed + 50 && airspeed > climbSpeed - 50) {
+        DrawHUDText("O", &fontMain, SPEED_POS_X + 10 * HUD_SCALE, SPEED_POS_Y - (airspeed - climbSpeed) * 2 * HUD_SCALE - ((fontMain.charHeight / 2 * text_scale)), 0, color);
+    }
     if (airspeed < landingspeed + 50 && airspeed > landingspeed - 50) {
 
         DrawHUDText("L", &fontMain, SPEED_POS_X + 10 * HUD_SCALE, SPEED_POS_Y + tail_pos * HUD_SCALE - ((fontMain.charHeight / 2 * text_scale)), 0, color);
