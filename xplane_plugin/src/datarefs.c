@@ -62,6 +62,7 @@ XPLMDataRef drFuelExtra3m;
 XPLMDataRef drFuelFlow;
 
 XPLMDataRef drGearDef;
+XPLMDataRef drFBO;
 
 XPLMDataRef hudVisibleDR = NULL;
 XPLMDataRef stabilisatorStatusDR = NULL;
@@ -231,6 +232,7 @@ int initDataRefs() {
     lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max[3]", &drFuelExtra3m);
 
     lTmp += findDataRef("sim/flightmodel/parts/tire_vrt_def_veh", &drGearDef);
+    lTmp += findDataRef("sim/graphics/view/current_gl_fbo", &drFBO);
 
     if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
         fov2 = 30;
@@ -427,4 +429,7 @@ float GetGlassDarknessCB(void* inRefcon) {
 void SetGlassDarknessCB(void* inRefcon, float inValue) {
     glassDarknessValue = inValue;
     //visible = inValue
+}
+GLuint getFBO() {
+    return XPLMGetDatai(drFBO);
 }

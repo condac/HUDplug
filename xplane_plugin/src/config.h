@@ -27,6 +27,7 @@ extern int text_blend2;
 extern int th1;
 extern int g_sway;
 extern int draw_test;
+extern int metric;
 extern float hud_scale;
 extern float text_scale;
 extern float line_scale;

@@ -25,10 +25,11 @@ float myGetAlpha();
 
 float myGetBeta();
 float myGetHead();
+
 float knotsTokmh(float in);
 float kmhToknots(float in);
-
 float feetTom(float in);
+float m2feet(float in);
 
 void CalculateColors();
 float to_radians(float degrees);

@@ -9,6 +9,8 @@
 
 int findDataRef(const char* name, XPLMDataRef* result);
 
+GLuint getFBO();
+
 int registerDataRefs();
 
 int initDataRefs();

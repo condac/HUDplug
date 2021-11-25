@@ -313,7 +313,15 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     if (viggen_mode) {
         TranslateToCenter();
         DrawGlass();
+        glPushMatrix();
+        if (g_sway) {
+            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
+        }
+        if (draw_test) {
+            DrawTest();
+        }
         DrawViggen();
+        glPopMatrix();
 
     } else {
         TranslateToCenter();
@@ -370,6 +378,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //     DrawTorque(lTorqs);
     // }
     // DrawTexts();
+    //glBindFramebuffer(GL_FRAMEBUFFER, getFBO());
 
     glDisable(GL_LINE_SMOOTH);
     glDisable(GL_POLYGON_SMOOTH);

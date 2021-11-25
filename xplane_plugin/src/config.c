@@ -30,6 +30,7 @@ int text_blend2 = 7;
 int th1 = 0;
 int g_sway = 0;
 int draw_test = 0;
+int metric = 1;
 
 void readConfig() {
     debugLog("readConfig \n");
@@ -67,6 +68,13 @@ void parseLine(char* line) {
         XPLMDebugString(line + 12);
         sscanf(line + 12, "%d", &i);
         viggen_mode = i;
+    }
+    if (strncmp("metric=", line, 7) == 0) {
+        //Viggen mode
+        int i = 0;
+        XPLMDebugString(line + 7);
+        sscanf(line + 7, "%d", &i);
+        metric = i;
     }
     if (strncmp("text_scale=", line, 11) == 0) {
         //text_scale

@@ -88,7 +88,9 @@ float kmhToknots(float in) {
 float feetTom(float in) {
     return in * 0.3048;
 }
-
+float m2feet(float in) {
+    return in / 0.3048;
+}
 void TranslateToCenter(void) {
 
     glTranslated(screen_width / 2, screen_height / 2, 0);

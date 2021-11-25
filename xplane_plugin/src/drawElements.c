@@ -647,12 +647,21 @@ void DrawSpeed() {
     glEnd();
 
     SetGLText(); // turn on blending
-    sprintf(temp, "%.0f", knotsTokmh(airspeed));
+    if (metric) {
+        sprintf(temp, "%.0f", knotsTokmh(airspeed));
+    } else {
+        sprintf(temp, "%.0f", airspeed);
+    }
     DrawHUDText(temp, &fontMain, (SPEED_POS_X - 30) * HUD_SCALE, (SPEED_POS_Y * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 2, color);
 
     sprintf(temp, "M %.2f", mach);
     DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((fontMain.charHeight * text_scale)), 2, color);
 
+    if (metric) {
+        sprintf(temp, "GS%.0f", knotsTokmh(groundspeed));
+    } else {
+        sprintf(temp, "GS%.0f", groundspeed);
+    }
     sprintf(temp, "GS%.0f", groundspeed);
     DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((fontMain.charHeight * text_scale) * 2), 2, color);
 
@@ -799,7 +808,12 @@ void DrawAltitude() {
     SetGLText(); // turn on blending
 
     if (drawRH && radaralt < 1500) {
-        sprintf(temp, "RH %.0f", radaralt);
+        if (metric) {
+            sprintf(temp, "RH %.0f", radaralt);
+        } else {
+            sprintf(temp, "RH %.0f", m2feet(radaralt));
+        }
+
         DrawHUDText(temp, &fontMain, (ALT_POS_X - 20) * HUD_SCALE, (ALT_POS_Y - 20 + rhY) - ((fontMain.charHeight * text_scale)), 0, color);
     }
 
@@ -807,7 +821,13 @@ void DrawAltitude() {
         if (i < maxA && i > minA && i >= 0) {
 
             if (((i / 100) % 2) == 0) {
-                sprintf(temp, "%d", i);
+                if (metric) {
+                    sprintf(temp, "%d", i);
+                } else {
+                    int aaa = m2feet(i);
+                    sprintf(temp, "%d", aaa);
+                }
+
                 DrawHUDText(temp,
                             &fontMain,
                             (ALT_POS_X + 20) * HUD_SCALE,
@@ -817,7 +837,13 @@ void DrawAltitude() {
             }
         }
     }
-    int altdraw = altitude / 10;
+    int altdraw = 0; // altitude / 10;
+
+    if (metric) {
+        altdraw = altitude / 10;
+    } else {
+        altdraw = m2feet(altitude) / 10;
+    }
     sprintf(temp, "%d", altdraw * 10);
     DrawHUDText(temp, &fontMain, (ALT_POS_X - 30) * HUD_SCALE, (ALT_POS_Y * HUD_SCALE) - ((fontMain.charHeight * text_scale) / 2), 2, color);
 
@@ -891,28 +917,29 @@ void DrawViggen() {
     SetGLTransparentLines();
     glColor4fv(color);
 
-    glPushMatrix();
-    glRotatef(angle, 0, 0, 1);
-    glTranslatef(-x_pos, -y_pos, 0);
-    glRotatef(-angle, 0, 0, 1);
-
-    DrawCircle(10 * HUD_SCALE);
-    glLineWidth(line_width);
-    glBegin(GL_LINES);
-
-    glVertex2f(10 * HUD_SCALE, 0 * HUD_SCALE);
-    glVertex2f(40 * HUD_SCALE, 0 * HUD_SCALE);
-
-    glVertex2f(-10 * HUD_SCALE, 0 * HUD_SCALE);
-    glVertex2f(-40 * HUD_SCALE, 0 * HUD_SCALE);
-
-    glVertex2f(0 * HUD_SCALE, tail_pos - 10 * HUD_SCALE);
-    glVertex2f(0 * HUD_SCALE, tail_pos + 10 * HUD_SCALE);
-
-    glEnd();
-
-    //glTranslatef(x_pos, y_pos, 0); // set position back
-    glPopMatrix(); // set position back
+    DrawVector();
+    // glPushMatrix();
+    // glRotatef(angle, 0, 0, 1);
+    // glTranslatef(-x_pos, -y_pos, 0);
+    // glRotatef(-angle, 0, 0, 1);
+    //
+    // DrawCircle(10 * HUD_SCALE);
+    // glLineWidth(line_width);
+    // glBegin(GL_LINES);
+    //
+    // glVertex2f(10 * HUD_SCALE, 0 * HUD_SCALE);
+    // glVertex2f(40 * HUD_SCALE, 0 * HUD_SCALE);
+    //
+    // glVertex2f(-10 * HUD_SCALE, 0 * HUD_SCALE);
+    // glVertex2f(-40 * HUD_SCALE, 0 * HUD_SCALE);
+    //
+    // glVertex2f(0 * HUD_SCALE, tail_pos - 10 * HUD_SCALE);
+    // glVertex2f(0 * HUD_SCALE, tail_pos + 10 * HUD_SCALE);
+    //
+    // glEnd();
+    //
+    // //glTranslatef(x_pos, y_pos, 0); // set position back
+    // glPopMatrix(); // set position back
     // Horizontal lines
 
     y_pos = CalcFOVAngle(pitch);
@@ -935,7 +962,7 @@ void DrawViggen() {
     float compas_y = CalcFOVAngle(-4);
     if (gear) {
         yy = CalcFOVAngle(-3);
-        compas_y = CalcFOVAngle(-0.5);
+        compas_y = CalcFOVAngle(0.5);
 
         // Heldragen linje vid hjorizonten när landställ är nere
         glLineWidth(line_width);
@@ -966,6 +993,11 @@ void DrawViggen() {
     //glScalef(smallTextScale, smallTextScale, 0);
 
     int alt = altitude; // * 0.3048;
+    if (metric) {
+        alt = feetTom(altitude);
+    } else {
+        alt = altitude;
+    }
     alt = alt / 10;
     alt = alt * 10;
     snprintf(tempText, 13, "%03d", alt);
@@ -1084,7 +1116,12 @@ void DrawViggen() {
     sprintf(tempText, "$ %.0f", alpha); // $ is replaced with alpha sign in bitmap
     DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((fontMain.charHeight * text_scale) * 2), 1, color);
 
-    sprintf(tempText, "%.0f", airspeed);
+    //sprintf(tempText, "%.0f", airspeed);
+    if (metric) {
+        sprintf(tempText, "%.0f", knotsTokmh(airspeed));
+    } else {
+        sprintf(tempText, "%.0f", airspeed);
+    }
     DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE), 1, color);
 
     sprintf(tempText, "M %.2f", mach);
