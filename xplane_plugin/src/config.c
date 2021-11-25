@@ -13,6 +13,10 @@ float landing_speed2 = 180;
 float landing_weight1 = 18000;
 float landing_weight2 = 48000;
 
+float hud_scale = 1.0;
+float text_scale = 1.0;
+float line_scale = 1.0;
+
 float glass_width = 1000;
 float glass_height = 560;
 float glass_x;
@@ -21,7 +25,11 @@ float glass_darkness = 0.2;
 int draw_glass = 1;
 int glass_type = 6;
 int glass_type2 = 4;
+int text_blend1 = 6;
+int text_blend2 = 7;
 int th1 = 0;
+int g_sway = 0;
+int draw_test = 0;
 
 void readConfig() {
     debugLog("readConfig \n");
@@ -74,6 +82,12 @@ void parseLine(char* line) {
         sscanf(line + 10, "%f", &i);
         hud_scale = i;
     }
+    if (strncmp("line_scale=", line, 11) == 0) {
+        float i = 0;
+        XPLMDebugString(line + 11);
+        sscanf(line + 11, "%f", &i);
+        line_scale = i;
+    }
     if (strncmp("landing_speed1=", line, 15) == 0) {
         //hud_scale
         float i = 0;
@@ -123,12 +137,40 @@ void parseLine(char* line) {
         sscanf(line + 12, "%d", &i);
         glass_type2 = i;
     }
+    if (strncmp("text_blend1=", line, 12) == 0) {
+        //hud_scale
+        int i = 0;
+        XPLMDebugString(line + 12);
+        sscanf(line + 12, "%d", &i);
+        text_blend1 = i;
+    }
+    if (strncmp("text_blend2=", line, 12) == 0) {
+        //hud_scale
+        int i = 0;
+        XPLMDebugString(line + 12);
+        sscanf(line + 12, "%d", &i);
+        text_blend2 = i;
+    }
     if (strncmp("th1=", line, 4) == 0) {
         //hud_scale
         int i = 0;
         XPLMDebugString(line + 4);
         sscanf(line + 4, "%d", &i);
         th1 = i;
+    }
+    if (strncmp("g_sway=", line, 7) == 0) {
+        //hud_scale
+        int i = 0;
+        XPLMDebugString(line + 7);
+        sscanf(line + 7, "%d", &i);
+        g_sway = i;
+    }
+    if (strncmp("draw_test=", line, 10) == 0) {
+        //hud_scale
+        int i = 0;
+        XPLMDebugString(line + 10);
+        sscanf(line + 10, "%d", &i);
+        draw_test = i;
     }
     if (strncmp("glass_darkness=", line, 15) == 0) {
         //hud_scale

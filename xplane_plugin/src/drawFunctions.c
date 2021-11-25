@@ -17,10 +17,25 @@ int screen_height;
 float line_width = 2.0;
 float fov;
 float fov_pixels;
-float hud_scale = 1.0;
-float text_scale = 1.0;
+
 float color[] = {0.0, 1.0, 0.0, 1.0};
 int viggen_mode = 1;
+
+int blendmodes[] = {GL_ZERO,
+                    GL_ONE,
+                    GL_SRC_COLOR,
+                    GL_ONE_MINUS_SRC_COLOR,
+                    GL_DST_COLOR,
+                    GL_ONE_MINUS_DST_COLOR,
+                    GL_SRC_ALPHA,
+                    GL_ONE_MINUS_SRC_ALPHA,
+                    GL_DST_ALPHA,
+                    GL_ONE_MINUS_DST_ALPHA,
+                    GL_CONSTANT_COLOR,
+                    GL_ONE_MINUS_CONSTANT_COLOR,
+                    GL_CONSTANT_ALPHA,
+                    GL_ONE_MINUS_CONSTANT_ALPHA,
+                    GL_SRC_ALPHA_SATURATE};
 
 void CalculateCenter(void) {
     int screen_width;
@@ -32,7 +47,7 @@ void CalculateCenter(void) {
     glTranslated(screen_width / 2, screen_height / 2, 0);
     fov = getFOV();
     fov_pixels = screen_height / fov;
-    line_width = LINE_WIDTH * hud_scale;
+    line_width = line_scale * hud_scale;
     CalculateColors();
 
     glScissor((screen_width / 2) - glass_width * hud_scale / 2, 0, glass_width * hud_scale, screen_height / 2 + glass_height * hud_scale / 2);

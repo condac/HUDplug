@@ -10,3 +10,4 @@ void DrawViggen();
 void DrawGlass();
 void DrawGroundCollision();
 void DrawFuelTime();
+void DrawCompass();

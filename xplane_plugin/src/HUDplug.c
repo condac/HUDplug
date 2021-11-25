@@ -318,7 +318,15 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     } else {
         TranslateToCenter();
         DrawGlass();
-        DrawTest();
+        glPushMatrix();
+        if (g_sway) {
+            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
+        }
+        if (draw_test) {
+            DrawTest();
+        }
+
+        DrawCompass();
 
         TranslateToCenter();
         DrawVector();
@@ -334,6 +342,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
 
         TranslateToCenter();
         DrawHorizionLines();
+        glPopMatrix();
     }
 
     glPopMatrix();

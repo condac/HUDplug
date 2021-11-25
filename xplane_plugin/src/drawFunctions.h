@@ -6,11 +6,12 @@ extern int screen_width;
 extern int screen_height;
 extern float fov;
 extern float fov_pixels;
-extern float hud_scale;
-extern float text_scale;
+
 extern float line_width;
 extern float color[4];
 extern int viggen_mode;
+#define SIZE_OF_BLENDMODES 15
+extern int blendmodes[SIZE_OF_BLENDMODES];
 
 void CalculateCenter(void);
 void TranslateToCenter(void);

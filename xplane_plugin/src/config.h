@@ -22,7 +22,14 @@ extern float glass_y;
 extern int draw_glass;
 extern int glass_type;
 extern int glass_type2;
+extern int text_blend1;
+extern int text_blend2;
 extern int th1;
+extern int g_sway;
+extern int draw_test;
+extern float hud_scale;
+extern float text_scale;
+extern float line_scale;
 
 extern float glass_darkness;
 

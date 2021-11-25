@@ -28,6 +28,8 @@ XPLMDataRef drFOV;
 float fov2;
 int fov_notfound = 0;
 XPLMDataRef drGForce;
+XPLMDataRef drGForceX;
+XPLMDataRef drGForceZ;
 XPLMDataRef drThrottlePos;
 
 // torque
@@ -195,6 +197,8 @@ int initDataRefs() {
     lTmp += findDataRef("sim/flightmodel/position/beta", &drBeta);
 
     lTmp += findDataRef("sim/flightmodel/forces/g_nrml", &drGForce);
+    lTmp += findDataRef("sim/flightmodel/forces/g_side", &drGForceX);
+    lTmp += findDataRef("sim/flightmodel/forces/g_axil", &drGForceZ);
     //lTmp += findDataRef("sim/flightmodel/position/magnetic_variation", &drMagVar);
     //lTmp += findDataRef("sim/graphics/view/view_type", &drCurrentView);
     lTmp += findDataRef("sim/graphics/view/view_is_external", &drViewIsExternal);
@@ -261,6 +265,12 @@ float getBetaA() {
 }
 float getGForce() {
     return XPLMGetDataf(drGForce);
+}
+float getGForceX() {
+    return XPLMGetDataf(drGForceX);
+}
+float getGForceZ() {
+    return XPLMGetDataf(drGForceZ);
 }
 float getVX() {
     return XPLMGetDataf(drVX);

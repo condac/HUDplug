@@ -8,6 +8,54 @@
 int stab_error;
 
 void DrawTest() {
+
+    SetGLTransparentLines();
+    glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Standard blend, baserat på alpha
+    // detta motsvarar mode 6 7
+    //glBlendFunc(modes[glass_type], modes[glass_type2]);
+    float testcolor[] = {0.0, 1.0, 0.0, 1.0};
+    float testcolor2[] = {0.0, 1.0, 0.0, 0.5};
+    float testcolor3[] = {0.0, 0.5, 0.0, 0.5};
+    for (int i = 0; i < 15; i++) {
+        for (int y = 0; y < 15; y++) {
+            SetGLTransparentLines();
+            glEnable(GL_BLEND);
+            glBlendFunc(blendmodes[i], blendmodes[y]);
+
+            glColor4fv(testcolor);
+            glLineWidth(2);
+            glBegin(GL_LINES);
+
+            glVertex2f(-500 + i * 30, -500 + y * 30);
+            glVertex2f(-500 + i * 30 + 25, -500 + y * 30 + 25);
+
+            glEnd();
+            glColor4fv(testcolor2);
+            glLineWidth(2);
+            glBegin(GL_LINES);
+
+            glVertex2f(-500 + i * 30 + 25, -500 + y * 30);
+            glVertex2f(-500 + i * 30, -500 + y * 30 + 25);
+
+            glEnd();
+            glEnd();
+            glColor4fv(testcolor3);
+            glLineWidth(2);
+            glBegin(GL_LINES);
+
+            glVertex2f(-500 + i * 30 + 25, -500 + y * 30);
+            glVertex2f(-500 + i * 30, -500 + y * 30);
+
+            glEnd();
+            SetGLText();
+            glBlendFunc(blendmodes[i], blendmodes[y]);
+            DrawHUDText("A", &fontMain, 0 + i * 30 + 25, -500 + y * 30, 1, color);
+        }
+    }
+}
+
+void DrawCompass() {
     float compas_y = 220;
     char tempText[100];
     float heading = getHeading();
@@ -176,8 +224,8 @@ void DrawGlass() {
 
     float colorglass[] = {0.2, 0.0, 0.2, 0.5};
     float colorglassB[] = {0.2, 0., 0.2, 0.2};
-    colorglass[3] = GetGlassDarkness();
-    colorglassB[3] = GetGlassDarkness() - 0.3;
+    colorglass[3] = GetGlassDarkness() * glass_darkness;
+    colorglassB[3] = GetGlassDarkness() * glass_darkness - 0.3;
 
     int modes[] = {GL_ZERO,
                    GL_ONE,

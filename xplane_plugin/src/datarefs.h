@@ -36,6 +36,8 @@ float getYawStringAngle();
 float getGroundSpeed();
 float getMachSpeed();
 float getGForce();
+float getGForceX();
+float getGForceZ();
 float getTotalWeight();
 float getThrottlePos();
 int getSpeedBrake();
