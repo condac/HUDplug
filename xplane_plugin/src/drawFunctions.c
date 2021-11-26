@@ -121,6 +121,45 @@ void DrawCircleXY(float radius, float x, float y) {
     glEnd();
 }
 
+void DrawCircleDown(float radius, float x, float y, float heading) {
+    double angle;
+    int i;
+    float a = 15; // bredden på pilen i pixlar
+    int segments = 10;
+    glBegin(GL_LINE_LOOP);
+    for (i = 0; i < (360 / segments); i++) {
+        float aoff = asin(a / radius);
+        angle = aoff * 2 + ((i + heading / segments) * 2 * M_PI / (360 / segments));
+        glVertex2f(x + (cos(angle) * radius), y + (sin(angle) * radius));
+
+        angle = aoff + ((i + heading / segments) * 2 * M_PI / (360 / segments));
+        glVertex2f(x + (cos(angle) * (radius - 40)), y + (sin(angle) * (radius - 40)));
+        angle = ((i + heading / segments) * 2 * M_PI / (360 / segments));
+        glVertex2f(x + (cos(angle) * radius), y + (sin(angle) * radius));
+    }
+    glEnd();
+}
+
+void DrawCircleUp(float radius, float x, float y, float heading) {
+    double angle;
+    int i;
+    int segments = 10;
+    glBegin(GL_LINE_LOOP);
+    for (i = 0; i < (360 / segments); i++) {
+        angle = (i - heading / segments) * 2 * M_PI / (360 / segments);
+        glVertex2f(x + (cos(angle) * radius), y + (sin(angle) * radius));
+    }
+    glEnd();
+
+    glBegin(GL_LINES);
+    for (i = 0; i < (360 / segments); i++) {
+        angle = (i - heading / segments) * 2 * M_PI / (360 / segments);
+        glVertex2f(x + (cos(angle) * radius), y + (sin(angle) * radius));
+        glVertex2f(x + (cos(angle) * (radius - 10)), y + (sin(angle) * (radius - 10)));
+    }
+    glEnd();
+}
+
 float CalcFOVAngle(float input) {
     float out = (input * fov_pixels) / hud_scale;
 

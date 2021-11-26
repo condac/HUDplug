@@ -72,7 +72,7 @@
 //#    include <GL/glew.h>
 #    include <GL/gl.h> // apt install mesa-common-dev
 #    include <GL/glu.h>
-
+//#    include <GL/glut.h>
 #    include <GL/glext.h>
 
 #elif __GNUC__
@@ -103,6 +103,7 @@ XPLM200—X-Plane 9.00 & newer
 //#define XPLM301 1
 
 #include "config.h"
+#include "glutstroke.h"
 
 #include "XPLMDisplay.h" // download xplane SDK and put in SDK folder https://developer.x-plane.com/sdk/plugin-sdk-downloads/
 #include "XPLMGraphics.h"

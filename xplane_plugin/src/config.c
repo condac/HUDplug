@@ -16,6 +16,7 @@ float landing_weight2 = 48000;
 float hud_scale = 1.0;
 float text_scale = 1.0;
 float line_scale = 1.0;
+float line_text_scale = 1.0;
 
 float glass_width = 1000;
 float glass_height = 560;
@@ -95,6 +96,12 @@ void parseLine(char* line) {
         XPLMDebugString(line + 11);
         sscanf(line + 11, "%f", &i);
         line_scale = i;
+    }
+    if (strncmp("line_text_scale=", line, 16) == 0) {
+        float i = 0;
+        XPLMDebugString(line + 16);
+        sscanf(line + 16, "%f", &i);
+        line_text_scale = i;
     }
     if (strncmp("landing_speed1=", line, 15) == 0) {
         //hud_scale

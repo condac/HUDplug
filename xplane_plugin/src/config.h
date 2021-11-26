@@ -31,6 +31,7 @@ extern int metric;
 extern float hud_scale;
 extern float text_scale;
 extern float line_scale;
+extern float line_text_scale;
 
 extern float glass_darkness;
 
