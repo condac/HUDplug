@@ -46,6 +46,7 @@ int getSpeedBrake();
 int getParkBrake();
 int getStabStatus();
 int getGear();
+int getPause();
 
 float getFuelFlow();
 float getTotalFuel();

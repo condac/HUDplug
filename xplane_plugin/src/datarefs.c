@@ -63,6 +63,7 @@ XPLMDataRef drFuelFlow;
 
 XPLMDataRef drGearDef;
 XPLMDataRef drFBO;
+XPLMDataRef drPause;
 
 XPLMDataRef hudVisibleDR = NULL;
 XPLMDataRef stabilisatorStatusDR = NULL;
@@ -233,6 +234,7 @@ int initDataRefs() {
 
     lTmp += findDataRef("sim/flightmodel/parts/tire_vrt_def_veh", &drGearDef);
     lTmp += findDataRef("sim/graphics/view/current_gl_fbo", &drFBO);
+    lTmp += findDataRef("sim/time/paused", &drPause);
 
     if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
         fov2 = 30;
@@ -347,6 +349,9 @@ int getParkBrake() {
 }
 int getStabStatus() {
     return XPLMGetDatai(stabilisatorStatusDR);
+}
+int getPause() {
+    return XPLMGetDatai(drPause);
 }
 void setStabStatus(int value) {
     XPLMSetDatai(stabilisatorStatusDR, value);
