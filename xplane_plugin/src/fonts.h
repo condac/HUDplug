@@ -35,7 +35,8 @@ extern HUDFontProperties fontMain;
 
 void LoadFontTextures(void);
 void CreateHUDFont(HUDFontProperties* f);
-void DrawHUDText(const char* pValue, HUDFontProperties* f, int pX, int pY, char pAllign, float* color);
+void DrawHUDText(const char* pValue, HUDFontProperties* f, float pX, float pY, int pAllign, float* color);
+void DrawHUDText2(const char* pValue, HUDFontProperties* f, int pX, int pY, char pAllign, float* color);
 void DrawHUDNumber(int pValue, HUDFontProperties* f, int pDigits, int pX, int pY, char pAllign, float* color);
 void DrawTexts(void);
 void InitFonts(void);

@@ -105,7 +105,12 @@ void CreateHUDFont(HUDFontProperties* f) {
     debugLog("loaded font %s, base %d.\n", f->fileName, f->dispListBase);
 }
 
-void DrawHUDText(const char* pValue, HUDFontProperties* f, int pX, int pY, char pAllign, float* color) {
+void DrawHUDText(const char* pValue, HUDFontProperties* f, float pX, float pY, int pAllign, float* color) {
+    // override to use line text
+    drawLineText(pValue, pX, pY, 1.0, pAllign);
+}
+
+void DrawHUDText2(const char* pValue, HUDFontProperties* f, int pX, int pY, char pAllign, float* color) {
     XPLMBindTexture2d(f->texId, 0);
     glColor4f(color[0], color[1], color[2], color[3]);
     glPushMatrix();
@@ -243,10 +248,17 @@ int LoadHUDFontTexture(HUDFontProperties* f) {
 }
 
 void SetGLText(void) {
-    XPLMSetGraphicsState(0 /*Fog*/, 1 /*TexUnits*/, 0 /*Lighting*/, 0 /*AlphaTesting*/, 1 /*AlphaBlending*/, 0 /*DepthTesting*/, 0 /*DepthWriting*/);
+    //XPLMSetGraphicsState(0 /*Fog*/, 1 /*TexUnits*/, 0 /*Lighting*/, 0 /*AlphaTesting*/, 1 /*AlphaBlending*/, 0 /*DepthTesting*/, 0 /*DepthWriting*/);
     //glBlendFunc(GL_ONE, GL_ONE);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(blendmodes[text_blend1], blendmodes[text_blend2]);
+
+    // för nya textlinjer
+    XPLMSetGraphicsState(0 /*Fog*/, 0 /*TexUnits*/, 0 /*Lighting*/, 0 /*AlphaTesting*/, 1 /*AlphaBlending*/, 0 /*DepthTesting*/, 0 /*DepthWriting*/);
+    glEnable(GL_BLEND);
     glBlendFunc(blendmodes[text_blend1], blendmodes[text_blend2]);
+
+    glColor4fv(color);
 }
 
 void SetGLTransparentLines(void) {
