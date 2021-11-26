@@ -2,7 +2,7 @@
 /* Mono Roman moddad för JAS */
 
 #include "HUDplug.h"
-#include "glutstroke.h"
+#include "vectorfont.h"
 
 /* char: 33 '!' */
 

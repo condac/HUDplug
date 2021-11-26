@@ -1,7 +1,7 @@
 
 
 #include "HUDplug.h"
-#include "glutstroke.h"
+#include "vectorfont.h"
 #include "jasroman.font"
 
 float scalefactor = 0.2;
