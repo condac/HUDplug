@@ -56,9 +56,10 @@ void DrawTest() {
 }
 
 void DrawCompass() {
-    float compas_y = 220;
+    float compas_y = 180;
     char tempText[100];
     float heading = getHeading();
+    float nav1_heading = getNAV1Heading();
     // Draw Text
     //SetGLText(); // turn on blending
     //float color[] = {0.0, 1.0, 0.0, 1.0};
