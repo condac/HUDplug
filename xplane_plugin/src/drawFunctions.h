@@ -18,6 +18,7 @@ void TranslateToCenter(void);
 void initGlResources();
 void DrawCircle(float radius);
 void DrawCircleXY(float radius, float x, float y);
+void DrawFillCircleXY(float radius, float x, float y);
 void DrawCircleDown(float radius, float x, float y, float heading);
 void DrawCircleUp(float radius, float x, float y, float heading);
 

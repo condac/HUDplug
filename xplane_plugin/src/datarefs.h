@@ -42,6 +42,11 @@ float getGForceX();
 float getGForceZ();
 float getTotalWeight();
 float getThrottlePos();
+
+float getILSv();
+float getILSh();
+int ifILSEnabled();
+
 int getSpeedBrake();
 int getParkBrake();
 int getStabStatus();

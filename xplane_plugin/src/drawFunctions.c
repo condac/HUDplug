@@ -105,7 +105,7 @@ void DrawCircle(float radius) {
     int i;
     glBegin(GL_LINE_LOOP);
     for (i = 0; i < CIRCLE_LINES_COUNT; i++) {
-        angle = i * 2 * M_PI / CIRCLE_LINES_COUNT;
+        angle = -i * 2 * M_PI / CIRCLE_LINES_COUNT;
         glVertex2f((cos(angle) * radius), (sin(angle) * radius));
     }
     glEnd();
@@ -115,12 +115,22 @@ void DrawCircleXY(float radius, float x, float y) {
     int i;
     glBegin(GL_LINE_LOOP);
     for (i = 0; i < CIRCLE_LINES_COUNT; i++) {
-        angle = i * 2 * M_PI / CIRCLE_LINES_COUNT;
+        angle = -i * 2 * M_PI / CIRCLE_LINES_COUNT;
         glVertex2f(x + (cos(angle) * radius), y + (sin(angle) * radius));
     }
     glEnd();
 }
+void DrawFillCircleXY(float radius, float x, float y) {
+    double angle;
+    int i;
+    glBegin(GL_POLYGON);
+    for (i = 0; i < CIRCLE_LINES_COUNT - 1; i++) {
+        angle = -i * 2 * M_PI / CIRCLE_LINES_COUNT;
+        glVertex2f(x + (cos(angle) * radius), y + (sin(angle) * radius));
+    }
 
+    glEnd();
+}
 void DrawCircleDown(float radius, float x, float y, float heading) {
     double angle;
     int i;

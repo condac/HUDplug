@@ -68,7 +68,7 @@ float textHeight(float size) {
 }
 
 void drawLineText(const char* text, float x, float y, float size, int align) {
-    int width = vectorFontWidth('W');
+    //int width = vectorFontWidth('W');
     float length = vectorFontLength(text);
     float halign = 0.0;
     float valign = 0.0;

@@ -64,6 +64,8 @@ XPLMDataRef drFuelFlow;
 XPLMDataRef drGearDef;
 XPLMDataRef drFBO;
 XPLMDataRef drPause;
+XPLMDataRef dr_nav1_vdef;
+XPLMDataRef dr_nav1_hdef;
 
 XPLMDataRef hudVisibleDR = NULL;
 XPLMDataRef stabilisatorStatusDR = NULL;
@@ -232,6 +234,9 @@ int initDataRefs() {
     lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max[2]", &drFuelExtra2m);
     lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max[3]", &drFuelExtra3m);
 
+    lTmp += findDataRef("sim/cockpit/radios/nav1_vdef_dot", &dr_nav1_vdef);
+    lTmp += findDataRef("sim/cockpit/radios/nav1_hdef_dot", &dr_nav1_hdef);
+
     lTmp += findDataRef("sim/flightmodel/parts/tire_vrt_def_veh", &drGearDef);
     lTmp += findDataRef("sim/graphics/view/current_gl_fbo", &drFBO);
     lTmp += findDataRef("sim/time/paused", &drPause);
@@ -370,15 +375,21 @@ float getTotalFuel() {
     För att kolla detta så kikar vi på om extra tanken väger mindre än maxvikten,
     detta betyder att det försvunnit bensin och då är det en tank
     */
-    // if (getArrayValue(drFuelExtra1, 0) < getArrayValue(drFuelExtra1m, 0)) {
-    //     total = total + getArrayValue(drFuelExtra1, 0);
-    // }
-    // if (getArrayValue(drFuelExtra1, 2) < getArrayValue(drFuelExtra1m, 2)) {
-    //     total = total + getArrayValue(drFuelExtra1, 2);
-    // }
-    // if (getArrayValue(drFuelExtra1, 3) < getArrayValue(drFuelExtra1m, 3)) {
-    //     total = total + getArrayValue(drFuelExtra1, 3);
-    // }
+    if (getArrayValue(drFuelExtra1, 0) < getArrayValue(drFuelExtra1m, 0)) {
+        total = total + getArrayValue(drFuelExtra1, 0);
+    }
+    if (getArrayValue(drFuelExtra1, 2) < getArrayValue(drFuelExtra1m, 2)) {
+        total = total + getArrayValue(drFuelExtra1, 2);
+    }
+    if (getArrayValue(drFuelExtra1, 3) < getArrayValue(drFuelExtra1m, 3)) {
+        total = total + getArrayValue(drFuelExtra1, 3);
+    }
+    if (getArrayValue(drFuelExtra1, 4) < getArrayValue(drFuelExtra1m, 4)) {
+        total = total + getArrayValue(drFuelExtra1, 4);
+    }
+    if (getArrayValue(drFuelExtra1, 5) < getArrayValue(drFuelExtra1m, 5)) {
+        total = total + getArrayValue(drFuelExtra1, 5);
+    }
 
     return total;
 }
@@ -396,6 +407,16 @@ float getFuelFlow() {
     float value[1];
     XPLMGetDatavf(drFuelFlow, value, 0, 1);
     return value[0];
+}
+
+float getILSv() {
+    return XPLMGetDataf(dr_nav1_vdef);
+}
+float getILSh() {
+    return XPLMGetDataf(dr_nav1_hdef);
+}
+int ifILSEnabled() {
+    return 1;
 }
 
 //int getCurrentView() {

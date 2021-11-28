@@ -315,6 +315,8 @@ void DrawVector() {
     float x_pos = CalcFOVAngle(myGetBeta());
     float tail_pos = airspeed - getLandingSpeed() + 20;
     float angle = getRoll();
+    float vdef = getILSv();
+    float hdef = getILSh();
     int gear = getGear();
     tail_pos = fmin(tail_pos, 40); // Fenans längd ska motsvara 20km/h
     tail_pos = fmax(tail_pos, -40);
@@ -344,6 +346,11 @@ void DrawVector() {
 
     glEnd();
 
+    // ILS indikator
+    if (gear) {
+        DrawFillCircleXY(5, hdef * 100, -vdef * 100);
+    }
+
     glRotatef(angle, 0, 0, 1);
     glTranslatef(x_pos, y_pos, 0); // set position back
     glRotatef(-angle, 0, 0, 1);
@@ -367,6 +374,8 @@ void DrawHorizionLines() {
     char tempText[10];
     float smallTextScale = 0.75;
     int gear = getGear();
+    float vdef = getILSv();
+    //float hdef = getILSh();
 
     glColor4fv(color);
 
@@ -434,6 +443,23 @@ void DrawHorizionLines() {
         glVertex2f(-40 * HUD_SCALE, yy * HUD_SCALE);
         glVertex2f(-200 * HUD_SCALE, yy * HUD_SCALE);
         glEnd();
+
+        if (ifILSEnabled() == 1) {
+            float yy2 = yy - vdef * 20;
+            glBegin(GL_LINES);
+            glVertex2f(90, yy2);
+            glVertex2f(90, yy2 - 80);
+
+            glVertex2f(180, yy2);
+            glVertex2f(180, yy2 - 120);
+
+            glVertex2f(-90, yy2);
+            glVertex2f(-90, yy2 - 80);
+
+            glVertex2f(-180, yy2);
+            glVertex2f(-180, yy2 - 120);
+            glEnd();
+        }
     }
 
     for (int i = 10; i < 90; i += 10) {
@@ -904,11 +930,11 @@ void DrawViggen() {
     float airspeed = getIAS();
     float altitude = getAltitude();
     float alpha = myGetAlpha();
-    float beta = myGetBeta();
+    //float beta = myGetBeta();
     //float gforce = getGForce();
     float mach = getMachSpeed();
     float y_pos = CalcFOVAngle(alpha);
-    float x_pos = CalcFOVAngle(beta);
+    //float x_pos = CalcFOVAngle(beta);
     float heading = getHeading();
     float angle = getRoll();
     float pitch = getPitch();
