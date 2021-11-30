@@ -19,7 +19,7 @@ float line_scale = 1.0;
 float line_text_scale = 1.0;
 
 float glass_width = 1000;
-float glass_height = 560;
+float glass_height = 760;
 float glass_x;
 float glass_y;
 float glass_darkness = 0.2;

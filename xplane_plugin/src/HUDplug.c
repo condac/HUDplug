@@ -334,22 +334,23 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
             DrawTest();
         }
 
-        DrawCompass();
-
-        TranslateToCenter();
-        DrawVector();
-
-        TranslateToCenter();
-        DrawSpeed();
-        DrawAlpha();
-
-        TranslateToCenter();
-        DrawAltitude();
-        DrawGroundCollision();
-        DrawFuelTime();
-
-        TranslateToCenter();
-        DrawHorizionLines();
+        DrawModesJAS();
+        // DrawCompass();
+        //
+        // TranslateToCenter();
+        // DrawVector();
+        //
+        // TranslateToCenter();
+        // DrawSpeed();
+        // DrawAlpha();
+        //
+        // TranslateToCenter();
+        // DrawAltitude();
+        // DrawGroundCollision();
+        // DrawFuelTime();
+        //
+        // TranslateToCenter();
+        // DrawHorizionLines();
         glPopMatrix();
     }
 

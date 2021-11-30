@@ -55,8 +55,8 @@ void DrawTest() {
     }
 }
 
-void DrawCompass() {
-    float compas_y = 180;
+void DrawCompass(float x, float y) {
+    float compas_y = y;
     char tempText[100];
     float heading = getHeading();
     float nav1_heading = getNAV1Heading();
@@ -72,10 +72,10 @@ void DrawCompass() {
     // pilen som pekar på kursen
     glBegin(GL_LINES);
 
-    glVertex2f(0 * HUD_SCALE, compas_y + 0 * HUD_SCALE);
-    glVertex2f(0 + 10 * HUD_SCALE, compas_y - 20 * HUD_SCALE);
-    glVertex2f(0 * HUD_SCALE, compas_y + 0 * HUD_SCALE);
-    glVertex2f(0 - 10 * HUD_SCALE, compas_y - 20 * HUD_SCALE);
+    glVertex2f(0, compas_y + 0);
+    glVertex2f(0 + 10, compas_y - 20);
+    glVertex2f(0, compas_y + 0);
+    glVertex2f(0 - 10, compas_y - 20);
 
     glEnd();
     // Compas lines long
@@ -97,8 +97,8 @@ void DrawCompass() {
             glLineWidth(line_width);
             glBegin(GL_LINES);
 
-            glVertex2f(offset * HUD_SCALE, compas_y * HUD_SCALE);
-            glVertex2f(offset * HUD_SCALE, compas_y + 20 * HUD_SCALE);
+            glVertex2f(offset, compas_y);
+            glVertex2f(offset, compas_y + 20);
 
             glEnd();
         }
@@ -122,12 +122,30 @@ void DrawCompass() {
             glLineWidth(line_width);
             glBegin(GL_LINES);
 
-            glVertex2f(offset * HUD_SCALE, compas_y * HUD_SCALE);
-            glVertex2f(offset * HUD_SCALE, compas_y + 5 * HUD_SCALE);
+            glVertex2f(offset, compas_y);
+            glVertex2f(offset, compas_y + 5);
 
             glEnd();
         }
     }
+
+    // NAV 1 riktning
+    float offset = (nav1_heading)-heading;
+    float rate = 80 / 10;
+    offset = lim(offset * rate, -150, 150);
+
+    glLineWidth(line_width);
+    glBegin(GL_LINES);
+
+    glVertex2f(offset, compas_y);
+    glVertex2f(offset, compas_y - 25);
+    glVertex2f(offset - 5, compas_y - 20);
+    glVertex2f(offset - 5, compas_y - 25);
+    glVertex2f(offset + 5, compas_y - 20);
+    glVertex2f(offset + 5, compas_y - 25);
+
+    glEnd();
+
     SetGLText();
     // Compas lines text
     for (int i = 0; i < 37; i++) {
@@ -146,11 +164,11 @@ void DrawCompass() {
             float rate = 80 / 10;
             offset = offset * rate;
             sprintf(tempText, "%02d", i);
-            DrawHUDText(tempText, &fontMain, offset * HUD_SCALE, compas_y + 25 * HUD_SCALE, 1, color);
+            DrawHUDText(tempText, &fontMain, offset, compas_y + 25, 1, color);
         }
     }
     // sprintf(tempText, "test%02d", 1);
-    // DrawHUDText(tempText, &fontMain, 0 * HUD_SCALE, compas_y * HUD_SCALE, 1, color);
+    // DrawHUDText(tempText, &fontMain, 0  , compas_y  , 1, color);
 }
 
 #define MOVEMENT_ARROW_RADIUS_PX 20
@@ -298,7 +316,7 @@ void DrawGlass() {
     SetGLText(); // för att nollställa blendFunc
     // char tempText[100];
     // sprintf(tempText, "glass %f", glass_darkness);
-    // DrawHUDText(tempText, &fontMain, 10 * HUD_SCALE, 10, 1, color);
+    // DrawHUDText(tempText, &fontMain, 10  , 10, 1, color);
 
     SetGLTransparentLines();
 
@@ -329,27 +347,29 @@ void DrawVector() {
     glRotatef(-angle, 0, 0, 1);
 
     if (!markKontakt()) {
-        DrawCircle(10 * HUD_SCALE);
+        DrawCircle(10);
     }
     glLineWidth(line_width);
     glBegin(GL_LINES);
 
-    glVertex2f(10 * HUD_SCALE, 0 * HUD_SCALE);
-    glVertex2f(30 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(10, 0);
+    glVertex2f(30, 0);
 
-    glVertex2f(-10 * HUD_SCALE, 0 * HUD_SCALE);
-    glVertex2f(-30 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(-10, 0);
+    glVertex2f(-30, 0);
 
     if (gear) {
-        glVertex2f(0 * HUD_SCALE, tail_pos - 10 * HUD_SCALE);
-        glVertex2f(0 * HUD_SCALE, tail_pos + 10 * HUD_SCALE);
+        glVertex2f(0, tail_pos - 10);
+        glVertex2f(0, tail_pos + 10);
     }
 
     glEnd();
 
     // ILS indikator
     if (gear) {
-        DrawFillCircleXY(5, hdef * 100, -vdef * 100);
+        if (ifILSEnabled() == 1 && markKontakt() == 0) {
+            DrawFillCircleXY(5, hdef * 50, -vdef * 50);
+        }
     }
 
     glRotatef(angle, 0, 0, 1);
@@ -390,20 +410,20 @@ void DrawHorizionLines() {
 
     // prickar
     for (float i = -160; i < 160; i += 40) {
-        glVertex2f((i)*HUD_SCALE, 0 * HUD_SCALE);
-        glVertex2f((i + (line_width * 2)) * HUD_SCALE, 0 * HUD_SCALE);
+        glVertex2f((i)*HUD_SCALE, 0);
+        glVertex2f((i + (line_width * 2)), 0);
     }
-    glVertex2f(160 * HUD_SCALE, 0 * HUD_SCALE);
-    glVertex2f(295 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(160, 0);
+    glVertex2f(295, 0);
 
-    glVertex2f(410 * HUD_SCALE, 0 * HUD_SCALE);
-    glVertex2f(480 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(410, 0);
+    glVertex2f(480, 0);
 
-    glVertex2f(-160 * HUD_SCALE, 0 * HUD_SCALE);
-    glVertex2f(-295 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(-160, 0);
+    glVertex2f(-295, 0);
 
-    glVertex2f(-410 * HUD_SCALE, 0 * HUD_SCALE);
-    glVertex2f(-480 * HUD_SCALE, 0 * HUD_SCALE);
+    glVertex2f(-410, 0);
+    glVertex2f(-480, 0);
 
     glEnd();
 
@@ -426,8 +446,8 @@ void DrawHorizionLines() {
         }
         if ((offset < 90) && (offset > -90)) {
             offset = CalcFOVAngle(offset);
-            glVertex2f(offset, compas_y * HUD_SCALE);
-            glVertex2f(offset, (compas_y + 10) * HUD_SCALE);
+            glVertex2f(offset, compas_y);
+            glVertex2f(offset, (compas_y + 10));
         }
     }
 
@@ -438,14 +458,15 @@ void DrawHorizionLines() {
         // Heldragen linje vid hjorizonten när landställ är nere
         glLineWidth(line_width);
         glBegin(GL_LINES);
-        glVertex2f(40 * HUD_SCALE, yy * HUD_SCALE);
-        glVertex2f(200 * HUD_SCALE, yy * HUD_SCALE);
+        glVertex2f(40, yy);
+        glVertex2f(200, yy);
 
-        glVertex2f(-40 * HUD_SCALE, yy * HUD_SCALE);
-        glVertex2f(-200 * HUD_SCALE, yy * HUD_SCALE);
+        glVertex2f(-40, yy);
+        glVertex2f(-200, yy);
         glEnd();
 
-        if (ifILSEnabled() == 1) {
+        // Landingssstolpar
+        if (ifILSEnabled() == 1 && markKontakt() == 0) {
             float yy2 = yy - vdef * 20;
             glBegin(GL_LINES);
             glVertex2f(90, yy2);
@@ -468,15 +489,15 @@ void DrawHorizionLines() {
         //     glLineWidth(line_width);
         //     glBegin(GL_LINES);
         //
-        //     glVertex2f(40 * HUD_SCALE, CalcFOVAngle(i));
-        //     glVertex2f(200 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(40  , CalcFOVAngle(i));
+        //     glVertex2f(200  , CalcFOVAngle(i));
         //
-        //     glVertex2f(-40 * HUD_SCALE, CalcFOVAngle(i));
-        //     glVertex2f(-200 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(-40  , CalcFOVAngle(i));
+        //     glVertex2f(-200  , CalcFOVAngle(i));
         //     glEnd();
         //
         // }
-        DrawCircleUp(CalcFOVAngle(i) * HUD_SCALE, 0, CalcFOVAngle(90), heading);
+        DrawCircleUp(CalcFOVAngle(i), 0, CalcFOVAngle(90), heading);
     }
 
     for (int i = -10; i > -90; i -= 10) {
@@ -484,66 +505,66 @@ void DrawHorizionLines() {
         //     glLineWidth(line_width);
         //     glBegin(GL_LINES);
         //
-        //     glVertex2f(15 * HUD_SCALE, CalcFOVAngle(i));
-        //     glVertex2f(400 - 15 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(15  , CalcFOVAngle(i));
+        //     glVertex2f(400 - 15  , CalcFOVAngle(i));
         //
         //     // en knöl uppåt
         //     //mitten
-        //     glVertex2f(0 * HUD_SCALE, CalcFOVAngle(i) + (40 * HUD_SCALE));
-        //     glVertex2f(15 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(0  , CalcFOVAngle(i) + (40  ));
+        //     glVertex2f(15  , CalcFOVAngle(i));
         //
-        //     glVertex2f(0 * HUD_SCALE, CalcFOVAngle(i) + (40 * HUD_SCALE));
-        //     glVertex2f(-15 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(0  , CalcFOVAngle(i) + (40  ));
+        //     glVertex2f(-15  , CalcFOVAngle(i));
         //
         //     // höger
-        //     glVertex2f(400 * HUD_SCALE, CalcFOVAngle(i) + (40 * HUD_SCALE));
-        //     glVertex2f(400 + 15 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(400  , CalcFOVAngle(i) + (40  ));
+        //     glVertex2f(400 + 15  , CalcFOVAngle(i));
         //
-        //     glVertex2f(400 * HUD_SCALE, CalcFOVAngle(i) + (40 * HUD_SCALE));
-        //     glVertex2f(400 - 15 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(400  , CalcFOVAngle(i) + (40  ));
+        //     glVertex2f(400 - 15  , CalcFOVAngle(i));
         //
-        //     glVertex2f(400 + 15 + 80 * HUD_SCALE, CalcFOVAngle(i));
-        //     glVertex2f(400 + 15 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(400 + 15 + 80  , CalcFOVAngle(i));
+        //     glVertex2f(400 + 15  , CalcFOVAngle(i));
         //
         //     // andra sidan
-        //     glVertex2f(-15 * HUD_SCALE, CalcFOVAngle(i));
-        //     glVertex2f(-400 + 15 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(-15  , CalcFOVAngle(i));
+        //     glVertex2f(-400 + 15  , CalcFOVAngle(i));
         //
         //     // en knöl uppåt
         //     // vänster
-        //     glVertex2f(-400 * HUD_SCALE, CalcFOVAngle(i) + (40 * HUD_SCALE));
-        //     glVertex2f(-400 - 15 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(-400  , CalcFOVAngle(i) + (40  ));
+        //     glVertex2f(-400 - 15  , CalcFOVAngle(i));
         //
-        //     glVertex2f(-400 * HUD_SCALE, CalcFOVAngle(i) + (40 * HUD_SCALE));
-        //     glVertex2f(-400 + 15 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(-400  , CalcFOVAngle(i) + (40  ));
+        //     glVertex2f(-400 + 15  , CalcFOVAngle(i));
         //
-        //     glVertex2f(-400 - 15 - 80 * HUD_SCALE, CalcFOVAngle(i));
-        //     glVertex2f(-400 - 15 * HUD_SCALE, CalcFOVAngle(i));
+        //     glVertex2f(-400 - 15 - 80  , CalcFOVAngle(i));
+        //     glVertex2f(-400 - 15  , CalcFOVAngle(i));
         //
         //     glEnd();
         //
         // }
-        DrawCircleDown(CalcFOVAngle(i) * HUD_SCALE, 0, CalcFOVAngle(-90), heading);
+        DrawCircleDown(CalcFOVAngle(i), 0, CalcFOVAngle(-90), heading);
     }
 
     // Cirkel vid 90 grader
-    DrawCircleXY(200 * HUD_SCALE, 0, CalcFOVAngle(90));
-    //DrawCircleXY(CalcFOVAngle(70) * HUD_SCALE, 0, CalcFOVAngle(90));
+    DrawCircleXY(200, 0, CalcFOVAngle(90));
+    //DrawCircleXY(CalcFOVAngle(70)  , 0, CalcFOVAngle(90));
 
-    DrawCircleXY(200 * HUD_SCALE, 0, CalcFOVAngle(-90));
+    DrawCircleXY(200, 0, CalcFOVAngle(-90));
     float textradius_pos = 180;
 
     glLineWidth(line_width);
     glBegin(GL_LINES);
 
-    glVertex2f(0 * HUD_SCALE, CalcFOVAngle(-90));
-    glVertex2f(sin(to_radians(heading)) * textradius_pos * HUD_SCALE, CalcFOVAngle(-90) - (textradius_pos * HUD_SCALE * cos(to_radians(heading))));
-    glVertex2f(0 * HUD_SCALE, CalcFOVAngle(-90));
-    glVertex2f(sin(to_radians(heading + 90)) * textradius_pos * HUD_SCALE, CalcFOVAngle(-90) - (textradius_pos * HUD_SCALE * cos(to_radians(heading + 90))));
-    glVertex2f(0 * HUD_SCALE, CalcFOVAngle(-90));
-    glVertex2f(sin(to_radians(heading + 90 + 90)) * textradius_pos * HUD_SCALE, CalcFOVAngle(-90) - (textradius_pos * HUD_SCALE * cos(to_radians(heading + 90 + 90))));
-    glVertex2f(0 * HUD_SCALE, CalcFOVAngle(-90));
-    glVertex2f(sin(to_radians(heading + 90 + 90 + 90)) * textradius_pos * HUD_SCALE, CalcFOVAngle(-90) - (textradius_pos * HUD_SCALE * cos(to_radians(heading + 90 + 90 + 90))));
+    glVertex2f(0, CalcFOVAngle(-90));
+    glVertex2f(sin(to_radians(heading)) * textradius_pos, CalcFOVAngle(-90) - (textradius_pos * cos(to_radians(heading))));
+    glVertex2f(0, CalcFOVAngle(-90));
+    glVertex2f(sin(to_radians(heading + 90)) * textradius_pos, CalcFOVAngle(-90) - (textradius_pos * cos(to_radians(heading + 90))));
+    glVertex2f(0, CalcFOVAngle(-90));
+    glVertex2f(sin(to_radians(heading + 90 + 90)) * textradius_pos, CalcFOVAngle(-90) - (textradius_pos * cos(to_radians(heading + 90 + 90))));
+    glVertex2f(0, CalcFOVAngle(-90));
+    glVertex2f(sin(to_radians(heading + 90 + 90 + 90)) * textradius_pos, CalcFOVAngle(-90) - (textradius_pos * cos(to_radians(heading + 90 + 90 + 90))));
 
     glEnd();
 
@@ -552,16 +573,16 @@ void DrawHorizionLines() {
     glPushMatrix();
     //glRotatef(heading, 0, CalcFOVAngle(90), 1);
     sprintf(tempText, "N");
-    DrawHUDText(tempText, &fontMain, sin(to_radians(-heading)) * textradius_pos * HUD_SCALE, CalcFOVAngle(90) - (cos(to_radians(-heading)) * textradius_pos), 1, color);
-    //glRotatef(90, sin(to_radians(-heading + 180)) * textradius_pos * HUD_SCALE, CalcFOVAngle(90) - (cos(to_radians(-heading + 180)) * textradius_pos), 1);
+    DrawHUDText(tempText, &fontMain, sin(to_radians(-heading)) * textradius_pos, CalcFOVAngle(90) - (cos(to_radians(-heading)) * textradius_pos), 1, color);
+    //glRotatef(90, sin(to_radians(-heading + 180)) * textradius_pos  , CalcFOVAngle(90) - (cos(to_radians(-heading + 180)) * textradius_pos), 1);
     sprintf(tempText, "S");
-    DrawHUDText(tempText, &fontMain, sin(to_radians(-heading + 180)) * textradius_pos * HUD_SCALE, CalcFOVAngle(90) - (cos(to_radians(-heading + 180)) * textradius_pos), 1, color);
+    DrawHUDText(tempText, &fontMain, sin(to_radians(-heading + 180)) * textradius_pos, CalcFOVAngle(90) - (cos(to_radians(-heading + 180)) * textradius_pos), 1, color);
     //glRotatef(90, 0, 0, 1);
     sprintf(tempText, "E");
-    DrawHUDText(tempText, &fontMain, sin(to_radians(-heading + 90)) * textradius_pos * HUD_SCALE, CalcFOVAngle(90) - (cos(to_radians(-heading + 90)) * textradius_pos), 1, color);
+    DrawHUDText(tempText, &fontMain, sin(to_radians(-heading + 90)) * textradius_pos, CalcFOVAngle(90) - (cos(to_radians(-heading + 90)) * textradius_pos), 1, color);
     //glRotatef(90, 0, 0, 1);
     sprintf(tempText, "W");
-    DrawHUDText(tempText, &fontMain, sin(to_radians(-heading + 270)) * textradius_pos * HUD_SCALE, CalcFOVAngle(90) - (cos(to_radians(-heading + 270)) * textradius_pos), 1, color);
+    DrawHUDText(tempText, &fontMain, sin(to_radians(-heading + 270)) * textradius_pos, CalcFOVAngle(90) - (cos(to_radians(-heading + 270)) * textradius_pos), 1, color);
 
     glPopMatrix();
 
@@ -572,22 +593,22 @@ void DrawHorizionLines() {
         if ((i > getPitch() - 35) && (i < getPitch() + 30)) {
 
             sprintf(tempText, "+%d", i);
-            //DrawHUDText(tempText, &fontMain, -200 * HUD_SCALE / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
-            drawLineText(tempText, -200 * HUD_SCALE, CalcFOVAngle(i) + textHeight(smallTextScale) * 2.2, smallTextScale, 1);
+            //DrawHUDText(tempText, &fontMain, -200   / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
+            drawLineText(tempText, -200, CalcFOVAngle(i) + textHeight(smallTextScale) * 2.2, smallTextScale, 1);
             // char buffer2[10];
             // sprintf(buffer2, "%d", i);
-            // XPLMDrawString(color, -200 * HUD_SCALE, CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
+            // XPLMDrawString(color, -200  , CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
         }
     }
     for (int i = -10; i > -90; i -= 10) {
         if ((i > getPitch() - 35) && (i < getPitch() + 30)) {
 
             sprintf(tempText, "%d", i);
-            //DrawHUDText(tempText, &fontMain, -200 * HUD_SCALE / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
-            drawLineText(tempText, -200 * HUD_SCALE, CalcFOVAngle(i) + textHeight(smallTextScale) * 0.2, smallTextScale, 1);
+            //DrawHUDText(tempText, &fontMain, -200   / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
+            drawLineText(tempText, -200, CalcFOVAngle(i) + textHeight(smallTextScale) * 0.2, smallTextScale, 1);
             // char buffer2[10];
             // sprintf(buffer2, "%d", i);
-            // XPLMDrawString(color, -200 * HUD_SCALE, CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
+            // XPLMDrawString(color, -200  , CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
         }
     }
     // glPopMatrix();
@@ -604,7 +625,7 @@ void DrawHorizionLines() {
 #define SPEED_POS_X -315
 #define SPEED_POS_Y -50
 
-void DrawSpeed() {
+void DrawSpeed(float x, float y) {
     char temp[100];
     float airspeed = getIAS();
     float groundspeed = getGroundSpeed() * 1.944;
@@ -614,6 +635,7 @@ void DrawSpeed() {
     int gear = getGear();
     float tail_pos = airspeed - landingspeed;
     float maxSpeed = kmhToknots(2000);
+    float eco = 300; //300 knots
 
     float machKnotsRatio = airspeed / mach;
     float climbSpeed = machKnotsRatio * 0.85; // 500-550knop 0.85 mach baserat på viggen innan vi hittat data för jas
@@ -632,45 +654,60 @@ void DrawSpeed() {
     glLineWidth(line_width);
     glBegin(GL_LINES);
 
-    glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y - 100 * HUD_SCALE);
-    glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y + 100 * HUD_SCALE);
+    glVertex2f(SPEED_POS_X, y - 100);
+    glVertex2f(SPEED_POS_X, y + 100);
 
     // Markör för snabbast stigningshastighet
     if (airspeed < climbSpeed + 50 && airspeed > climbSpeed - 50) {
-        glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y - (airspeed - climbSpeed) * 2 * HUD_SCALE);
-        glVertex2f(SPEED_POS_X + 10 * HUD_SCALE, SPEED_POS_Y - (airspeed - climbSpeed) * 2 * HUD_SCALE);
+        glVertex2f(SPEED_POS_X, y - (airspeed - climbSpeed) * 2);
+        glVertex2f(SPEED_POS_X + 10, y - (airspeed - climbSpeed) * 2);
     }
 
     // Markör för landningshastighet
     if (airspeed < landingspeed + 50 && airspeed > landingspeed - 50) {
         tail_pos = -tail_pos * 2;
-        glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y + tail_pos * HUD_SCALE);
-        glVertex2f(SPEED_POS_X + 10 * HUD_SCALE, SPEED_POS_Y + tail_pos * HUD_SCALE);
+        glVertex2f(SPEED_POS_X, y + tail_pos);
+        glVertex2f(SPEED_POS_X + 10, y + tail_pos);
     }
     // Markör för landningshastighet inflygning
     if (airspeed < landingspeed2 + 50 && airspeed > landingspeed2 - 50) {
         //tail_pos = -tail_pos * 2;
-        glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y - (airspeed - landingspeed2) * 2 * HUD_SCALE);
-        glVertex2f(SPEED_POS_X + 20 * HUD_SCALE, SPEED_POS_Y - (airspeed - landingspeed2) * 2 * HUD_SCALE);
+        glVertex2f(SPEED_POS_X, y - (airspeed - landingspeed2) * 2);
+        glVertex2f(SPEED_POS_X + 20, y - (airspeed - landingspeed2) * 2);
     }
     // Markör för maxhastighet
     if (airspeed < maxSpeed + 50 && airspeed > maxSpeed - 50) {
         //tail_pos = -tail_pos * 2;
-        glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y - (airspeed - maxSpeed) * 2 * HUD_SCALE);
-        glVertex2f(SPEED_POS_X + 20 * HUD_SCALE, SPEED_POS_Y - (airspeed - maxSpeed) * 2 * HUD_SCALE);
+        glVertex2f(SPEED_POS_X, y - (airspeed - maxSpeed) * 2);
+        glVertex2f(SPEED_POS_X + 20, y - (airspeed - maxSpeed) * 2);
 
-        glVertex2f(SPEED_POS_X + 20 * HUD_SCALE, SPEED_POS_Y - (airspeed - maxSpeed) * 2 * HUD_SCALE);
-        glVertex2f(SPEED_POS_X + 20 * HUD_SCALE, SPEED_POS_Y - 15 - (airspeed - maxSpeed) * 2 * HUD_SCALE);
+        glVertex2f(SPEED_POS_X + 20, y - (airspeed - maxSpeed) * 2);
+        glVertex2f(SPEED_POS_X + 20, y - 15 - (airspeed - maxSpeed) * 2);
     }
-    glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y - 100 * HUD_SCALE);
-    glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y + 100 * HUD_SCALE);
+    // Markör för distansekonomisk hastighet
+    if (airspeed < eco + 50 && airspeed > eco - 50) {
+        //tail_pos = -tail_pos * 2;
+        glVertex2f(SPEED_POS_X, y - (airspeed - eco) * 2);
+        glVertex2f(SPEED_POS_X + 20, y - (airspeed - eco) * 2);
+
+        glVertex2f(SPEED_POS_X + 20, y + 10 - (airspeed - eco) * 2);
+        glVertex2f(SPEED_POS_X + 20, y - 10 - (airspeed - eco) * 2);
+
+        glVertex2f(SPEED_POS_X + 20, y + 10 - (airspeed - eco) * 2);
+        glVertex2f(SPEED_POS_X + 10, y + 10 - (airspeed - eco) * 2);
+
+        glVertex2f(SPEED_POS_X + 20, y - 10 - (airspeed - eco) * 2);
+        glVertex2f(SPEED_POS_X + 10, y - 10 - (airspeed - eco) * 2);
+    }
+    glVertex2f(SPEED_POS_X, y - 100);
+    glVertex2f(SPEED_POS_X, y + 100);
 
     // pil vid hastighetstexten
-    glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y + 0 * HUD_SCALE);
-    glVertex2f((SPEED_POS_X - 20) * HUD_SCALE, SPEED_POS_Y + 10 * HUD_SCALE);
+    glVertex2f(SPEED_POS_X, y + 0);
+    glVertex2f((SPEED_POS_X - 20), y + 10);
 
-    glVertex2f(SPEED_POS_X * HUD_SCALE, SPEED_POS_Y + 0 * HUD_SCALE);
-    glVertex2f((SPEED_POS_X - 20) * HUD_SCALE, SPEED_POS_Y - 10 * HUD_SCALE);
+    glVertex2f(SPEED_POS_X, y + 0);
+    glVertex2f((SPEED_POS_X - 20), y - 10);
 
     glEnd();
 
@@ -680,40 +717,40 @@ void DrawSpeed() {
     } else {
         sprintf(temp, "%.0f", airspeed);
     }
-    //DrawHUDText(temp, &fontMain, (SPEED_POS_X - 30) * HUD_SCALE, (SPEED_POS_Y * HUD_SCALE) - (textHeight(1.0) / 2), 2, color);
-    drawLineText(temp, (SPEED_POS_X - 30) * HUD_SCALE, (SPEED_POS_Y * HUD_SCALE) - (textHeight(1.0) / 2), 1.0, 2);
+    //DrawHUDText(temp, &fontMain, (SPEED_POS_X - 30)  , (SPEED_POS_Y  ) - (textHeight(1.0) / 2), 2, color);
+    drawLineText(temp, (SPEED_POS_X - 30), (y) - (textHeight(1.0) / 2), 1.0, 2);
 
     sprintf(temp, "M %.2f", mach);
-    //DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((textHeight(1.0) * text_scale)), 2, color);
-    drawLineText(temp, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - (textHeight(1.2) * 1), 1.0, 2);
+    //DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120)  ) - ((textHeight(1.0) * text_scale)), 2, color);
+    drawLineText(temp, (SPEED_POS_X)*HUD_SCALE, ((y - 120)) - (textHeight(1.2) * 1), 1.0, 2);
 
     if (metric) {
         sprintf(temp, "GS%.0f", knotsTokmh(groundspeed));
     } else {
         sprintf(temp, "GS%.0f", groundspeed);
     }
-    sprintf(temp, "GS%.0f", groundspeed);
-    //    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((textHeight(1.0) * text_scale) * 2), 2, color);
-    drawLineText(temp, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - (textHeight(1.2) * 2), 1.0, 2);
+    //sprintf(temp, "GS%.0f", groundspeed);
+    //    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120)  ) - ((textHeight(1.0) * text_scale) * 2), 2, color);
+    drawLineText(temp, (SPEED_POS_X)*HUD_SCALE, ((y - 120)) - (textHeight(1.2) * 2), 1.0, 2);
     // Markör för snabbast stigningshastighet
     if (airspeed < climbSpeed + 50 && airspeed > climbSpeed - 50) {
-        DrawHUDText("O", &fontMain, SPEED_POS_X + 10 * HUD_SCALE, SPEED_POS_Y - (airspeed - climbSpeed) * 2 * HUD_SCALE - ((textHeight(1.0) / 2 * text_scale)), 0, color);
+        DrawHUDText("O", &fontMain, SPEED_POS_X + 10, y - (airspeed - climbSpeed) * 2 - ((textHeight(1.0) / 2 * text_scale)), 0, color);
     }
     if (airspeed < landingspeed + 50 && airspeed > landingspeed - 50) {
 
-        DrawHUDText("L", &fontMain, SPEED_POS_X + 10 * HUD_SCALE, SPEED_POS_Y + tail_pos * HUD_SCALE - ((textHeight(1.0) / 2 * text_scale)), 0, color);
+        DrawHUDText("L", &fontMain, SPEED_POS_X + 10, y + tail_pos - ((textHeight(1.0) / 2 * text_scale)), 0, color);
     }
     if (getSpeedBrake()) {
         sprintf(temp, "LUFTBROMS UTE");
-        DrawHUDText(temp, &fontMain, (0) * HUD_SCALE, ((200) * HUD_SCALE) - ((textHeight(1.0) * text_scale) * 2), 1, color);
+        DrawHUDText(temp, &fontMain, (0), ((200)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
     }
     if (getParkBrake()) {
         sprintf(temp, "PARKERINGSBROMS");
-        DrawHUDText(temp, &fontMain, (0) * HUD_SCALE, ((150) * HUD_SCALE) - ((textHeight(1.0) * text_scale) * 2), 1, color);
+        DrawHUDText(temp, &fontMain, (0), ((225)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
     }
     if (stab_error > 100 && !getPause()) {
         sprintf(temp, "FEL I STABILISERINGS PLUGIN");
-        DrawHUDText(temp, &fontMain, (0) * HUD_SCALE, ((100) * HUD_SCALE) - ((textHeight(1.0) * text_scale) * 2), 1, color);
+        DrawHUDText(temp, &fontMain, (0), ((100)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
     }
     if (getStabStatus()) {
         stab_error = 0;
@@ -725,13 +762,13 @@ void DrawSpeed() {
 
     if (airspeed > maxSpeed) { // Varning när hög fart och landställ ute
         sprintf(temp, "MINSKA FART");
-        DrawHUDText(temp, &fontMain, (0) * HUD_SCALE, ((175) * HUD_SCALE) - ((textHeight(1.0) * text_scale) * 2), 1, color);
+        DrawHUDText(temp, &fontMain, (0), ((175)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
     }
 
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
 
-void DrawAlpha() {
+void DrawAlpha(float x, float y) {
     char temp[20];
     float alpha = getAlphaA();
     float gforce = getGForce();
@@ -741,7 +778,7 @@ void DrawAlpha() {
     SetGLText(); // turn on blending
 
     sprintf(temp, "G %.1f", gforce);
-    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((textHeight(1.0) * text_scale)), 2, color);
+    DrawHUDText(temp, &fontMain, (x), ((y + 120)) + ((textHeight(1.0) * text_scale)), 2, color);
 
     if (getIAS() > 50) {
         sprintf(temp, "& %.0f", alpha);
@@ -749,7 +786,7 @@ void DrawAlpha() {
         sprintf(temp, "& X");
     }
 
-    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((textHeight(1.0) * text_scale) * 2.5), 2, color);
+    DrawHUDText(temp, &fontMain, (x), ((y + 120)) + ((textHeight(1.0) * text_scale) * 2.5), 2, color);
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
 
@@ -762,7 +799,7 @@ float altToPixelY(float value) {
     return value * (ALT_SCALE_PIXEL / ALT_SCALE_METER);
 }
 
-void DrawAltitude() {
+void DrawAltitude(float x, float y) {
     char temp[20];
     float altitude = getAltitude();
     float radaralt = getRadarAltitude();
@@ -777,15 +814,15 @@ void DrawAltitude() {
     glLineWidth(line_width);
     glBegin(GL_LINES);
 
-    //glVertex2f(ALT_POS_X * HUD_SCALE, ALT_POS_Y - 100 * HUD_SCALE);
-    //glVertex2f(ALT_POS_X * HUD_SCALE, ALT_POS_Y + 100 * HUD_SCALE);
+    //glVertex2f(ALT_POS_X  , ALT_POS_Y - 100  );
+    //glVertex2f(ALT_POS_X  , ALT_POS_Y + 100  );
 
     // pil vid texten
-    glVertex2f(ALT_POS_X * HUD_SCALE, ALT_POS_Y + 0 * HUD_SCALE);
-    glVertex2f((ALT_POS_X - 20) * HUD_SCALE, ALT_POS_Y + 10 * HUD_SCALE);
+    glVertex2f(ALT_POS_X, y + 0);
+    glVertex2f((ALT_POS_X - 20), y + 10);
 
-    glVertex2f(ALT_POS_X * HUD_SCALE, ALT_POS_Y + 0 * HUD_SCALE);
-    glVertex2f((ALT_POS_X - 20) * HUD_SCALE, ALT_POS_Y - 10 * HUD_SCALE);
+    glVertex2f(ALT_POS_X, y + 0);
+    glVertex2f((ALT_POS_X - 20), y - 10);
 
     glEnd();
 
@@ -799,14 +836,14 @@ void DrawAltitude() {
             if (((i / 100) % 2) == 0) {
                 glLineWidth(line_width);
                 glBegin(GL_LINES);
-                glVertex2f(ALT_POS_X * HUD_SCALE, (ALT_POS_Y + altToPixelY(-altitude) + altToPixelY(i)) * HUD_SCALE);
-                glVertex2f(ALT_POS_X + 20 * HUD_SCALE, (ALT_POS_Y + altToPixelY(-altitude) + altToPixelY(i)) * HUD_SCALE);
+                glVertex2f(ALT_POS_X, (y + altToPixelY(-altitude) + altToPixelY(i)));
+                glVertex2f(ALT_POS_X + 20, (y + altToPixelY(-altitude) + altToPixelY(i)));
                 glEnd();
             } else {
                 glLineWidth(max(line_width / 2, 1.0));
                 glBegin(GL_LINES);
-                glVertex2f(ALT_POS_X * HUD_SCALE, (ALT_POS_Y + altToPixelY(-altitude) + altToPixelY(i)) * HUD_SCALE);
-                glVertex2f(ALT_POS_X + 10 * HUD_SCALE, (ALT_POS_Y + altToPixelY(-altitude) + altToPixelY(i)) * HUD_SCALE);
+                glVertex2f(ALT_POS_X, (y + altToPixelY(-altitude) + altToPixelY(i)));
+                glVertex2f(ALT_POS_X + 10, (y + altToPixelY(-altitude) + altToPixelY(i)));
                 glEnd();
             }
         }
@@ -823,14 +860,14 @@ void DrawAltitude() {
 
         glLineWidth(line_width);
         glBegin(GL_LINES);
-        glVertex2f(ALT_POS_X * HUD_SCALE, (ALT_POS_Y + rhY) * HUD_SCALE);
-        glVertex2f(ALT_POS_X - 30 * HUD_SCALE, (ALT_POS_Y + rhY) * HUD_SCALE);
+        glVertex2f(ALT_POS_X, (y + rhY));
+        glVertex2f(ALT_POS_X - 30, (y + rhY));
 
-        glVertex2f(ALT_POS_X * HUD_SCALE, (ALT_POS_Y + rhY) * HUD_SCALE);
-        glVertex2f(ALT_POS_X - 10 * HUD_SCALE, (ALT_POS_Y - 20 + rhY) * HUD_SCALE);
+        glVertex2f(ALT_POS_X, (y + rhY));
+        glVertex2f(ALT_POS_X - 10, (y - 20 + rhY));
 
-        glVertex2f(ALT_POS_X - 15 * HUD_SCALE, (ALT_POS_Y + rhY) * HUD_SCALE);
-        glVertex2f(ALT_POS_X - 15 - 10 * HUD_SCALE, (ALT_POS_Y - 20 + rhY) * HUD_SCALE);
+        glVertex2f(ALT_POS_X - 15, (y + rhY));
+        glVertex2f(ALT_POS_X - 15 - 10, (y - 20 + rhY));
 
         glEnd();
     }
@@ -844,7 +881,7 @@ void DrawAltitude() {
             sprintf(temp, "RH %.0f", m2feet(radaralt));
         }
 
-        DrawHUDText(temp, &fontMain, (ALT_POS_X - 20) * HUD_SCALE, (ALT_POS_Y - 20 + rhY) - ((textHeight(1.0) * text_scale)), 0, color);
+        DrawHUDText(temp, &fontMain, (ALT_POS_X - 20), (y - 20 + rhY) - ((textHeight(1.0) * text_scale)), 0, color);
     }
 
     for (int i = start * 100; i < altitude + ALT_SCALE_METER; i += 100) {
@@ -858,12 +895,7 @@ void DrawAltitude() {
                     sprintf(temp, "%d", aaa);
                 }
 
-                DrawHUDText(temp,
-                            &fontMain,
-                            (ALT_POS_X + 20) * HUD_SCALE,
-                            ((ALT_POS_Y + altToPixelY(-altitude) + altToPixelY(i)) * HUD_SCALE) - ((textHeight(1.0) * text_scale) / 2),
-                            0,
-                            color);
+                DrawHUDText(temp, &fontMain, (ALT_POS_X + 20), ((y + altToPixelY(-altitude) + altToPixelY(i))) - ((textHeight(1.0) * text_scale) / 2), 0, color);
             }
         }
     }
@@ -875,7 +907,7 @@ void DrawAltitude() {
         altdraw = m2feet(altitude) / 10;
     }
     sprintf(temp, "%d", altdraw * 10);
-    DrawHUDText(temp, &fontMain, (ALT_POS_X - 30) * HUD_SCALE, (ALT_POS_Y * HUD_SCALE) - ((textHeight(1.0) * text_scale) / 2), 2, color);
+    DrawHUDText(temp, &fontMain, (ALT_POS_X - 30), (y) - ((textHeight(1.0) * text_scale) / 2), 2, color);
 
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
@@ -893,13 +925,13 @@ void DrawGroundCollision() {
                 SetGLTransparentLines();
                 SetGLText();
                 sprintf(temp, "MARKKOLLISION %.1f", timeLeft);
-                DrawHUDText(temp, &fontMain, 0 * HUD_SCALE, (50 * HUD_SCALE) - ((textHeight(1.0) * text_scale) / 2), 1, color);
+                DrawHUDText(temp, &fontMain, 0, (50) - ((textHeight(1.0) * text_scale) / 2), 1, color);
             }
         }
     }
 }
 
-void DrawFuelTime() {
+void DrawFuelTime(float x, float y) {
     char temp[100];
     float totalFuel = getTotalFuel();
     float fuelFlow = getFuelFlow();
@@ -920,10 +952,34 @@ void DrawFuelTime() {
     SetGLTransparentLines();
     SetGLText();
     glColor4fv(color);
-    sprintf(temp, "%.0f %.2f - %02d:%02d:%02d", totalFuel, fuelFlow, h, m, s);
-    DrawHUDText(temp, &fontMain, 0 * HUD_SCALE, (-600 * HUD_SCALE) - ((textHeight(1.0) * text_scale) / 2), 0, color);
-    sprintf(temp, "Range %.0f km", range / 1000);
-    DrawHUDText(temp, &fontMain, 0 * HUD_SCALE, (-650 * HUD_SCALE) - ((textHeight(1.0) * text_scale) / 2), 0, color);
+    sprintf(temp, "Bransle %.0f %.2f - %.0f km - %02d:%02d:%02d", totalFuel, fuelFlow, range / 1000, h, m, s);
+    DrawHUDText(temp, &fontMain, x, y, 0, color);
+    // sprintf(temp, "Range %.0f km", range / 1000);
+    // DrawHUDText(temp, &fontMain, x, y - (textHeight(1.2) * text_scale), 0, color);
+}
+
+void DrawNAVText(float x, float y) {
+    char temp[260];
+    char textId[160];
+    float nav1_distance = getNAV1Distance();
+    float nav1_eta = getNAV1ETA();
+    //float vx = getVX();
+
+    int sec, h, m, s;
+    sec = nav1_eta;
+
+    h = (sec / 3600);
+
+    m = (sec - (3600 * h)) / 60;
+
+    s = (sec - (3600 * h) - (m * 60));
+
+    SetGLTransparentLines();
+    SetGLText();
+    glColor4fv(color);
+    getNAV1Id(textId);
+    sprintf(temp, "%s  %.1fkm - %02d:%02d:%02d", textId, nm2km(nav1_distance), h, m, s);
+    DrawHUDText(temp, &fontMain, x, y, 0, color);
 }
 
 void DrawViggen() {
@@ -956,18 +1012,18 @@ void DrawViggen() {
     // glTranslatef(-x_pos, -y_pos, 0);
     // glRotatef(-angle, 0, 0, 1);
     //
-    // DrawCircle(10 * HUD_SCALE);
+    // DrawCircle(10  );
     // glLineWidth(line_width);
     // glBegin(GL_LINES);
     //
-    // glVertex2f(10 * HUD_SCALE, 0 * HUD_SCALE);
-    // glVertex2f(40 * HUD_SCALE, 0 * HUD_SCALE);
+    // glVertex2f(10  , 0  );
+    // glVertex2f(40  , 0  );
     //
-    // glVertex2f(-10 * HUD_SCALE, 0 * HUD_SCALE);
-    // glVertex2f(-40 * HUD_SCALE, 0 * HUD_SCALE);
+    // glVertex2f(-10  , 0  );
+    // glVertex2f(-40  , 0  );
     //
-    // glVertex2f(0 * HUD_SCALE, tail_pos - 10 * HUD_SCALE);
-    // glVertex2f(0 * HUD_SCALE, tail_pos + 10 * HUD_SCALE);
+    // glVertex2f(0  , tail_pos - 10  );
+    // glVertex2f(0  , tail_pos + 10  );
     //
     // glEnd();
     //
@@ -986,8 +1042,8 @@ void DrawViggen() {
 
     // Prickar
     // for (float i = -160; i < 160; i += 40) {
-    //     glVertex2f((i)*HUD_SCALE, 0 * HUD_SCALE);
-    //     glVertex2f((i + (line_width * 2)) * HUD_SCALE, 0 * HUD_SCALE);
+    //     glVertex2f((i)*HUD_SCALE, 0  );
+    //     glVertex2f((i + (line_width * 2))  , 0  );
     // }
 
     // 0 horizonten
@@ -1000,22 +1056,22 @@ void DrawViggen() {
         // Heldragen linje vid hjorizonten när landställ är nere
         glLineWidth(line_width);
         glBegin(GL_LINES);
-        glVertex2f(-480 * HUD_SCALE, CalcFOVAngle(0) * HUD_SCALE);
-        glVertex2f(480 * HUD_SCALE, CalcFOVAngle(0) * HUD_SCALE);
+        glVertex2f(-480, CalcFOVAngle(0));
+        glVertex2f(480, CalcFOVAngle(0));
         glEnd();
     }
     glLineWidth(line_width);
     glBegin(GL_LINES);
 
     // Prick i mitten
-    glVertex2f(-line_width * HUD_SCALE, yy * HUD_SCALE);
-    glVertex2f(line_width * HUD_SCALE, yy * HUD_SCALE);
+    glVertex2f(-line_width, yy);
+    glVertex2f(line_width, yy);
 
-    glVertex2f(45 * HUD_SCALE, yy * HUD_SCALE);
-    glVertex2f(480 * HUD_SCALE, yy * HUD_SCALE);
+    glVertex2f(45, yy);
+    glVertex2f(480, yy);
 
-    glVertex2f(-45 * HUD_SCALE, yy * HUD_SCALE);
-    glVertex2f(-480 * HUD_SCALE, yy * HUD_SCALE);
+    glVertex2f(-45, yy);
+    glVertex2f(-480, yy);
 
     glEnd();
 
@@ -1034,7 +1090,7 @@ void DrawViggen() {
     alt = alt / 10;
     alt = alt * 10;
     snprintf(tempText, 13, "%03d", alt);
-    DrawHUDText(tempText, &fontMain, -200 * HUD_SCALE, yy, 1, color);
+    DrawHUDText(tempText, &fontMain, -200, yy, 1, color);
 
     glPopMatrix();
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
@@ -1046,15 +1102,15 @@ void DrawViggen() {
             glLineWidth(line_width);
             glBegin(GL_LINES);
 
-            glVertex2f(400 * HUD_SCALE, CalcFOVAngle(i));
-            glVertex2f(200 * HUD_SCALE, CalcFOVAngle(i));
+            glVertex2f(400, CalcFOVAngle(i));
+            glVertex2f(200, CalcFOVAngle(i));
 
-            glVertex2f(-400 * HUD_SCALE, CalcFOVAngle(i));
-            glVertex2f(-200 * HUD_SCALE, CalcFOVAngle(i));
+            glVertex2f(-400, CalcFOVAngle(i));
+            glVertex2f(-200, CalcFOVAngle(i));
             glEnd();
             // char buffer2[10];
             // sprintf(buffer2, "%d", i);
-            // XPLMDrawString(color, -200 * HUD_SCALE, CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
+            // XPLMDrawString(color, -200  , CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
         }
     }
     int start = -5;
@@ -1066,15 +1122,15 @@ void DrawViggen() {
             glLineWidth(line_width);
             glBegin(GL_LINES);
 
-            glVertex2f(400 * HUD_SCALE, CalcFOVAngle(i));
-            glVertex2f(200 * HUD_SCALE, CalcFOVAngle(i));
+            glVertex2f(400, CalcFOVAngle(i));
+            glVertex2f(200, CalcFOVAngle(i));
 
-            glVertex2f(-400 * HUD_SCALE, CalcFOVAngle(i));
-            glVertex2f(-200 * HUD_SCALE, CalcFOVAngle(i));
+            glVertex2f(-400, CalcFOVAngle(i));
+            glVertex2f(-200, CalcFOVAngle(i));
             glEnd();
             // char buffer2[10];
             // sprintf(buffer2, "%d", i);
-            // XPLMDrawString(color, -200 * HUD_SCALE, CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
+            // XPLMDrawString(color, -200  , CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
         }
     }
 
@@ -1094,8 +1150,8 @@ void DrawViggen() {
         }
         if ((offset < 90) && (offset > -90)) {
             offset = CalcFOVAngle(offset);
-            glVertex2f(offset, compas_y * HUD_SCALE);
-            glVertex2f(offset, (compas_y + 20) * HUD_SCALE);
+            glVertex2f(offset, compas_y);
+            glVertex2f(offset, (compas_y + 20));
         }
     }
     glEnd();
@@ -1108,7 +1164,7 @@ void DrawViggen() {
         if ((i > pitch - 8) && (i < pitch + 8)) {
 
             sprintf(tempText, "%d", i);
-            DrawHUDText(tempText, &fontMain, 200 * HUD_SCALE / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
+            DrawHUDText(tempText, &fontMain, 200 / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
         }
     }
     start = -5;
@@ -1119,7 +1175,7 @@ void DrawViggen() {
         if ((i > pitch - 8) && (i < pitch + 8)) {
 
             sprintf(tempText, "%d", i);
-            DrawHUDText(tempText, &fontMain, 200 * HUD_SCALE / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
+            DrawHUDText(tempText, &fontMain, 200 / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
         }
     }
 
@@ -1138,7 +1194,7 @@ void DrawViggen() {
         if ((offset < 90) && (offset > -90)) {
             offset = CalcFOVAngle(offset);
             sprintf(tempText, "%02d", i);
-            DrawHUDText(tempText, &fontMain, offset / smallTextScale, compas_y / smallTextScale * HUD_SCALE, 1, color);
+            DrawHUDText(tempText, &fontMain, offset / smallTextScale, compas_y / smallTextScale, 1, color);
         }
     }
     glPopMatrix();
@@ -1146,8 +1202,8 @@ void DrawViggen() {
     glTranslatef(0, y_pos, 0);
     glRotatef(-angle, 0, 0, 1);
 
-    sprintf(tempText, "$ %.0f", alpha); // $ is replaced with alpha sign in bitmap
-    DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE) + ((textHeight(1.0) * text_scale) * 2), 1, color);
+    sprintf(tempText, "& %.0f", alpha); // $ is replaced with alpha sign in bitmap
+    DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120)) + ((textHeight(1.0) * text_scale) * 2), 1, color);
 
     //sprintf(tempText, "%.0f", airspeed);
     if (metric) {
@@ -1155,10 +1211,57 @@ void DrawViggen() {
     } else {
         sprintf(tempText, "%.0f", airspeed);
     }
-    DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120) * HUD_SCALE), 1, color);
+    DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y + 120)), 1, color);
 
     sprintf(tempText, "M %.2f", mach);
-    DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120) * HUD_SCALE) - ((textHeight(1.0) * text_scale)), 1, color);
+    DrawHUDText(tempText, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120)) - ((textHeight(1.0) * text_scale)), 1, color);
 
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+}
+
+void DrawModesJAS() {
+
+    int gear = getGear();
+    int mark = markKontakt();
+    float y_pos = CalcFOVAngle(-myGetAlpha());
+
+    if (mark) {
+        y_pos = CalcFOVAngle(-3);
+    }
+    if (y_pos > 20) {
+        y_pos = 20;
+    }
+    if (y_pos < -600) {
+        y_pos = -600;
+    }
+    if (gear) {
+        // Landings mod
+        TranslateToCenter();
+        DrawCompass(0, y_pos + 220);
+        TranslateToCenter();
+        DrawSpeed(0, y_pos);
+        DrawAlpha(SPEED_POS_X, y_pos);
+        DrawAltitude(0, y_pos);
+        DrawNAVText(-100, 280);
+        DrawFuelTime(-450, 300);
+    } else {
+        TranslateToCenter();
+        DrawCompass(0, 320);
+        TranslateToCenter();
+        DrawSpeed(0, 0);
+        DrawAlpha(SPEED_POS_X, 0);
+        DrawAltitude(0, 0);
+        DrawNAVText(-100, -450);
+        DrawFuelTime(-450, -750);
+    }
+
+    TranslateToCenter();
+    DrawVector();
+
+    TranslateToCenter();
+
+    DrawGroundCollision();
+
+    TranslateToCenter();
+    DrawHorizionLines();
 }

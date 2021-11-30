@@ -60,12 +60,20 @@ XPLMDataRef drFuelExtra1m;
 XPLMDataRef drFuelExtra2m;
 XPLMDataRef drFuelExtra3m;
 XPLMDataRef drFuelFlow;
+XPLMDataRef drWeaponFired;
+XPLMDataRef drWeaponType;
 
 XPLMDataRef drGearDef;
 XPLMDataRef drFBO;
 XPLMDataRef drPause;
 XPLMDataRef dr_nav1_vdef;
 XPLMDataRef dr_nav1_hdef;
+XPLMDataRef dr_nav1_disph;
+XPLMDataRef dr_nav1_dispv;
+XPLMDataRef dr_nav1_heading;
+XPLMDataRef dr_nav1_id;
+XPLMDataRef dr_nav1_distance;
+XPLMDataRef dr_nav1_eta;
 
 XPLMDataRef hudVisibleDR = NULL;
 XPLMDataRef stabilisatorStatusDR = NULL;
@@ -228,14 +236,20 @@ int initDataRefs() {
     lTmp += findDataRef("sim/flightmodel/engine/ENGN_FF_", &drFuelFlow);
     lTmp += findDataRef("sim/flightmodel/weight/m_fuel_total", &drFuel1);
     lTmp += findDataRef("sim/weapons/fuel_warhead_mass_now", &drFuelExtra1);
-    lTmp += findDataRef("sim/weapons/fuel_warhead_mass_now[2]", &drFuelExtra2);
-    lTmp += findDataRef("sim/weapons/fuel_warhead_mass_now[3]", &drFuelExtra3);
     lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max", &drFuelExtra1m);
-    lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max[2]", &drFuelExtra2m);
-    lTmp += findDataRef("sim/weapons/fuel_warhead_mass_max[3]", &drFuelExtra3m);
+
+    lTmp += findDataRef("sim/weapons/firing", &drWeaponFired);
+    lTmp += findDataRef("sim/weapons/type", &drWeaponType);
 
     lTmp += findDataRef("sim/cockpit/radios/nav1_vdef_dot", &dr_nav1_vdef);
     lTmp += findDataRef("sim/cockpit/radios/nav1_hdef_dot", &dr_nav1_hdef);
+    lTmp += findDataRef("sim/cockpit2/radios/indicators/nav1_bearing_deg_mag", &dr_nav1_heading);
+    lTmp += findDataRef("sim/cockpit2/radios/indicators/nav1_nav_id", &dr_nav1_id);
+    lTmp += findDataRef("sim/cockpit2/radios/indicators/nav1_dme_distance_nm", &dr_nav1_distance);
+    lTmp += findDataRef("sim/cockpit2/radios/indicators/nav1_dme_time_min", &dr_nav1_eta);
+
+    lTmp += findDataRef("sim/cockpit2/radios/indicators/nav1_display_horizontal", &dr_nav1_disph);
+    lTmp += findDataRef("sim/cockpit2/radios/indicators/nav1_display_vertical", &dr_nav1_dispv);
 
     lTmp += findDataRef("sim/flightmodel/parts/tire_vrt_def_veh", &drGearDef);
     lTmp += findDataRef("sim/graphics/view/current_gl_fbo", &drFBO);
@@ -362,12 +376,28 @@ void setStabStatus(int value) {
     XPLMSetDatai(stabilisatorStatusDR, value);
 }
 
-float getArrayValue(XPLMDataRef dataref, int index) {
+float getArrayValuef(XPLMDataRef dataref, int index) {
     float value[1];
     XPLMGetDatavf(dataref, value, index, 1);
     return value[0];
 }
-
+int getArrayValuei(XPLMDataRef dataref, int index) {
+    int value[1];
+    XPLMGetDatavi(dataref, value, index, 1);
+    return value[0];
+}
+int isFuelTank(int index) {
+    if (getArrayValuei(drWeaponType, index) == 23 && getArrayValuei(drWeaponFired, 0) == 0) {
+        return 1;
+    }
+    return 0;
+}
+float getFuelInTank(int index) {
+    if (isFuelTank(index) == 1) {
+        return getArrayValuef(drFuelExtra1, index);
+    }
+    return 0.0;
+}
 float getTotalFuel() {
     float total = 0.0;
     total = total + XPLMGetDataf(drFuel1);
@@ -375,28 +405,18 @@ float getTotalFuel() {
     För att kolla detta så kikar vi på om extra tanken väger mindre än maxvikten,
     detta betyder att det försvunnit bensin och då är det en tank
     */
-    if (getArrayValue(drFuelExtra1, 0) < getArrayValue(drFuelExtra1m, 0)) {
-        total = total + getArrayValue(drFuelExtra1, 0);
-    }
-    if (getArrayValue(drFuelExtra1, 2) < getArrayValue(drFuelExtra1m, 2)) {
-        total = total + getArrayValue(drFuelExtra1, 2);
-    }
-    if (getArrayValue(drFuelExtra1, 3) < getArrayValue(drFuelExtra1m, 3)) {
-        total = total + getArrayValue(drFuelExtra1, 3);
-    }
-    if (getArrayValue(drFuelExtra1, 4) < getArrayValue(drFuelExtra1m, 4)) {
-        total = total + getArrayValue(drFuelExtra1, 4);
-    }
-    if (getArrayValue(drFuelExtra1, 5) < getArrayValue(drFuelExtra1m, 5)) {
-        total = total + getArrayValue(drFuelExtra1, 5);
-    }
+    total = total + getFuelInTank(0);
+    total = total + getFuelInTank(2);
+    total = total + getFuelInTank(3);
+    total = total + getFuelInTank(4);
+    total = total + getFuelInTank(5);
 
     return total;
 }
 
 int markKontakt() {
 
-    if (getArrayValue(drGearDef, 0) > 0.0 || getArrayValue(drGearDef, 1) > 0.0 || getArrayValue(drGearDef, 2) > 0.0) {
+    if (getArrayValuef(drGearDef, 0) > 0.0 || getArrayValuef(drGearDef, 1) > 0.0 || getArrayValuef(drGearDef, 2) > 0.0) {
         return 1;
     } else {
         return 0;
@@ -416,7 +436,23 @@ float getILSh() {
     return XPLMGetDataf(dr_nav1_hdef);
 }
 int ifILSEnabled() {
-    return 1;
+    if (XPLMGetDatai(dr_nav1_disph) == 1 && XPLMGetDatai(dr_nav1_dispv) == 1) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+float getNAV1Heading() {
+    return XPLMGetDataf(dr_nav1_heading);
+}
+float getNAV1Distance() {
+    return XPLMGetDataf(dr_nav1_distance);
+}
+float getNAV1ETA() {
+    return XPLMGetDataf(dr_nav1_eta) * 60;
+}
+int getNAV1Id(const char* text) {
+    return XPLMGetDatab(dr_nav1_id, (void*)text, 0, 150);
 }
 
 //int getCurrentView() {

@@ -132,6 +132,7 @@ void DrawFillCircleXY(float radius, float x, float y) {
     glEnd();
 }
 void DrawCircleDown(float radius, float x, float y, float heading) {
+    // Cirklarna som ska ha en avbrytning med pil som visas när man åker mot marken
     double angle;
     int i;
     float a = 15; // bredden på pilen i pixlar
@@ -153,14 +154,14 @@ void DrawCircleDown(float radius, float x, float y, float heading) {
 void DrawCircleUp(float radius, float x, float y, float heading) {
     double angle;
     int i;
-    int segments = 10;
+    int segments = 2;
     glBegin(GL_LINE_LOOP);
     for (i = 0; i < (360 / segments); i++) {
-        angle = (i - heading / segments) * 2 * M_PI / (360 / segments);
+        angle = (-i - heading / segments) * 2 * M_PI / (360 / segments);
         glVertex2f(x + (cos(angle) * radius), y + (sin(angle) * radius));
     }
     glEnd();
-
+    segments = 10;
     glBegin(GL_LINES);
     for (i = 0; i < (360 / segments); i++) {
         angle = (i - heading / segments) * 2 * M_PI / (360 / segments);
@@ -189,6 +190,10 @@ float to_degrees(float radians) {
 
 float to_radians(float degrees) {
     return degrees / (180.0 / M_PI);
+}
+
+float nm2km(float nm) {
+    return nm * 1.852;
 }
 
 float myGetAlpha() {
@@ -222,4 +227,19 @@ float myGetHead() {
     float out = to_degrees(atan2(-getVX(), getVZ())) + 180;
 
     return out;
+}
+
+float lim(float value, float lower, float upper) {
+    if (lower > upper) {
+        float tmp = lower;
+        lower = upper;
+        upper = tmp;
+    }
+    if (value < lower) {
+        return lower;
+    }
+    if (value > upper) {
+        return upper;
+    }
+    return value;
 }

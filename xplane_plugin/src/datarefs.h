@@ -47,6 +47,11 @@ float getILSv();
 float getILSh();
 int ifILSEnabled();
 
+float getNAV1Heading();
+float getNAV1Distance();
+float getNAV1ETA();
+int getNAV1Id(const char* text);
+
 int getSpeedBrake();
 int getParkBrake();
 int getStabStatus();
@@ -55,6 +60,8 @@ int getPause();
 
 float getFuelFlow();
 float getTotalFuel();
+int isFuelTank(int index);
+float getFuelInTank(int index);
 int markKontakt();
 
 void setStabStatus(int value);

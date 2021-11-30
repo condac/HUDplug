@@ -33,10 +33,12 @@ float knotsTokmh(float in);
 float kmhToknots(float in);
 float feetTom(float in);
 float m2feet(float in);
+float nm2km(float nm);
 
 void CalculateColors();
 float to_radians(float degrees);
 float to_degrees(float radians);
+float lim(float value, float lower, float upper);
 
 #define max(a, b)                                                                                                                                                                  \
     ({                                                                                                                                                                             \

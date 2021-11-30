@@ -16,4 +16,4 @@ text_blend1=6
 text_blend2=11
 g_sway=1
 draw_test=0
-metric=0
+metric=1
