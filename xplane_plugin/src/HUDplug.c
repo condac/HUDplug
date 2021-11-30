@@ -149,7 +149,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     //xplm_Phase_FirstCockpit
     //xplm_Phase_Window
     XPLMRegisterDrawCallback(MyDrawCallback,
-                             xplm_Phase_Window, /* Draw when sim is doing windows */
+                             xplm_Phase_LastCockpit, /* Draw when sim is doing windows */
                              1,                 /* Before plugin windows */
                              NULL);             /* No refcon needed */
     // GLuint fbo_;
@@ -383,5 +383,10 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
 
     glDisable(GL_LINE_SMOOTH);
     glDisable(GL_POLYGON_SMOOTH);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_BLEND);
+    glDisable(GL_SCISSOR_TEST);
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+    
     return 1;
 }
