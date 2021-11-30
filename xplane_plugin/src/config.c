@@ -32,6 +32,8 @@ int th1 = 0;
 int g_sway = 0;
 int draw_test = 0;
 int metric = 1;
+float offset_x = 0;
+float offset_y = 0;
 
 void readConfig() {
     debugLog("readConfig \n");
@@ -193,6 +195,20 @@ void parseLine(char* line) {
         XPLMDebugString(line + 15);
         sscanf(line + 15, "%f", &i);
         glass_darkness = i;
+    }
+    if (strncmp("offset_x=", line, 9) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 9);
+        sscanf(line + 9, "%f", &i);
+        offset_x = i;
+    }
+    if (strncmp("offset_y=", line, 9) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 9);
+        sscanf(line + 9, "%f", &i);
+        offset_y = i;
     }
 }
 

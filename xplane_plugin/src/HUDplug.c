@@ -308,6 +308,8 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
 
     glPushMatrix();
     CalculateCenter();
+    
+    glTranslatef(offset_x, offset_y, 0);
     glScalef(hud_scale, hud_scale, 0);
 
     if (viggen_mode) {

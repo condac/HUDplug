@@ -840,7 +840,7 @@ void DrawAltitude(float x, float y) {
                 glVertex2f(ALT_POS_X + 20, (y + altToPixelY(-altitude) + altToPixelY(i)));
                 glEnd();
             } else {
-                glLineWidth(max(line_width / 2, 1.0));
+                glLineWidth(max2(line_width / 2, 1.0));
                 glBegin(GL_LINES);
                 glVertex2f(ALT_POS_X, (y + altToPixelY(-altitude) + altToPixelY(i)));
                 glVertex2f(ALT_POS_X + 10, (y + altToPixelY(-altitude) + altToPixelY(i)));

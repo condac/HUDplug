@@ -50,7 +50,7 @@ void CalculateCenter(void) {
     line_width = line_scale * hud_scale;
     CalculateColors();
 
-    glScissor((screen_width / 2) - glass_width * hud_scale / 2, 0, glass_width * hud_scale, screen_height / 2 + glass_height * hud_scale / 2);
+    glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x, 0, offset_x + glass_width * hud_scale, offset_y + screen_height / 2 + glass_height * hud_scale / 2);
     glEnable(GL_SCISSOR_TEST);
 }
 
@@ -242,4 +242,11 @@ float lim(float value, float lower, float upper) {
         return upper;
     }
     return value;
+}
+
+float max2(float value1, float value2) {
+    if (value1>value2) {
+        return value1;
+    }
+    return value2;
 }
