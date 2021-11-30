@@ -999,6 +999,8 @@ void DrawViggen() {
     float smallTextScale = 0.85;
     float tail_pos = airspeed - LANDING_SPEED;
     int gear = getGear();
+    float vdef = getILSv();
+
     tail_pos = fmin(tail_pos, 40);
     tail_pos = fmax(tail_pos, -40);
     y_pos = fov_pixels * alpha;
@@ -1007,29 +1009,6 @@ void DrawViggen() {
     glColor4fv(color);
 
     DrawVector();
-    // glPushMatrix();
-    // glRotatef(angle, 0, 0, 1);
-    // glTranslatef(-x_pos, -y_pos, 0);
-    // glRotatef(-angle, 0, 0, 1);
-    //
-    // DrawCircle(10  );
-    // glLineWidth(line_width);
-    // glBegin(GL_LINES);
-    //
-    // glVertex2f(10  , 0  );
-    // glVertex2f(40  , 0  );
-    //
-    // glVertex2f(-10  , 0  );
-    // glVertex2f(-40  , 0  );
-    //
-    // glVertex2f(0  , tail_pos - 10  );
-    // glVertex2f(0  , tail_pos + 10  );
-    //
-    // glEnd();
-    //
-    // //glTranslatef(x_pos, y_pos, 0); // set position back
-    // glPopMatrix(); // set position back
-    // Horizontal lines
 
     y_pos = CalcFOVAngle(pitch);
 
@@ -1037,14 +1016,6 @@ void DrawViggen() {
 
     glRotatef(angle, 0, 0, 1);
     glTranslatef(0, -y_pos, 0);
-
-    // 0 horizonten
-
-    // Prickar
-    // for (float i = -160; i < 160; i += 40) {
-    //     glVertex2f((i)*HUD_SCALE, 0  );
-    //     glVertex2f((i + (line_width * 2))  , 0  );
-    // }
 
     // 0 horizonten
     float yy = 0;
@@ -1059,6 +1030,23 @@ void DrawViggen() {
         glVertex2f(-480, CalcFOVAngle(0));
         glVertex2f(480, CalcFOVAngle(0));
         glEnd();
+        // Landingssstolpar
+        if (ifILSEnabled() == 1 && markKontakt() == 0) {
+            float yy2 = yy - vdef * 20;
+            glBegin(GL_LINES);
+            glVertex2f(90, yy2);
+            glVertex2f(90, yy2 - 80);
+
+            glVertex2f(180, yy2);
+            glVertex2f(180, yy2 - 120);
+
+            glVertex2f(-90, yy2);
+            glVertex2f(-90, yy2 - 80);
+
+            glVertex2f(-180, yy2);
+            glVertex2f(-180, yy2 - 120);
+            glEnd();
+        }
     }
     glLineWidth(line_width);
     glBegin(GL_LINES);
@@ -1108,9 +1096,6 @@ void DrawViggen() {
             glVertex2f(-400, CalcFOVAngle(i));
             glVertex2f(-200, CalcFOVAngle(i));
             glEnd();
-            // char buffer2[10];
-            // sprintf(buffer2, "%d", i);
-            // XPLMDrawString(color, -200  , CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
         }
     }
     int start = -5;
@@ -1128,9 +1113,6 @@ void DrawViggen() {
             glVertex2f(-400, CalcFOVAngle(i));
             glVertex2f(-200, CalcFOVAngle(i));
             glEnd();
-            // char buffer2[10];
-            // sprintf(buffer2, "%d", i);
-            // XPLMDrawString(color, -200  , CalcFOVAngle(i), buffer2, NULL, xplmFont_Basic);
         }
     }
 
