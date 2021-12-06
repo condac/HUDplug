@@ -24,6 +24,8 @@ XPLMDataRef drBeta;
 XPLMDataRef drViewIsExternal;
 XPLMDataRef drBalInd;
 XPLMDataRef drYawStr;
+XPLMDataRef drFOVoff_x;
+XPLMDataRef drFOVoff_y;
 XPLMDataRef drFOV;
 float fov2;
 int fov_notfound = 0;
@@ -255,6 +257,9 @@ int initDataRefs() {
     lTmp += findDataRef("sim/graphics/view/current_gl_fbo", &drFBO);
     lTmp += findDataRef("sim/time/paused", &drPause);
 
+    lTmp += findDataRef("sim/graphics/view/field_of_view_vertical_deg", &drFOVoff_y);
+    lTmp += findDataRef("sim/graphics/view/field_of_view_horizontal_deg", &drFOVoff_x);
+
     if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
         fov2 = 30;
         fov_notfound = 1;
@@ -334,7 +339,12 @@ float getBalance() {
 float getYawStringAngle() {
     return XPLMGetDataf(drYawStr);
 }
-
+float getFOVoff_y() {
+    return XPLMGetDataf(drFOVoff_y);
+}
+float getFOVoff_x() {
+    return XPLMGetDataf(drFOVoff_x);
+}
 float getFOV() {
     if (fov_notfound) {
         return fov2;

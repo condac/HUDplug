@@ -7,6 +7,7 @@ void DrawAltitude(float x, float y);
 void DrawSpeed(float x, float y);
 void DrawAlpha(float x, float y);
 void DrawViggen();
+void DrawViggenMode2();
 void DrawModesJAS();
 void DrawGlass();
 void DrawGroundCollision();

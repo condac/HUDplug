@@ -148,8 +148,9 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     initDataRefs();
     //xplm_Phase_FirstCockpit
     //xplm_Phase_Window
+    //xplm_Phase_LastCockpit
     XPLMRegisterDrawCallback(MyDrawCallback,
-                             xplm_Phase_LastCockpit, /* Draw when sim is doing windows */
+                             xplm_Phase_Window, /* Draw when sim is doing windows */
                              1,                 /* Before plugin windows */
                              NULL);             /* No refcon needed */
     // GLuint fbo_;
@@ -308,11 +309,11 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
 
     glPushMatrix();
     CalculateCenter();
-    
+
     glTranslatef(offset_x, offset_y, 0);
     glScalef(hud_scale, hud_scale, 0);
 
-    if (viggen_mode) {
+    if (viggen_mode == 1) {
         TranslateToCenter();
         DrawGlass();
         glPushMatrix();
@@ -323,6 +324,19 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
             DrawTest();
         }
         DrawViggen();
+        glPopMatrix();
+
+    } else if (viggen_mode == 2) {
+        TranslateToCenter();
+        DrawGlass();
+        glPushMatrix();
+        if (g_sway) {
+            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
+        }
+        if (draw_test) {
+            DrawTest();
+        }
+        DrawViggenMode2();
         glPopMatrix();
 
     } else {
@@ -389,6 +403,6 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     glDisable(GL_BLEND);
     glDisable(GL_SCISSOR_TEST);
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
-    
+
     return 1;
 }

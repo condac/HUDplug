@@ -43,14 +43,21 @@ void CalculateCenter(void) {
 
     XPLMGetScreenSize(&screen_width, &screen_height);
     // HudConfig* lConfig = getHudConfig();
+    float FOV_off_y = getFOVoff_y();
+    float FOV_off_x = getFOVoff_x();
 
-    glTranslated(screen_width / 2, screen_height / 2, 0);
     fov = getFOV();
     fov_pixels = screen_height / fov;
     line_width = line_scale * hud_scale;
     CalculateColors();
+    FOV_off_y = CalcFOVAngle(FOV_off_y) * hud_scale;
+    FOV_off_x = CalcFOVAngle(FOV_off_x) * hud_scale;
 
-    glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x, 0, offset_x + glass_width * hud_scale, offset_y + screen_height / 2 + glass_height * hud_scale / 2);
+    glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
+    glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,
+              -FOV_off_y,
+              offset_x + glass_width * hud_scale,
+              offset_y + screen_height / 2 + glass_height * hud_scale / 2);
     glEnable(GL_SCISSOR_TEST);
 }
 
@@ -245,7 +252,7 @@ float lim(float value, float lower, float upper) {
 }
 
 float max2(float value1, float value2) {
-    if (value1>value2) {
+    if (value1 > value2) {
         return value1;
     }
     return value2;

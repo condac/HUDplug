@@ -19,6 +19,8 @@ void unregisterData();
 float getAlphaA();
 float getBetaA();
 float getFOV();
+float getFOVoff_y();
+float getFOVoff_x();
 float getPitch();
 float getRoll();
 float getHeading();
