@@ -27,6 +27,7 @@ XPLMDataRef drYawStr;
 XPLMDataRef drFOVoff_x;
 XPLMDataRef drFOVoff_y;
 XPLMDataRef drFOV;
+XPLMDataRef drFOV_x;
 float fov2;
 int fov_notfound = 0;
 XPLMDataRef drGForce;
@@ -189,6 +190,7 @@ int initDataRefs() {
     int lTmp;
     /* Also look up our data refs. */
     lTmp = 0;
+    //lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
     lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
     lTmp += findDataRef("sim/flightmodel/position/phi", &drRoll);
     lTmp += findDataRef("sim/flightmodel/position/magpsi", &drHeading);
@@ -259,7 +261,8 @@ int initDataRefs() {
 
     lTmp += findDataRef("sim/graphics/view/field_of_view_vertical_deg", &drFOVoff_y);
     lTmp += findDataRef("sim/graphics/view/field_of_view_horizontal_deg", &drFOVoff_x);
-
+    lTmp += findDataRef("sim/graphics/view/field_of_view_deg", &drFOV_x);
+	
     if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
         fov2 = 30;
         fov_notfound = 1;
@@ -347,6 +350,15 @@ float getFOVoff_x() {
 }
 float getFOV() {
     if (fov_notfound) {
+        
+        int screen_width;
+        int screen_height;
+
+        XPLMGetScreenSize(&screen_width, &screen_height);
+        float w = screen_width;
+        float h = screen_height;
+        float ratio = w/h;
+        fov2 = XPLMGetDataf(drFOV_x) / ratio;
         return fov2;
     }
     return XPLMGetDataf(drFOV);

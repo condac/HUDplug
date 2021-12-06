@@ -34,6 +34,7 @@ int draw_test = 0;
 int metric = 1;
 float offset_x = 0;
 float offset_y = 0;
+float error_y = 1.0;
 
 void readConfig() {
     debugLog("readConfig \n");
@@ -209,6 +210,13 @@ void parseLine(char* line) {
         XPLMDebugString(line + 9);
         sscanf(line + 9, "%f", &i);
         offset_y = i;
+    }
+    if (strncmp("error_y=", line, 8) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 8);
+        sscanf(line + 8, "%f", &i);
+        error_y = i;
     }
 }
 
