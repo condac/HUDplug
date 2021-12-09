@@ -783,7 +783,7 @@ void DrawAlpha(float x, float y) {
 
     SetGLText(); // turn on blending
 
-    sprintf(temp, "G %.1f  %.1f", gforce, getFOV());
+    sprintf(temp, "G %.1f", gforce);
     DrawHUDText(temp, &fontMain, (x), ((y + 120)) + ((textHeight(1.0) * text_scale)), 2, color);
 
     if (getIAS() > 50) {
