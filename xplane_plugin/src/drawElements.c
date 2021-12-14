@@ -746,6 +746,14 @@ void DrawSpeed(float x, float y) {
 
         DrawHUDText("L", &fontMain, SPEED_POS_X + 10, y + tail_pos - ((textHeight(1.0) / 2 * text_scale)), 0, color);
     }
+
+    float trim = getPitchTrim();
+    static float trim_prev;
+    if (trim_prev != trim) {
+        trim_prev = trim;
+        sprintf(temp, "TRIM %.0f", trim * 100);
+        DrawHUDText(temp, &fontMain, (0), ((180)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
+    }
     if (getSpeedBrake()) {
         sprintf(temp, "LUFTBROMS UTE");
         DrawHUDText(temp, &fontMain, (0), ((200)) - ((textHeight(1.0) * text_scale) * 2), 1, color);

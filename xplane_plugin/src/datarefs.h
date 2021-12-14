@@ -22,6 +22,7 @@ float getFOV();
 float getFOVoff_y();
 float getFOVoff_x();
 float getPitch();
+float getPitchTrim();
 float getRoll();
 float getHeading();
 float getTrueHeading();
@@ -83,5 +84,29 @@ float GetGlassDarkness();
 float GetGlassDarknessCB(void* inRefcon);
 
 void SetGlassDarknessCB(void* inRefcon, float inValue);
+
+float GetJASFuelCB(void* inRefcon);
+void SetJASFuelCB(void* inRefcon, float inValue);
+
+int GetJASLampsAirbrakeCB(void* inRefcon);
+void SetJASLampsAirbrakeCB(void* inRefcon, int inValue);
+
+int GetJASLampsSpakCB(void* inRefcon);
+void SetJASLampsSpakCB(void* inRefcon, int inValue);
+
+int GetJASLampsAttCB(void* inRefcon);
+void SetJASLampsAttCB(void* inRefcon, int inValue);
+
+int GetJASLampsHojdCB(void* inRefcon);
+void SetJASLampsHojdCB(void* inRefcon, int inValue);
+
+int GetJASButtonSpakCB(void* inRefcon);
+void SetJASButtonSpakCB(void* inRefcon, int inValue);
+
+int GetJASButtonAttCB(void* inRefcon);
+void SetJASButtonAttCB(void* inRefcon, int inValue);
+
+int GetJASButtonHojdCB(void* inRefcon);
+void SetJASButtonHojdCB(void* inRefcon, int inValue);
 
 #endif
