@@ -1,6 +1,7 @@
 #include "HUDplug.h"
 
 #include "datarefs.h"
+#include <time.h>
 
 XPLMDataRef drPitch;
 XPLMDataRef drRoll;
@@ -78,6 +79,10 @@ XPLMDataRef dr_nav1_heading;
 XPLMDataRef dr_nav1_id;
 XPLMDataRef dr_nav1_distance;
 XPLMDataRef dr_nav1_eta;
+XPLMDataRef dr_master_caution;
+XPLMDataRef dr_master_warning;
+XPLMDataRef dr_master_warning_set;
+XPLMDataRef dr_gear_warning;
 
 XPLMDataRef hudVisibleDR = NULL;
 XPLMDataRef stabilisatorStatusDR = NULL;
@@ -88,10 +93,22 @@ XPLMDataRef JASLampsAirbrakeDR = NULL;
 XPLMDataRef JASLampsSpakDR = NULL;
 XPLMDataRef JASLampsAttDR = NULL;
 XPLMDataRef JASLampsHojdDR = NULL;
+XPLMDataRef JASLampsMaster1DR = NULL;
+XPLMDataRef JASLampsMaster2DR = NULL;
+
+XPLMDataRef JASAutoModeDR = NULL;
+XPLMDataRef JASAutoAttDR = NULL;
+XPLMDataRef JASAutoAltDR = NULL;
 
 int JASLampsSpak = 0;
 int JASLampsAtt = 0;
 int JASLampsHojd = 0;
+int JASLampsMaster1 = 0;
+int JASLampsMaster2 = 0;
+
+int JASAutoMode = 0;
+float JASAutoAlt = 0.0;
+float JASAutoAtt = 0.0;
 
 XPLMDataRef JASButtonSpakDR = NULL;
 XPLMDataRef JASButtonAttDR = NULL;
@@ -308,6 +325,54 @@ int registerDataRefs() {
         return -1;
     }
 
+    JASLampsMaster1DR = XPLMRegisterDataAccessor("JAS/lamps/master1",
+                                                 xplmType_Int, // The types we support
+                                                 1,            // Writable
+                                                 GetJASLampsMaster1CB,
+                                                 SetJASLampsMaster1CB, // Integer accessors
+                                                 NULL,
+                                                 NULL, // Float accessors
+                                                 NULL,
+                                                 NULL, // Doubles accessors
+                                                 NULL,
+                                                 NULL, // Int array accessors
+                                                 NULL,
+                                                 NULL, // Float array accessors
+                                                 NULL,
+                                                 NULL, // Raw data accessors
+                                                 NULL,
+                                                 NULL); // Refcons not used
+
+    // Find and intialize our dataref
+    JASLampsMaster1DR = XPLMFindDataRef("JAS/lamps/master1");
+    if (JASLampsMaster1DR == NULL) {
+        return -1;
+    }
+
+    JASLampsMaster2DR = XPLMRegisterDataAccessor("JAS/lamps/master2",
+                                                 xplmType_Int, // The types we support
+                                                 1,            // Writable
+                                                 GetJASLampsMaster2CB,
+                                                 SetJASLampsMaster2CB, // Integer accessors
+                                                 NULL,
+                                                 NULL, // Float accessors
+                                                 NULL,
+                                                 NULL, // Doubles accessors
+                                                 NULL,
+                                                 NULL, // Int array accessors
+                                                 NULL,
+                                                 NULL, // Float array accessors
+                                                 NULL,
+                                                 NULL, // Raw data accessors
+                                                 NULL,
+                                                 NULL); // Refcons not used
+
+    // Find and intialize our dataref
+    JASLampsMaster2DR = XPLMFindDataRef("JAS/lamps/master2");
+    if (JASLampsMaster2DR == NULL) {
+        return -1;
+    }
+
     JASButtonHojdDR = XPLMRegisterDataAccessor("JAS/button/hojd",
                                                xplmType_Int, // The types we support
                                                1,            // Writable
@@ -377,6 +442,78 @@ int registerDataRefs() {
     // Find and intialize our dataref
     JASButtonSpakDR = XPLMFindDataRef("JAS/button/spak");
     if (JASButtonSpakDR == NULL) {
+        return -1;
+    }
+
+    JASAutoModeDR = XPLMRegisterDataAccessor("JAS/autopilot/mode",
+                                             xplmType_Int, // The types we support
+                                             1,            // Writable
+                                             GetJASAutoModeCB,
+                                             SetJASAutoModeCB, // Integer accessors
+                                             NULL,
+                                             NULL, // Float accessors
+                                             NULL,
+                                             NULL, // Doubles accessors
+                                             NULL,
+                                             NULL, // Int array accessors
+                                             NULL,
+                                             NULL, // Float array accessors
+                                             NULL,
+                                             NULL, // Raw data accessors
+                                             NULL,
+                                             NULL); // Refcons not used
+
+    // Find and intialize our dataref
+    JASAutoModeDR = XPLMFindDataRef("JAS/autopilot/mode");
+    if (JASAutoModeDR == NULL) {
+        return -1;
+    }
+
+    JASAutoAttDR = XPLMRegisterDataAccessor("JAS/autopilot/att",
+                                            xplmType_Float, // The types we support
+                                            1,              // Writable
+                                            NULL,
+                                            NULL, // Integer accessors
+                                            GetJASAutoAttCB,
+                                            SetJASAutoAttCB, // Float accessors
+                                            NULL,
+                                            NULL, // Doubles accessors
+                                            NULL,
+                                            NULL, // Int array accessors
+                                            NULL,
+                                            NULL, // Float array accessors
+                                            NULL,
+                                            NULL, // Raw data accessors
+                                            NULL,
+                                            NULL); // Refcons not used
+
+    // Find and intialize our dataref
+    JASAutoAttDR = XPLMFindDataRef("JAS/autopilot/att");
+    if (JASAutoAttDR == NULL) {
+        return -1;
+    }
+
+    JASAutoAltDR = XPLMRegisterDataAccessor("JAS/autopilot/alt",
+                                            xplmType_Float, // The types we support
+                                            1,              // Writable
+                                            NULL,
+                                            NULL, // Integer accessors
+                                            GetJASAutoAltCB,
+                                            SetJASAutoAltCB, // Float accessors
+                                            NULL,
+                                            NULL, // Doubles accessors
+                                            NULL,
+                                            NULL, // Int array accessors
+                                            NULL,
+                                            NULL, // Float array accessors
+                                            NULL,
+                                            NULL, // Raw data accessors
+                                            NULL,
+                                            NULL); // Refcons not used
+
+    // Find and intialize our dataref
+    JASAutoAltDR = XPLMFindDataRef("JAS/autopilot/alt");
+    if (JASAutoAltDR == NULL) {
         return -1;
     }
 
@@ -480,6 +617,10 @@ int initDataRefs() {
     lTmp += findDataRef("sim/flightmodel/parts/tire_vrt_def_veh", &drGearDef);
     lTmp += findDataRef("sim/graphics/view/current_gl_fbo", &drFBO);
     lTmp += findDataRef("sim/time/paused", &drPause);
+    lTmp += findDataRef("sim/cockpit2/annunciators/master_caution", &dr_master_caution);
+    lTmp += findDataRef("sim/cockpit2/annunciators/master_warning", &dr_master_warning);
+    lTmp += findDataRef("sim/cockpit2/annunciators/plugin_master_warning", &dr_master_warning_set);
+    lTmp += findDataRef("sim/cockpit2/annunciators/gear_warning", &dr_gear_warning);
 
     lTmp += findDataRef("sim/graphics/view/field_of_view_vertical_deg", &drFOVoff_y);
     lTmp += findDataRef("sim/graphics/view/field_of_view_horizontal_deg", &drFOVoff_x);
@@ -754,6 +895,46 @@ void SetJASLampsHojdCB(void* inRefcon, int inValue) {
     JASLampsHojd = inValue;
 }
 
+int GetJASLampsMaster1CB(void* inRefcon) {
+    if (XPLMGetDatai(dr_master_caution) > 0 || XPLMGetDatai(dr_master_warning) > 0 || XPLMGetDatai(dr_gear_warning) > 0) {
+        clock_t t1;
+
+        t1 = (clock() * 10) / CLOCKS_PER_SEC;
+        int t2 = t1 / 2;
+        if ((t2 % 2) == 0) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    return 0;
+}
+void SetJASLampsMaster1CB(void* inRefcon, int inValue) {
+    JASLampsMaster1 = inValue;
+}
+
+int GetJASLampsMaster2CB(void* inRefcon) {
+    if (XPLMGetDatai(dr_master_caution) > 0 || XPLMGetDatai(dr_master_warning) > 0 || XPLMGetDatai(dr_gear_warning) > 0) {
+        clock_t t1;
+
+        t1 = (clock() * 10) / CLOCKS_PER_SEC;
+        int t2 = t1 / 2;
+        if ((t2 % 2) == 0) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+    return 0;
+}
+void SetJASLampsMaster2CB(void* inRefcon, int inValue) {
+    JASLampsMaster2 = inValue;
+}
+
+void setWarning(int inValue) {
+    XPLMSetDatai(dr_master_warning_set, inValue);
+}
+
 int GetJASButtonSpakCB(void* inRefcon) {
     return JASButtonSpak;
 }
@@ -773,6 +954,27 @@ int GetJASButtonHojdCB(void* inRefcon) {
 }
 void SetJASButtonHojdCB(void* inRefcon, int inValue) {
     JASButtonHojd = inValue;
+}
+
+int GetJASAutoModeCB(void* inRefcon) {
+    return JASAutoMode;
+}
+void SetJASAutoModeCB(void* inRefcon, int inValue) {
+    JASAutoMode = inValue;
+}
+
+float GetJASAutoAttCB(void* inRefcon) {
+    return JASAutoAtt;
+}
+void SetJASAutoAttCB(void* inRefcon, float inValue) {
+    JASAutoAtt = inValue;
+}
+
+float GetJASAutoAltCB(void* inRefcon) {
+    return JASAutoAlt;
+}
+void SetJASAutoAltCB(void* inRefcon, float inValue) {
+    JASAutoAlt = inValue;
 }
 
 int GetStabilisatorStatusCB(void* inRefcon) {

@@ -244,7 +244,7 @@ void DrawGlass() {
     float colorglass[] = {0.2, 0.0, 0.2, 0.5};
     float colorglassB[] = {0.2, 0., 0.2, 0.2};
     colorglass[3] = GetGlassDarkness() * glass_darkness;
-    colorglassB[3] = GetGlassDarkness() * glass_darkness - 0.3;
+    colorglassB[3] = GetGlassDarkness() * glass_darkness;
 
     int modes[] = {GL_ZERO,
                    GL_ONE,
@@ -941,6 +941,9 @@ void DrawGroundCollision() {
                 SetGLText();
                 sprintf(temp, "MARKKOLLISION %.1f", timeLeft);
                 DrawHUDText(temp, &fontMain, 0, (50) - ((textHeight(1.0) * text_scale) / 2), 1, color);
+                setWarning(1);
+            } else {
+                setWarning(0);
             }
         }
     }

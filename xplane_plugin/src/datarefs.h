@@ -100,6 +100,14 @@ void SetJASLampsAttCB(void* inRefcon, int inValue);
 int GetJASLampsHojdCB(void* inRefcon);
 void SetJASLampsHojdCB(void* inRefcon, int inValue);
 
+int GetJASLampsMaster1CB(void* inRefcon);
+void SetJASLampsMaster1CB(void* inRefcon, int inValue);
+
+int GetJASLampsMaster2CB(void* inRefcon);
+void SetJASLampsMaster2CB(void* inRefcon, int inValue);
+
+void setWarning(int inValue);
+
 int GetJASButtonSpakCB(void* inRefcon);
 void SetJASButtonSpakCB(void* inRefcon, int inValue);
 
@@ -108,5 +116,14 @@ void SetJASButtonAttCB(void* inRefcon, int inValue);
 
 int GetJASButtonHojdCB(void* inRefcon);
 void SetJASButtonHojdCB(void* inRefcon, int inValue);
+
+int GetJASAutoModeCB(void* inRefcon);
+void SetJASAutoModeCB(void* inRefcon, int inValue);
+
+float GetJASAutoAttCB(void* inRefcon);
+void SetJASAutoAttCB(void* inRefcon, float inValue);
+
+float GetJASAutoAltCB(void* inRefcon);
+void SetJASAutoAltCB(void* inRefcon, float inValue);
 
 #endif
