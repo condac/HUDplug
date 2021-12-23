@@ -258,7 +258,7 @@ int initDataRefs() {
     /* Also look up our data refs. */
     lTmp = 0;
     //lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
-    lTmp += findDataRef("JAS/system/ess/heartbeat", &drEssStatus);
+    lTmp += findDataRef("JAS/system/ess/heartbeat2", &drEssStatus);
 
     lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
     lTmp += findDataRef("sim/flightmodel/position/phi", &drRoll);

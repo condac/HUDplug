@@ -38,6 +38,7 @@ static float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedT
 static int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon);
 static XPLMDataRef gDataRef = NULL;
 static XPLMDataRef testDataRef = NULL;
+XPLMDataRef drHUDheartbeat;
 
 int TeensyControls_show = 0;
 int statusDisplayShow = 0;
@@ -125,6 +126,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     gDataRef = XPLMFindDataRef("sim/cockpit/switches/pitot_heat_on");
     testDataRef = XPLMFindDataRef("sim/joystick/yoke_roll_ratio");
+    drHUDheartbeat = XPLMFindDataRef("JAS/system/hud/heartbeat");
 
     TeensyControls_show = 0;
 
@@ -404,5 +406,6 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     glDisable(GL_SCISSOR_TEST);
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 
+    XPLMSetDatai(drHUDheartbeat, 1);
     return 1;
 }
