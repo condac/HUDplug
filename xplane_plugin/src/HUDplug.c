@@ -406,6 +406,8 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     glDisable(GL_SCISSOR_TEST);
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 
-    XPLMSetDatai(drHUDheartbeat, 1);
+    static int heartbeat = 0;
+    heartbeat++;
+    XPLMSetDatai(drHUDheartbeat, heartbeat);
     return 1;
 }
