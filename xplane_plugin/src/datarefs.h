@@ -60,6 +60,7 @@ int getParkBrake();
 int getStabStatus();
 int getGear();
 int getPause();
+int getMkvLarm();
 
 float getFuelFlow();
 float getTotalFuel();

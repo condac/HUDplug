@@ -84,6 +84,7 @@ XPLMDataRef dr_master_warning;
 XPLMDataRef dr_master_warning_set;
 XPLMDataRef dr_gear_warning;
 XPLMDataRef drEssStatus;
+XPLMDataRef drMkvLarm;
 
 XPLMDataRef hudVisibleDR = NULL;
 XPLMDataRef stabilisatorStatusDR = NULL;
@@ -259,6 +260,7 @@ int initDataRefs() {
     lTmp = 0;
     //lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
     lTmp += findDataRef("JAS/system/ess/heartbeat2", &drEssStatus);
+    lTmp += findDataRef("JAS/system/mkv/larm", &drMkvLarm);
 
     lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
     lTmp += findDataRef("sim/flightmodel/position/phi", &drRoll);
@@ -470,6 +472,9 @@ int getStabStatus() {
 }
 int getPause() {
     return XPLMGetDatai(drPause);
+}
+int getMkvLarm() {
+    return XPLMGetDatai(drMkvLarm);
 }
 void setStabStatus(int value) {
     XPLMSetDatai(drEssStatus, value);

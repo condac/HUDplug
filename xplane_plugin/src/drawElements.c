@@ -929,23 +929,29 @@ void DrawAltitude(float x, float y) {
 
 void DrawGroundCollision() {
     char temp[100];
-    float vy = getVY();
-    float radaralt = getRadarAltitude();
-    int gear = getGear();
+    // float vy = getVY();
+    // float radaralt = getRadarAltitude();
+    // int gear = getGear();
 
-    if (!gear) {
-        if (vy < 0) {
-            if (-vy * 7 > radaralt) {
-                float timeLeft = radaralt / -vy;
-                SetGLTransparentLines();
-                SetGLText();
-                sprintf(temp, "MARKKOLLISION %.1f", timeLeft);
-                DrawHUDText(temp, &fontMain, 0, (50) - ((textHeight(1.0) * text_scale) / 2), 1, color);
-                setWarning(1);
-            } else {
-                setWarning(0);
-            }
-        }
+    // if (!gear) {
+    //     if (vy < 0) {
+    //         if (-vy * 7 > radaralt) {
+    //             float timeLeft = radaralt / -vy;
+    //             SetGLTransparentLines();
+    //             SetGLText();
+    //             sprintf(temp, "MARKKOLLISION %.1f", timeLeft);
+    //             DrawHUDText(temp, &fontMain, 0, (50) - ((textHeight(1.0) * text_scale) / 2), 1, color);
+    //             //setWarning(1);
+    //         } else {
+    //             //setWarning(0);
+    //         }
+    //     }
+    // }
+    if (getMkvLarm() > 0) {
+        SetGLTransparentLines();
+        SetGLText();
+        sprintf(temp, "MARKKOLLISION");
+        DrawHUDText(temp, &fontMain, 0, (50) - ((textHeight(1.0) * text_scale) / 2), 1, color);
     }
 }
 
