@@ -329,6 +329,9 @@ void DrawGlass() {
     //glBlendEquation(mode1);
 }
 
+void DrawMKV() {
+}
+
 void DrawVector() {
     SetGLTransparentLines();
     glEnable(GL_LINE_SMOOTH);
@@ -952,6 +955,52 @@ void DrawGroundCollision() {
         SetGLText();
         sprintf(temp, "MARKKOLLISION");
         DrawHUDText(temp, &fontMain, 0, (50) - ((textHeight(1.0) * text_scale) / 2), 1, color);
+
+        glPushMatrix();
+        SetGLTransparentLines();
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_POLYGON_SMOOTH);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+
+        glColor4fv(color);
+        glLineWidth(line_width);
+
+        // basen
+        glTranslatef(0, -50, 0);
+        glBegin(GL_LINE_STRIP);
+
+        glVertex2f(80, 0);
+        glVertex2f(80, -45);
+        glVertex2f(-80, -45);
+        glVertex2f(-80, 0);
+
+        glVertex2f(-80 - 12, 0);
+        glVertex2f(-80 - 12, -45 - 12);
+        glVertex2f(80 + 12, -45 - 12);
+        glVertex2f(80 + 12, 0);
+
+        glEnd();
+
+        // Pil
+        glBegin(GL_LINE_STRIP);
+
+        glVertex2f(86 + 13, 0);
+        glVertex2f(86 - 13, 0);
+        glVertex2f(86, 22);
+        glVertex2f(86 + 13, 0);
+
+        glEnd();
+        // Pil
+        glBegin(GL_LINE_STRIP);
+
+        glVertex2f(-86 + 13, 0);
+        glVertex2f(-86 - 13, 0);
+        glVertex2f(-86, 22);
+        glVertex2f(-86 + 13, 0);
+
+        glEnd();
+        glPopMatrix();
     }
 }
 
