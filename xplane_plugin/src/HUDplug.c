@@ -310,7 +310,9 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glPushMatrix();
-    CalculateCenter();
+    if (CalculateCenter() == -1) {
+        return 1;
+    }
 
     glTranslatef(offset_x, offset_y, 0);
     glScalef(hud_scale, hud_scale, 0);

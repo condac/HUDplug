@@ -37,7 +37,7 @@ int blendmodes[] = {GL_ZERO,
                     GL_ONE_MINUS_CONSTANT_ALPHA,
                     GL_SRC_ALPHA_SATURATE};
 
-void CalculateCenter(void) {
+int CalculateCenter(void) {
     int screen_width;
     int screen_height;
 
@@ -53,12 +53,17 @@ void CalculateCenter(void) {
     FOV_off_y = CalcFOVAngle(FOV_off_y) * hud_scale;
     FOV_off_x = CalcFOVAngle(FOV_off_x) * hud_scale;
 
+    if (FOV_off_x > 1000 || FOV_off_x < -1000) {
+        return -1;
+    }
+
     glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
     glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,
               -FOV_off_y,
               offset_x + glass_width * hud_scale,
               offset_y + screen_height / 2 + glass_height * hud_scale / 2);
     glEnable(GL_SCISSOR_TEST);
+    return 1;
 }
 
 void CalculateColors() {

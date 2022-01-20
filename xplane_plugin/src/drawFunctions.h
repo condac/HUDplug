@@ -13,7 +13,7 @@ extern int viggen_mode;
 #define SIZE_OF_BLENDMODES 15
 extern int blendmodes[SIZE_OF_BLENDMODES];
 
-void CalculateCenter(void);
+int CalculateCenter(void);
 void TranslateToCenter(void);
 void initGlResources();
 void DrawCircle(float radius);
