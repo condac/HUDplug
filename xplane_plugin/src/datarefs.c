@@ -3,6 +3,7 @@
 #include "datarefs.h"
 #include <time.h>
 
+XPLMDataRef drFRP;
 XPLMDataRef drPitch;
 XPLMDataRef drRoll;
 XPLMDataRef drTrueHeading;
@@ -18,6 +19,7 @@ XPLMDataRef drWindDirection;
 XPLMDataRef drIAS;
 XPLMDataRef drGroundSpeed;
 XPLMDataRef drElvTrim;
+XPLMDataRef drTrueSpeed;
 
 XPLMDataRef drMachSpeed;
 XPLMDataRef drAlpha;
@@ -85,6 +87,8 @@ XPLMDataRef dr_master_warning_set;
 XPLMDataRef dr_gear_warning;
 XPLMDataRef drEssStatus;
 XPLMDataRef drMkvLarm;
+XPLMDataRef drMkvGneed;
+XPLMDataRef drMkvNeedMore;
 
 XPLMDataRef hudVisibleDR = NULL;
 XPLMDataRef stabilisatorStatusDR = NULL;
@@ -259,8 +263,12 @@ int initDataRefs() {
     /* Also look up our data refs. */
     lTmp = 0;
     //lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
+    lTmp += findDataRef("sim/operation/misc/frame_rate_period", &drFRP);
+    
     lTmp += findDataRef("JAS/system/ess/heartbeat2", &drEssStatus);
     lTmp += findDataRef("JAS/system/mkv/larm", &drMkvLarm);
+    lTmp += findDataRef("JAS/system/mkv/gneed", &drMkvGneed);
+    lTmp += findDataRef("JAS/system/mkv/needmore", &drMkvNeedMore);
 
     lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
     lTmp += findDataRef("sim/flightmodel/position/phi", &drRoll);
@@ -276,6 +284,7 @@ int initDataRefs() {
     lTmp += findDataRef("sim/cockpit2/gauges/indicators/wind_heading_deg_mag", &drWindDirection);
     //lTmp += findDataRef("sim/weather/wind_direction_degt[0]", &drWindDirection);
     lTmp += findDataRef("sim/flightmodel/position/indicated_airspeed", &drIAS);
+    lTmp += findDataRef("sim/flightmodel/position/true_airspeed", &drTrueSpeed);
     lTmp += findDataRef("sim/flightmodel/controls/elv_trim", &drElvTrim);
 
     lTmp += findDataRef("sim/flightmodel/misc/machno", &drMachSpeed);
@@ -355,6 +364,9 @@ void unregisterData() {
 float getPitch() {
     return XPLMGetDataf(drPitch);
 }
+float getFRP() {
+    return XPLMGetDataf(drFRP);
+}
 float getRoll() {
     return XPLMGetDataf(drRoll);
 }
@@ -366,6 +378,9 @@ float getPitchTrim() {
 }
 float getTrueHeading() {
     return XPLMGetDataf(drTrueHeading);
+}
+float getTrueSpeed() {
+    return XPLMGetDataf(drTrueSpeed);
 }
 float getAlphaA() {
     return XPLMGetDataf(drAlpha);
@@ -475,6 +490,12 @@ int getPause() {
 }
 int getMkvLarm() {
     return XPLMGetDatai(drMkvLarm);
+}
+int getMkvNeedMore() {
+    return XPLMGetDatai(drMkvNeedMore);
+}
+float getMkvGneed() {
+    return XPLMGetDataf(drMkvGneed);
 }
 void setStabStatus(int value) {
     XPLMSetDatai(drEssStatus, value);

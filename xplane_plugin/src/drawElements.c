@@ -339,24 +339,61 @@ void DrawVector() {
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     float airspeed = getIAS();
-    float y_pos = CalcFOVAngle(myGetAlpha());
-    float x_pos = CalcFOVAngle(myGetBeta());
+    float y_pos = 0.0;
+    float x_pos = 0.0;
+    float alpha = CalcFOVAngle(myGetAlpha());
+    float beta = CalcFOVAngle(myGetBeta());
     float tail_pos = airspeed - getLandingSpeed() + 20;
     float angle = getRoll();
     float vdef = getILSv();
     float hdef = getILSh();
     int gear = getGear();
+    int screen_width;
+    int screen_height;
+    XPLMGetScreenSize(&screen_width, &screen_height);
+
     tail_pos = fmin(tail_pos, 40); // Fenans längd ska motsvara 20km/h
     tail_pos = fmax(tail_pos, -40);
     //y_pos = fov_pixels * getAlphaA();
     glColor4fv(color);
 
-    glRotatef(angle, 0, 0, 1);
-    glTranslatef(-x_pos, -y_pos, 0);
-    glRotatef(-angle, 0, 0, 1);
+    x_pos = sin(to_radians(-angle)) * alpha;
+    y_pos = cos(to_radians(-angle)) * alpha;
+    x_pos = x_pos + cos(to_radians(angle)) * beta;
+    y_pos = y_pos + sin(to_radians(angle)) * beta;
 
-    if (!markKontakt()) {
+    int utanfor = 0;
+    if (x_pos > glass_width / 2) {
+        x_pos = glass_width / 2 - 30;
+        utanfor = 1;
+    }
+    if (x_pos < -glass_width / 2) {
+        x_pos = -glass_width / 2 + 30;
+        utanfor = 1;
+    }
+    if (y_pos < -glass_height / 2) {
+        y_pos = -glass_height / 2 + 30;
+        utanfor = 1;
+    }
+    if (y_pos > screen_height / 2) {
+        y_pos = screen_height / 2 - 30;
+        utanfor = 1;
+    }
+
+    glPushMatrix();
+    //glRotatef(angle, 0, 0, 1);
+    glTranslatef(-x_pos, -y_pos, 0);
+    //glRotatef(-angle, 0, 0, 1);
+
+    if (!markKontakt() && utanfor == 0) {
         DrawCircle(10);
+    }
+    if (utanfor == 1) {
+        float alphaA = getAlphaA();
+        char tempText[10];
+        sprintf(tempText, "%.0f", alphaA);
+        //DrawHUDText(tempText, &fontMain, 0, -textHeight(1.0), 1, color);
+        drawLineText(tempText, 0, -textHeight(1.0), 1.0, 1);
     }
     glLineWidth(line_width);
     glBegin(GL_LINES);
@@ -370,6 +407,9 @@ void DrawVector() {
     if (gear) {
         glVertex2f(0, tail_pos - 10);
         glVertex2f(0, tail_pos + 10);
+    } else {
+        glVertex2f(0, 20 - 10);
+        glVertex2f(0, 20 + 10);
     }
 
     glEnd();
@@ -384,7 +424,7 @@ void DrawVector() {
     glRotatef(angle, 0, 0, 1);
     glTranslatef(x_pos, y_pos, 0); // set position back
     glRotatef(-angle, 0, 0, 1);
-
+    glPopMatrix();
     // char buffer[255];
     // sprintf(buffer, "Alpha: %f, Beta %f, Pitch %f, FOV %f, FOVPixel %f, y_pos %f", getAlphaA(), getBetaA(), getPitch(), getFOV(), fov_pixels, y_pos);
     // XPLMDrawString(color, -200, 300, buffer, NULL, xplmFont_Basic);
@@ -636,6 +676,7 @@ void DrawHorizionLines() {
 
 void DrawSpeed(float x, float y) {
     char temp[100];
+    float frp = getFRP();
     float airspeed = getIAS();
     float groundspeed = getGroundSpeed() * 1.944;
     float mach = getMachSpeed();
@@ -645,9 +686,15 @@ void DrawSpeed(float x, float y) {
     float tail_pos = airspeed - landingspeed;
     float maxSpeed = kmhToknots(2000);
     float eco = 300; //300 knots
+    static float avgspeed = 0.0;
+    static float prev_speed = 0;
+    static float avg_frp = 0.0;
 
     float machKnotsRatio = airspeed / mach;
     float climbSpeed = machKnotsRatio * 0.85; // 500-550knop 0.85 mach baserat på viggen innan vi hittat data för jas
+
+    avgspeed = (avgspeed * 9 + airspeed) / 10;
+    avg_frp = (avg_frp * 9 + frp) / 10;
 
     if (gear) {
         maxSpeed = kmhToknots(600);
@@ -717,6 +764,21 @@ void DrawSpeed(float x, float y) {
 
     glVertex2f(SPEED_POS_X, y + 0);
     glVertex2f((SPEED_POS_X - 20), y - 10);
+
+    // Linjer upp och ner beroende på om hatigheten ökar eller minskar
+
+    float newspeed = -(prev_speed * 10 - avgspeed * 10) * avg_frp * 2500;
+    prev_speed = avgspeed;
+    newspeed = fmax(newspeed, -120);
+    newspeed = fmin(newspeed, 120);
+    if (newspeed > 0) {
+        glVertex2f((SPEED_POS_X - 20), y + 10);
+        glVertex2f((SPEED_POS_X - 20), y + 10 + newspeed);
+    }
+    if (newspeed < 0) {
+        glVertex2f((SPEED_POS_X - 20), y - 10);
+        glVertex2f((SPEED_POS_X - 20), y - 10 + newspeed);
+    }
 
     glEnd();
 
@@ -868,7 +930,7 @@ void DrawAltitude(float x, float y) {
 
     // Draw radar altitude lines
     int drawRH = 0;
-    float rhY = altToPixelY(-m2feet(radaralt));
+    float rhY = altToPixelY(-radaralt);
 
     if (rhY < -ALT_SCALE_PIXEL / 2) {
         drawRH = 1;
@@ -930,27 +992,45 @@ void DrawAltitude(float x, float y) {
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
 
+float constrain(float val, float lower, float upper) {
+    if (lower > upper) {
+        float temp = lower;
+        lower = upper;
+        upper = temp;
+    }
+    return fmax(lower, fmin(upper, val));
+}
+
+float interpolate(float x1, float y1, float x2, float y2, float value) {
+    float y = y1 + (y2 - y1) / (x2 - x1) * (value - x1);
+    return y;
+}
+
 void DrawGroundCollision() {
     char temp[100];
-    // float vy = getVY();
-    // float radaralt = getRadarAltitude();
-    // int gear = getGear();
+    float y_pos = CalcFOVAngle(getPitch());
+    float angle = getRoll();
+    float airspeed = getIAS();
 
-    // if (!gear) {
-    //     if (vy < 0) {
-    //         if (-vy * 7 > radaralt) {
-    //             float timeLeft = radaralt / -vy;
-    //             SetGLTransparentLines();
-    //             SetGLText();
-    //             sprintf(temp, "MARKKOLLISION %.1f", timeLeft);
-    //             DrawHUDText(temp, &fontMain, 0, (50) - ((textHeight(1.0) * text_scale) / 2), 1, color);
-    //             //setWarning(1);
-    //         } else {
-    //             //setWarning(0);
-    //         }
-    //     }
-    // }
+    int gear = getGear();
+
+    // Beräkna lastfaktorn
+    float lastfaktor = interpolate(200, 1.0, 550, 5.0, knotsTokmh(airspeed));
+    lastfaktor = constrain(lastfaktor, 1.0, 5.0);
+
+    float radaralt = getRadarAltitude() * 0.9 - 30;
+    radaralt = fmax(0.0, radaralt);
+    float speed = getTrueSpeed();
+
+    float radie = (speed * speed) / (lastfaktor * 9.82);
+    float bb = radie - radaralt;
+    float vinkel = acos(bb / radie);
+    float markvinkeln = CalcFOVAngle(to_degrees(vinkel));
+
     if (getMkvLarm() > 0) {
+        float gneed = getMkvGneed();
+        int needMore = getMkvNeedMore();
+
         SetGLTransparentLines();
         SetGLText();
         sprintf(temp, "MARKKOLLISION");
@@ -966,41 +1046,75 @@ void DrawGroundCollision() {
         glColor4fv(color);
         glLineWidth(line_width);
 
-        // basen
-        glTranslatef(0, -50, 0);
-        glBegin(GL_LINE_STRIP);
+        glRotatef(angle, 0, 0, 1);
+        glTranslatef(0, fmin(fmax(-y_pos - markvinkeln, -300.0), 100), 0);
+        //glTranslatef(0, -50, 0);
 
-        glVertex2f(80, 0);
-        glVertex2f(80, -45);
-        glVertex2f(-80, -45);
-        glVertex2f(-80, 0);
+        if (gneed > 9) {
+            sprintf(temp, "9.0+");
+            DrawHUDText(temp, &fontMain, 0, -30, 1, color);
+        } else if (gneed > lastfaktor) {
+            sprintf(temp, "%.1f", gneed);
+            DrawHUDText(temp, &fontMain, 0, -30, 1, color);
+        }
 
-        glVertex2f(-80 - 12, 0);
-        glVertex2f(-80 - 12, -45 - 12);
-        glVertex2f(80 + 12, -45 - 12);
-        glVertex2f(80 + 12, 0);
+        if (needMore == 0) {
+            // basen
 
-        glEnd();
+            glBegin(GL_LINE_STRIP);
 
-        // Pil
-        glBegin(GL_LINE_STRIP);
+            glVertex2f(80, 0);
+            glVertex2f(80, -45);
+            glVertex2f(-80, -45);
+            glVertex2f(-80, 0);
 
-        glVertex2f(86 + 13, 0);
-        glVertex2f(86 - 13, 0);
-        glVertex2f(86, 22);
-        glVertex2f(86 + 13, 0);
+            glVertex2f(-80 - 12, 0);
+            glVertex2f(-80 - 12, -45 - 12);
+            glVertex2f(80 + 12, -45 - 12);
+            glVertex2f(80 + 12, 0);
 
-        glEnd();
-        // Pil
-        glBegin(GL_LINE_STRIP);
+            glEnd();
 
-        glVertex2f(-86 + 13, 0);
-        glVertex2f(-86 - 13, 0);
-        glVertex2f(-86, 22);
-        glVertex2f(-86 + 13, 0);
+            // Pil
+            glBegin(GL_LINE_STRIP);
 
-        glEnd();
+            glVertex2f(86 + 13, 0);
+            glVertex2f(86 - 13, 0);
+            glVertex2f(86, 22);
+            glVertex2f(86 + 13, 0);
+
+            glEnd();
+            // Pil
+            glBegin(GL_LINE_STRIP);
+
+            glVertex2f(-86 + 13, 0);
+            glVertex2f(-86 - 13, 0);
+            glVertex2f(-86, 22);
+            glVertex2f(-86 + 13, 0);
+
+            glEnd();
+        }
+
         glPopMatrix();
+    } else {
+        if (!gear && radaralt < 575) {
+            glPushMatrix();
+            SetGLTransparentLines();
+            glColor4fv(color);
+
+            glRotatef(angle, 0, 0, 1);
+            glTranslatef(0, -y_pos - markvinkeln, 0);
+
+            glBegin(GL_LINE_STRIP);
+
+            glVertex2f(80, 10);
+            glVertex2f(80, 0);
+            glVertex2f(-80, 0);
+            glVertex2f(-80, 10);
+
+            glEnd();
+            glPopMatrix();
+        }
     }
 }
 
@@ -1051,8 +1165,10 @@ void DrawNAVText(float x, float y) {
     SetGLText();
     glColor4fv(color);
     getNAV1Id(textId);
-    sprintf(temp, "%s  %.1fkm - %02d:%02d:%02d", textId, nm2km(nav1_distance), h, m, s);
-    DrawHUDText(temp, &fontMain, x, y, 0, color);
+    if (strlen(textId) > 1) {
+        sprintf(temp, "%s  %.1fkm - %02d:%02d:%02d", textId, nm2km(nav1_distance), h, m, s);
+        DrawHUDText(temp, &fontMain, x, y, 2, color);
+    }
 }
 
 void DrawViggen() {
@@ -1440,8 +1556,8 @@ void DrawModesJAS() {
         DrawSpeed(0, y_pos);
         DrawAlpha(SPEED_POS_X, y_pos);
         DrawAltitude(0, y_pos);
-        DrawNAVText(-100, 280);
-        DrawFuelTime(-450, 300);
+        DrawNAVText(glass_width / 2 - 30, 280);
+        DrawFuelTime(-glass_width / 2 + 30, 310);
     } else {
         TranslateToCenter();
         DrawCompass(0, 320);
@@ -1449,15 +1565,17 @@ void DrawModesJAS() {
         DrawSpeed(0, 0);
         DrawAlpha(SPEED_POS_X, 0);
         DrawAltitude(0, 0);
-        DrawNAVText(-100, -450);
-        DrawFuelTime(-450, -750);
+        DrawNAVText(glass_width / 2 - 30, -450);
+        DrawFuelTime(-glass_width / 2 + 30, -750);
+
+        //TranslateToCenter();
+        //DrawMarkindikator();
     }
 
     TranslateToCenter();
     DrawVector();
 
     TranslateToCenter();
-
     DrawGroundCollision();
 
     TranslateToCenter();

@@ -12,8 +12,8 @@
 
 #define CIRCLE_LINES_COUNT 50
 
-int screen_width;
-int screen_height;
+int screen_width = 0;
+int screen_height = 0;
 float line_width = 2.0;
 float fov;
 float fov_pixels;
@@ -42,6 +42,8 @@ int CalculateCenter(void) {
     int screen_height;
 
     XPLMGetScreenSize(&screen_width, &screen_height);
+    //screen_width = screen_width;
+    //screen_height = screen_height;
     // HudConfig* lConfig = getHudConfig();
     float FOV_off_y = getFOVoff_y();
     float FOV_off_x = getFOVoff_x();

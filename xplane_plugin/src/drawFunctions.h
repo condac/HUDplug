@@ -2,8 +2,8 @@
 #ifndef DRAWFUNC_H_INCLUDED
 #define DRAWFUNC_H_INCLUDED
 
-extern int screen_width;
-extern int screen_height;
+// extern int screen_width;
+// extern int screen_height;
 extern float fov;
 extern float fov_pixels;
 

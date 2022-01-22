@@ -16,6 +16,8 @@ int registerDataRefs();
 int initDataRefs();
 void unregisterData();
 
+float getFRP();
+
 float getAlphaA();
 float getBetaA();
 float getFOV();
@@ -26,6 +28,7 @@ float getPitchTrim();
 float getRoll();
 float getHeading();
 float getTrueHeading();
+float getTrueSpeed();
 float getVX();
 float getVY();
 float getVZ();
@@ -61,6 +64,8 @@ int getStabStatus();
 int getGear();
 int getPause();
 int getMkvLarm();
+int getMkvNeedMore();
+float getMkvGneed();
 
 float getFuelFlow();
 float getTotalFuel();
