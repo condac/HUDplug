@@ -375,8 +375,8 @@ void DrawVector() {
         y_pos = -glass_height / 2 + 30;
         utanfor = 1;
     }
-    if (y_pos > screen_height / 2) {
-        y_pos = screen_height / 2 - 30;
+    if (y_pos > screen_height / 2 / hud_scale) {
+        y_pos = screen_height / 2 / hud_scale - 30;
         utanfor = 1;
     }
 
