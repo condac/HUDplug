@@ -90,6 +90,11 @@ XPLMDataRef drMkvLarm;
 XPLMDataRef drMkvGneed;
 XPLMDataRef drMkvNeedMore;
 
+XPLMDataRef drPrickActive;
+XPLMDataRef drPrickX;
+XPLMDataRef drPrickY;
+XPLMDataRef drNavHeading;
+
 XPLMDataRef hudVisibleDR = NULL;
 XPLMDataRef stabilisatorStatusDR = NULL;
 XPLMDataRef glasDarknessDR = NULL;
@@ -105,6 +110,7 @@ XPLMDataRef JASLampsMaster2DR = NULL;
 XPLMDataRef JASAutoModeDR = NULL;
 XPLMDataRef JASAutoAttDR = NULL;
 XPLMDataRef JASAutoAltDR = NULL;
+
 
 int JASLampsSpak = 0;
 int JASLampsAtt = 0;
@@ -269,6 +275,11 @@ int initDataRefs() {
     lTmp += findDataRef("JAS/system/mkv/larm", &drMkvLarm);
     lTmp += findDataRef("JAS/system/mkv/gneed", &drMkvGneed);
     lTmp += findDataRef("JAS/system/mkv/needmore", &drMkvNeedMore);
+
+    lTmp += findDataRef("JAS/si/nav/prick_active", &drPrickActive);
+    lTmp += findDataRef("JAS/si/nav/prick_x", &drPrickX);
+    lTmp += findDataRef("JAS/si/nav/prick_y", &drPrickY);
+    lTmp += findDataRef("JAS/si/nav/heading", &drNavHeading);
 
     lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
     lTmp += findDataRef("sim/flightmodel/position/phi", &drRoll);
@@ -578,6 +589,19 @@ float getNAV1ETA() {
 }
 int getNAV1Id(const char* text) {
     return XPLMGetDatab(dr_nav1_id, (void*)text, 0, 150);
+}
+
+float getPrickX() {
+    return XPLMGetDataf(drPrickX);
+}
+float getPrickY() {
+    return XPLMGetDataf(drPrickY);
+}
+float getPrickActive() {
+    return XPLMGetDatai(drPrickActive);
+}
+float getNAVxHeading() {
+    return XPLMGetDataf(drNavHeading);
 }
 
 //int getCurrentView() {

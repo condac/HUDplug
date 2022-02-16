@@ -56,6 +56,11 @@ int ifILSEnabled();
 float getNAV1Heading();
 float getNAV1Distance();
 float getNAV1ETA();
+
+float getPrickX() ;
+float getPrickY() ;
+float getPrickActive();
+float getNAVxHeading();
 int getNAV1Id(const char* text);
 
 int getSpeedBrake();

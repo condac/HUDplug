@@ -59,7 +59,7 @@ void DrawCompass(float x, float y) {
     float compas_y = y;
     char tempText[100];
     float heading = getHeading();
-    float nav1_heading = getNAV1Heading();
+    float nav1_heading = getNAVxHeading();
     // Draw Text
     //SetGLText(); // turn on blending
     //float color[] = {0.0, 1.0, 0.0, 1.0};
@@ -345,8 +345,8 @@ void DrawVector() {
     float beta = CalcFOVAngle(myGetBeta());
     float tail_pos = airspeed - getLandingSpeed() + 20;
     float angle = getRoll();
-    float vdef = getILSv();
-    float hdef = getILSh();
+    float prickx = getPrickX();
+    float pricky = getPrickY();
     int gear = getGear();
     int screen_width;
     int screen_height;
@@ -415,12 +415,11 @@ void DrawVector() {
     glEnd();
 
     // ILS indikator
-    if (gear) {
-        if (ifILSEnabled() == 1 && markKontakt() == 0) {
-            DrawFillCircleXY(5, hdef * 50, -vdef * 50);
+    
+        if (getPrickActive() == 1 && markKontakt() == 0) {
+            DrawFillCircleXY(5, prickx, pricky);
         }
-    }
-
+    
     glRotatef(angle, 0, 0, 1);
     glTranslatef(x_pos, y_pos, 0); // set position back
     glRotatef(-angle, 0, 0, 1);
@@ -1267,7 +1266,7 @@ void DrawViggen() {
     alt = alt / 10;
     alt = alt * 10;
     snprintf(tempText, 13, "%03d", alt);
-    DrawHUDText(tempText, &fontMain, -200, yy, 1, color);
+    DrawHUDText(tempText, &fontMain, -200, yy+5, 1, color);
 
     glPopMatrix();
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
