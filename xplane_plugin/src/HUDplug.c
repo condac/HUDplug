@@ -20,6 +20,10 @@
 #ifdef XPLM301
 static XPLMWindowID g_window;
 
+
+
+void				draw12(XPLMWindowID in_window_id, void * in_refcon);
+
 // Callbacks we will register when we create our window
 void draw_hello_world(XPLMWindowID in_window_id, void* in_refcon);
 int dummy_mouse_handler(XPLMWindowID in_window_id, int x, int y, int is_down, void* in_refcon) {
@@ -49,38 +53,37 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     strcpy(outDesc, "A plug-in for HUDplug.");
 
 #ifdef XPLM301
-    XPLMCreateWindow_t params;
-    params.structSize = sizeof(params);
-    params.visible = 1;
-    params.drawWindowFunc = draw_hello_world;
-    // Note on "dummy" handlers:
-    // Even if we don't want to handle these events, we have to register a "do-nothing" callback for them
-    params.handleMouseClickFunc = dummy_mouse_handler;
-    //
-    params.handleMouseWheelFunc = dummy_wheel_handler;
-    params.handleKeyFunc = dummy_key_handler;
-    params.handleCursorFunc = dummy_cursor_status_handler;
-    params.refcon = NULL;
-    //
-    // Opt-in to styling our window like an X-Plane 11 native window
-    // If you're on XPLM300, not XPLM301, swap this enum for the literal value 1.
+    // We're not guaranteed that the main monitor's lower left is at (0, 0)... we'll need to query for the global desktop bounds!
+	int global_desktop_bounds[4]; // left, bottom, right, top
+	XPLMGetScreenBoundsGlobal(&global_desktop_bounds[0], &global_desktop_bounds[3], &global_desktop_bounds[2], &global_desktop_bounds[1]);
 
-    params.handleRightClickFunc = dummy_mouse_handler;
-
-    params.layer = xplm_WindowLayerFloatingWindows;
-    params.decorateAsFloatingWindow = xplm_WindowDecorationRoundRectangle;
-
-    // Set the window's initial bounds
-    // Note that we're not guaranteed that the main monitor's lower left is at (0, 0)...
-    // We'll need to query for the global desktop bounds!
-    int left, bottom, right, top;
-    XPLMGetScreenBoundsGlobal(&left, &top, &right, &bottom);
-    params.left = left + 50;
-    params.bottom = bottom + 150;
-    params.right = params.left + 200;
-    params.top = params.bottom + 200;
-
-    //g_window = XPLMCreateWindowEx(&params);
+	XPLMCreateWindow_t params;
+	params.structSize = sizeof(params);
+	// Set the window bounds such that we stretch the full *width* of the global desktop, and cover the top 200 bx
+	params.left = global_desktop_bounds[0];
+	params.bottom = global_desktop_bounds[3] - 200;
+	params.right = global_desktop_bounds[2];
+	params.top = global_desktop_bounds[3];
+	params.visible = 1;
+	params.drawWindowFunc = draw12;
+	params.handleMouseClickFunc = dummy_mouse_handler;
+	params.handleRightClickFunc = dummy_mouse_handler;
+	params.handleMouseWheelFunc = dummy_wheel_handler;
+	params.handleKeyFunc = dummy_key_handler;
+	params.handleCursorFunc = dummy_cursor_status_handler;
+	params.refcon = NULL;
+	params.layer = xplm_WindowLayerFlightOverlay; // stick our window beneath all floating windows (like the X-Plane 11 map)
+	params.decorateAsFloatingWindow = 0;
+	
+	g_window = XPLMCreateWindowEx(&params);
+	
+	//XPLMSetWindowPositioningMode(g_window, xplm_WindowPositionFree, -1);
+	// As the X-Plane window resizes, glue our left and right edges to the sides of the screen
+	// (causing our width to grow and shrink to match the window size), but keep a constant
+	// height for our window (with the same y position relative to the window's top).
+	//XPLMSetWindowGravity(g_window, 0, 1, 1, 1);
+	
+	
 #endif
     // Position the window as a "free" floating window, which the user can drag around
     //XPLMSetWindowPositioningMode(g_window, xplm_WindowPositionFree, -1);
@@ -152,14 +155,31 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     //xplm_Phase_Window
     //xplm_Phase_LastCockpit
     XPLMRegisterDrawCallback(MyDrawCallback,
-                             xplm_Phase_Window, /* Draw when sim is doing windows */
-                             1,                 /* Before plugin windows */
+                             xplm_Phase_FirstCockpit, /* Draw when sim is doing windows */
+                             0,                 /* Before plugin windows */
                              NULL);             /* No refcon needed */
-    // GLuint fbo_;
-    // // create a framebuffer object
+  //   XPLMRegisterDrawCallback(MyDrawCallback,
+  //                         40, /* Draw when sim is doing windows */
+  //                         0,                 /* Before plugin windows */
+  //                         NULL);             /* No refcon needed */
+  // XPLMRegisterDrawCallback(MyDrawCallback,
+  //                          45, /* Draw when sim is doing windows */
+  //                          0,                 /* Before plugin windows */
+  //                          NULL);             /* No refcon needed */
+  //  XPLMRegisterDrawCallback(MyDrawCallback,
+  //                           50, /* Draw when sim is doing windows */
+  //                           0,                 /* Before plugin windows */
+  //                           NULL);             /* No refcon needed */
+  // 
+  //   XPLMRegisterDrawCallback(MyDrawCallback,
+  //                            55, /* Draw when sim is doing windows */
+  //                            0,                 /* Before plugin windows */
+  //                            NULL);             /* No refcon needed */
+// GLuint fbo_;
+// // create a framebuffer object
     // glGenFramebuffers(1, &fbo_);
     // glBindFramebuffer(GL_FRAMEBUFFER_EXT, fbo_);
-
+//return (g_window != NULL);
     return 1; //g_window != NULL;
 }
 
@@ -295,6 +315,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //     acfValuesReloadFrameCount = ACF_VALUES_RELOAD_FRAME;
     //     initAcfValues();
     // }
+    
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POLYGON_SMOOTH);
     //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -310,9 +331,11 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glPushMatrix();
-    if (CalculateCenter() == -1) {
-        return 1;
-    }
+    //DrawTest();
+    CalculateCenter();
+    // if (CalculateCenter() == -1) {
+    //     return 1;
+    // }
 
     glTranslatef(offset_x, offset_y, 0);
     glScalef(hud_scale, hud_scale, 0);
@@ -412,4 +435,134 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     heartbeat++;
     XPLMSetDatai(drHUDheartbeat, heartbeat);
     return 1;
+}
+
+void	draw12(XPLMWindowID in_window_id, void * in_refcon)
+{
+    return;
+	XPLMSetGraphicsState(
+			0 /* no fog */,
+			0 /* 0 texture units */,
+			0 /* no lighting */,
+			0 /* no alpha testing */,
+			1 /* do alpha blend */,
+			1 /* do depth testing */,
+			0 /* no depth writing */
+	);
+	
+	int b[4];
+	XPLMGetWindowGeometry(in_window_id, &b[0], &b[3], &b[2], &b[1]);
+	
+	// Draw our window's translucent background overlay
+	XPLMDrawTranslucentDarkBox(b[0], b[3], b[2], b[1]);
+	
+	// Display the window bounds (centered within the window)
+	char scratch_buffer[150];
+	sprintf(scratch_buffer, "Window bounds: %d %d %d %d", b[0], b[1], b[2], b[3]);
+	float col_white[] = {1.0, 1.0, 1.0};
+	int text_width = XPLMMeasureString(xplmFont_Proportional, scratch_buffer, strlen(scratch_buffer));
+	float text_midpoint_x = (b[2] + b[0]) / 2;
+	XPLMDrawString(col_white, text_midpoint_x - text_width / 2, (b[3] + b[1]) / 2, scratch_buffer, NULL, xplmFont_Proportional);
+	
+	glColor4f(1.0, 0.0, 0.0, 0.9);
+	glLineWidth(2);
+	glBegin(GL_LINE_LOOP);
+	
+	glVertex2f(0, 0);
+	glVertex2f(10, 0);
+	glVertex2f(0, 10);
+	glVertex2f(-20, 0);
+	glVertex2f(0, -20);
+	glVertex2f(-100, -100);
+	glVertex2f(100, -100);
+	glVertex2f(100, 100);
+
+    glEnd();
+	//glEnable(GL_BLEND);
+	XPLMSetGraphicsState(0 /*Fog*/, 0 /*TexUnits*/, 0 /*Lighting*/, 0 /*AlphaTesting*/, 1 /*AlphaBlending*/, 0 /*DepthTesting*/, 0 /*DepthWriting*/);
+	glEnable(GL_BLEND);
+	glColor4f(0.0, 0.0, 1.0, 0.9);
+	
+	glLineWidth(4);
+	glBegin(GL_LINE_LOOP);
+
+	glVertex2f(100, 100);
+	glVertex2f(10, 0);
+	glVertex2f(0, 10);
+	glVertex2f(-20, 0);
+	glVertex2f(0, -20);
+	glVertex2f(-100, -100);
+	glVertex2f(100, -100);
+	glVertex2f(100, 100);
+
+	glEnd();
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_POLYGON_SMOOTH);
+    //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+
+    glPushMatrix();
+    DrawTest();
+    CalculateCenter();
+
+    glTranslatef(offset_x, offset_y, 0);
+    glScalef(hud_scale, hud_scale, 0);
+
+    if (viggen_mode == 1) {
+        TranslateToCenter();
+        DrawGlass();
+        glPushMatrix();
+        if (g_sway) {
+            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
+        }
+        if (draw_test) {
+            DrawTest();
+        }
+        DrawViggen();
+        glPopMatrix();
+
+    } else if (viggen_mode == 2) {
+        TranslateToCenter();
+        DrawGlass();
+        glPushMatrix();
+        if (g_sway) {
+            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
+        }
+        if (draw_test) {
+            DrawTest();
+        }
+        DrawViggenMode2();
+        glPopMatrix();
+
+    } else {
+        TranslateToCenter();
+        DrawGlass();
+        glPushMatrix();
+        if (g_sway) {
+            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
+        }
+        if (draw_test) {
+            DrawTest();
+        }
+
+        DrawModesJAS();
+        glPopMatrix();
+    }
+
+    glPopMatrix();
+
+    glDisable(GL_LINE_SMOOTH);
+    glDisable(GL_POLYGON_SMOOTH);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_BLEND);
+    glDisable(GL_SCISSOR_TEST);
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+
+    static int heartbeat = 0;
+    heartbeat++;
+    XPLMSetDatai(drHUDheartbeat, heartbeat);
+    
+
 }

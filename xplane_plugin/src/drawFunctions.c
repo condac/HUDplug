@@ -42,8 +42,8 @@ int CalculateCenter(void) {
     int screen_height;
 
     XPLMGetScreenSize(&screen_width, &screen_height);
-    //screen_width = screen_width;
-    //screen_height = screen_height;
+    screen_width = 1400;
+    screen_height = screen_height;
     // HudConfig* lConfig = getHudConfig();
     float FOV_off_y = getFOVoff_y();
     float FOV_off_x = getFOVoff_x();
@@ -55,9 +55,9 @@ int CalculateCenter(void) {
     FOV_off_y = CalcFOVAngle(FOV_off_y) * hud_scale;
     FOV_off_x = CalcFOVAngle(FOV_off_x) * hud_scale;
 
-    if (FOV_off_x > 1000 || FOV_off_x < -1000) {
-        return -1;
-    }
+    // if (FOV_off_x > 1000 || FOV_off_x < -1000) {
+    //     return -1;
+    // }
 
     glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
     glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,

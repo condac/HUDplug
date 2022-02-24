@@ -99,8 +99,10 @@ XPLM200—X-Plane 9.00 & newer
 */
 #define XPLM200 1
 //#define XPLM210 1
-//#define XPLM300 1
-//#define XPLM301 1
+#define XPLM300 1
+#define XPLM301 1
+
+#define XPLM303 1
 
 #include "config.h"
 #include "vectorfont.h"
