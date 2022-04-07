@@ -1567,7 +1567,7 @@ void DrawModesJAS() {
         DrawAlpha(SPEED_POS_X, y_pos);
         DrawAltitude(0, y_pos);
         DrawNAVText(glass_width / 2 - 30, 280);
-        DrawFuelTime(-glass_width / 2 + 30, 310);
+        // DrawFuelTime(-glass_width / 2 + 30, 310);
     } else {
         TranslateToCenter();
         DrawCompass(0, 320);
@@ -1576,7 +1576,7 @@ void DrawModesJAS() {
         DrawAlpha(SPEED_POS_X, 0);
         DrawAltitude(0, 0);
         DrawNAVText(glass_width / 2 - 30, -450);
-        DrawFuelTime(-glass_width / 2 + 30, -750);
+        // DrawFuelTime(-glass_width / 2 + 30, -750);
 
         //TranslateToCenter();
         //DrawMarkindikator();
