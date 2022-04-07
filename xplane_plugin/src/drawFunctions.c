@@ -42,7 +42,7 @@ int CalculateCenter(void) {
     int screen_height;
 
     XPLMGetScreenSize(&screen_width, &screen_height);
-    screen_width = 1400;
+    screen_width = screen_width;
     screen_height = screen_height;
     // HudConfig* lConfig = getHudConfig();
     float FOV_off_y = getFOVoff_y();

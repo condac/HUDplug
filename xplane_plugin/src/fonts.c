@@ -69,10 +69,10 @@ HUDFontProperties fontMain = {
 
 void InitFonts(void) {
 
-    LoadFontTextures();
-    CreateHUDFont(&fontBig);
-    CreateHUDFont(&fontSmall);
-    CreateHUDFont(&fontMain);
+    //LoadFontTextures();
+    //CreateHUDFont(&fontBig);
+    //CreateHUDFont(&fontSmall);
+    //CreateHUDFont(&fontMain);
 }
 
 void CreateHUDFont(HUDFontProperties* f) {
@@ -111,6 +111,7 @@ void DrawHUDText(const char* pValue, HUDFontProperties* f, float pX, float pY, i
 }
 
 void DrawHUDText2(const char* pValue, HUDFontProperties* f, int pX, int pY, char pAllign, float* color) {
+    return;
     XPLMBindTexture2d(f->texId, 0);
     glColor4f(color[0], color[1], color[2], color[3]);
     glPushMatrix();
@@ -178,6 +179,7 @@ HUDFontProperties* GetSmallFont(void) {
 
 /// Loads one texture
 int LoadHUDFontTexture(HUDFontProperties* f) {
+    return 0;
     int Status = FALSE;
     char TextureFileName[255];
     void* pImageData = 0;

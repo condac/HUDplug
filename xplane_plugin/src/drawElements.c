@@ -11,6 +11,17 @@ void DrawTest() {
 
     SetGLTransparentLines();
     glEnable(GL_BLEND);
+    
+    glLineWidth(2);
+    glBegin(GL_LINES);
+
+    glVertex2f(-3000, 500);
+    glVertex2f(3000 , -500);
+    
+    glVertex2f(-3000, -500);
+    glVertex2f(3000 , 500);
+
+    glEnd();
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Standard blend, baserat på alpha
     // detta motsvarar mode 6 7
     //glBlendFunc(modes[glass_type], modes[glass_type2]);
@@ -818,18 +829,18 @@ void DrawSpeed(float x, float y) {
         sprintf(temp, "TRIM %.0f", trim * 100);
         DrawHUDText(temp, &fontMain, (0), ((180)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
     }
-    if (getSpeedBrake()) {
-        sprintf(temp, "LUFTBROMS UTE");
-        DrawHUDText(temp, &fontMain, (0), ((200)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
-    }
+    // if (getSpeedBrake()) {
+    //     sprintf(temp, "LUFTBROMS UTE");
+    //     DrawHUDText(temp, &fontMain, (0), ((200)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
+    // }
     if (getParkBrake()) {
         sprintf(temp, "PARKERINGSBROMS");
         DrawHUDText(temp, &fontMain, (0), ((225)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
     }
-    if (stab_error > 100 && !getPause() && viggen_mode == 0) {
-        sprintf(temp, "FEL I STABILISERINGS PLUGIN");
-        DrawHUDText(temp, &fontMain, (0), ((100)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
-    }
+    // if (stab_error > 100 && !getPause() && viggen_mode == 0) {
+    //     sprintf(temp, "FEL I STABILISERINGS PLUGIN");
+    //     DrawHUDText(temp, &fontMain, (0), ((100)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
+    // }
     if (getStabStatus()) {
         stab_error = 0;
         setStabStatus(0);
