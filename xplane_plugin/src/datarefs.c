@@ -111,7 +111,6 @@ XPLMDataRef JASAutoModeDR = NULL;
 XPLMDataRef JASAutoAttDR = NULL;
 XPLMDataRef JASAutoAltDR = NULL;
 
-
 int JASLampsSpak = 0;
 int JASLampsAtt = 0;
 int JASLampsHojd = 0;
@@ -270,7 +269,7 @@ int initDataRefs() {
     lTmp = 0;
     //lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
     lTmp += findDataRef("sim/operation/misc/frame_rate_period", &drFRP);
-    
+
     lTmp += findDataRef("JAS/system/ess/heartbeat2", &drEssStatus);
     lTmp += findDataRef("JAS/system/mkv/larm", &drMkvLarm);
     lTmp += findDataRef("JAS/system/mkv/gneed", &drMkvGneed);
@@ -620,7 +619,7 @@ void SetHudVisibleCB(void* inRefcon, int inValue) {
     //visible = inValue
 }
 float GetJASFuelCB(void* inRefcon) {
-    fuelTotal = (getTotalFuel() / 3000.0) * 100;
+    fuelTotal = (getTotalFuel() / 2400.0) * 100;
     return fuelTotal;
 }
 
