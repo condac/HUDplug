@@ -11,15 +11,15 @@ void DrawTest() {
 
     SetGLTransparentLines();
     glEnable(GL_BLEND);
-    
+
     glLineWidth(2);
     glBegin(GL_LINES);
 
     glVertex2f(-3000, 500);
-    glVertex2f(3000 , -500);
-    
+    glVertex2f(3000, -500);
+
     glVertex2f(-3000, -500);
-    glVertex2f(3000 , 500);
+    glVertex2f(3000, 500);
 
     glEnd();
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Standard blend, baserat på alpha
@@ -356,8 +356,8 @@ void DrawVector() {
     float beta = CalcFOVAngle(myGetBeta());
     float tail_pos = airspeed - getLandingSpeed() + 20;
     float angle = getRoll();
-    float prickx = getPrickX();
-    float pricky = getPrickY();
+    // float prickx = getPrickX();
+    // float pricky = getPrickY();
     int gear = getGear();
     int screen_width;
     int screen_height;
@@ -425,12 +425,12 @@ void DrawVector() {
 
     glEnd();
 
-    // ILS indikator
-    
-        if (getPrickActive() == 1 && markKontakt() == 0) {
-            DrawFillCircleXY(5, prickx, pricky);
-        }
-    
+    // // ILS indikator
+    //
+    // if (getPrickActive() == 1 && markKontakt() == 0) {
+    //     DrawFillCircleXY(5, CalcFOVAngle(prickx), pricky);
+    // }
+
     glRotatef(angle, 0, 0, 1);
     glTranslatef(x_pos, y_pos, 0); // set position back
     glRotatef(-angle, 0, 0, 1);
@@ -455,6 +455,15 @@ void DrawHorizionLines() {
     float smallTextScale = 0.75;
     int gear = getGear();
     float vdef = getILSv();
+    float prickx = getPrickX();
+    float pricky = getPrickY();
+    float x_pos = CalcFOVAngle(prickx);
+    float y_prick = CalcFOVAngle(pricky);
+    float banax = CalcFOVAngle(getBanaX());
+    float banay = CalcFOVAngle(getBanaY());
+    int screen_width;
+    int screen_height;
+    XPLMGetScreenSize(&screen_width, &screen_height);
     //float hdef = getILSh();
 
     glColor4fv(color);
@@ -485,6 +494,47 @@ void DrawHorizionLines() {
     glVertex2f(-480, 0);
 
     glEnd();
+
+    // ILS indikator
+
+    if (getPrickActive() == 1 && markKontakt() == 0) {
+        
+        int utanfor = 0;
+        if (x_pos > glass_width / 4) {
+            x_pos = glass_width / 4;
+            utanfor = 1;
+        }
+        if (x_pos < -glass_width / 4) {
+            x_pos = -glass_width / 4;
+            utanfor = 1;
+        }
+        if (y_pos-y_prick < -glass_height / 2) {
+            y_prick = y_pos+glass_height / 2 - 30;
+            utanfor = 1;
+            //y_prick = y_pos;
+        }
+        if (y_pos-y_prick > -CalcFOVAngle(-15)) {
+             y_prick = y_pos+CalcFOVAngle(-15);
+             utanfor = 1;
+        //     y_prick = y_pos-glass_height / 2;
+        // 
+        }
+        if (utanfor == 1) {
+            DrawFillCircleXY(6, x_pos, y_prick);
+        } else {
+            DrawFillCircleXY(5, x_pos, y_prick);
+        }
+        
+
+        // Landingsbanan inringad
+        glLineWidth(line_width);
+        float storlek = interpolate(20.0f, 70.0f, 3500.0f, 20.0f, getBanaDist() );
+        if (storlek < 20) {
+            storlek = 20;
+        }
+        DrawBanaXY(storlek, banax, banay);
+        
+    }
 
     glLineWidth(line_width);
     // Compas lines
@@ -642,6 +692,12 @@ void DrawHorizionLines() {
     //glRotatef(90, 0, 0, 1);
     sprintf(tempText, "W");
     DrawHUDText(tempText, &fontMain, sin(to_radians(-heading + 270)) * textradius_pos, CalcFOVAngle(90) - (cos(to_radians(-heading + 270)) * textradius_pos), 1, color);
+
+// //y_prick
+// sprintf(tempText, "%.2f", banax);
+// DrawHUDText(tempText, &fontMain, 0, 0, 1, color);
+// sprintf(tempText, "%.2f", banay);
+// DrawHUDText(tempText, &fontMain, 0, 100, 1, color);
 
     glPopMatrix();
 
@@ -1277,7 +1333,7 @@ void DrawViggen() {
     alt = alt / 10;
     alt = alt * 10;
     snprintf(tempText, 13, "%03d", alt);
-    DrawHUDText(tempText, &fontMain, -200, yy+5, 1, color);
+    DrawHUDText(tempText, &fontMain, -200, yy + 5, 1, color);
 
     glPopMatrix();
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending

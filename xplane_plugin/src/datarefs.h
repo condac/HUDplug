@@ -62,6 +62,9 @@ float getPrickY() ;
 float getPrickActive();
 float getNAVxHeading();
 int getNAV1Id(const char* text);
+float getBanaX();
+float getBanaY();
+float getBanaDist();
 
 int getSpeedBrake();
 int getParkBrake();

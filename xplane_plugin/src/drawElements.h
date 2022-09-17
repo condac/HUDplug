@@ -13,3 +13,6 @@ void DrawGlass();
 void DrawGroundCollision();
 void DrawFuelTime(float x, float y);
 void DrawCompass(float x, float y);
+
+float interpolate(float x1, float y1, float x2, float y2, float value);
+float constrain(float val, float lower, float upper);

@@ -184,7 +184,21 @@ void DrawCircleUp(float radius, float x, float y, float heading) {
     }
     glEnd();
 }
+void DrawBanaXY(float radius, float x, float y) {
+    
+    glBegin(GL_LINES);
+    glVertex2f(x+radius, y);
+    glVertex2f(x-radius, y);
 
+    glVertex2f(x+radius*0.8, y+radius*1.2);
+    glVertex2f(x+radius, y);
+
+    glVertex2f(x-radius*0.8, y+radius*1.2);
+    glVertex2f(x-radius, y);
+    glEnd();
+    
+    
+}
 float CalcFOVAngle(float input) {
     float out = (input * fov_pixels) / hud_scale;
 

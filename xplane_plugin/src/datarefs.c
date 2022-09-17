@@ -93,6 +93,9 @@ XPLMDataRef drMkvNeedMore;
 XPLMDataRef drPrickActive;
 XPLMDataRef drPrickX;
 XPLMDataRef drPrickY;
+XPLMDataRef drBanaX;
+XPLMDataRef drBanaY;
+XPLMDataRef drBanaDist;
 XPLMDataRef drNavHeading;
 
 XPLMDataRef hudVisibleDR = NULL;
@@ -278,6 +281,9 @@ int initDataRefs() {
     lTmp += findDataRef("JAS/si/nav/prick_active", &drPrickActive);
     lTmp += findDataRef("JAS/si/nav/prick_x", &drPrickX);
     lTmp += findDataRef("JAS/si/nav/prick_y", &drPrickY);
+    lTmp += findDataRef("JAS/si/nav/bana_x", &drBanaX);
+    lTmp += findDataRef("JAS/si/nav/bana_y", &drBanaY);
+    lTmp += findDataRef("JAS/ti/land/dist", &drBanaDist);
     lTmp += findDataRef("JAS/si/nav/heading", &drNavHeading);
 
     lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
@@ -598,6 +604,15 @@ float getPrickY() {
 }
 float getPrickActive() {
     return XPLMGetDatai(drPrickActive);
+}
+float getBanaX() {
+    return XPLMGetDataf(drBanaX);
+}
+float getBanaY() {
+    return XPLMGetDataf(drBanaY);
+}
+float getBanaDist() {
+    return XPLMGetDataf(drBanaDist);
 }
 float getNAVxHeading() {
     return XPLMGetDataf(drNavHeading);
