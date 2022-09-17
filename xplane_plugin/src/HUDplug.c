@@ -163,7 +163,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     //xplm_Phase_Panel
     XPLMRegisterDrawCallback(MyDrawCallback,
-                             xplm_Phase_Panel, /* Draw when sim is doing windows */
+                             xplm_Phase_Gauges, /* Draw when sim is doing windows */
                              0,                 /* Before plugin windows */
                              NULL);             /* No refcon needed */
 

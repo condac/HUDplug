@@ -52,13 +52,13 @@ int CalculateCenter(void) {
     float FOV_off_y = getFOVoff_y();
     float FOV_off_x = getFOVoff_x();
     float ratio = (float)screen_height / (float)screen_width;
-
+    float scalex = screen_width/1024;
     fov = getFOV();
     fov_pixels = (float)1024*ratio / (float)fov;
     line_width = line_scale * hud_scale;
     CalculateColors();
-    FOV_off_y = CalcFOVAngle(FOV_off_y) * hud_scale;
-    FOV_off_x = CalcFOVAngle(FOV_off_x) * hud_scale;
+    FOV_off_y = CalcFOVAngle(20)* hud_scale;
+    FOV_off_x = CalcFOVAngle(30) * hud_scale;
 
     // if (FOV_off_x > 1000 || FOV_off_x < -1000) {
     //     return -1;
@@ -70,7 +70,11 @@ int CalculateCenter(void) {
     //           -FOV_off_y,
     //           offset_x + glass_width * hud_scale,
     //           offset_y + screen_height / 2 + glass_height * hud_scale / 2);
-    // glEnable(GL_SCISSOR_TEST);
+    glScissor((screen_width / 2)- glass_width/2 * scalex * hud_scale,
+            screen_height / 2 - FOV_off_y,
+            glass_width * scalex,
+            FOV_off_x);
+    //glEnable(GL_SCISSOR_TEST);
     return 1;
 }
 
