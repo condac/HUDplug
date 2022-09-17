@@ -40,16 +40,21 @@ int blendmodes[] = {GL_ZERO,
 int CalculateCenter(void) {
     int screen_width;
     int screen_height;
-
+    
+    
     XPLMGetScreenSize(&screen_width, &screen_height);
+    
+    //debugLog("window geo %d %d %d %d", b[0], b[1], b[2], b[3]);
+    //debugLog("ScreenSize %d %d", screen_width,screen_height);
     screen_width = screen_width;
     screen_height = screen_height;
     // HudConfig* lConfig = getHudConfig();
     float FOV_off_y = getFOVoff_y();
     float FOV_off_x = getFOVoff_x();
+    float ratio = (float)screen_height / (float)screen_width;
 
     fov = getFOV();
-    fov_pixels = screen_height / fov;
+    fov_pixels = (float)1024*ratio / (float)fov;
     line_width = line_scale * hud_scale;
     CalculateColors();
     FOV_off_y = CalcFOVAngle(FOV_off_y) * hud_scale;
@@ -59,12 +64,13 @@ int CalculateCenter(void) {
     //     return -1;
     // }
 
-    glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
-    glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,
-              -FOV_off_y,
-              offset_x + glass_width * hud_scale,
-              offset_y + screen_height / 2 + glass_height * hud_scale / 2);
-    glEnable(GL_SCISSOR_TEST);
+    //glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
+    glTranslated(512, 512*ratio , 0);
+    // glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,
+    //           -FOV_off_y,
+    //           offset_x + glass_width * hud_scale,
+    //           offset_y + screen_height / 2 + glass_height * hud_scale / 2);
+    // glEnable(GL_SCISSOR_TEST);
     return 1;
 }
 

@@ -32,6 +32,8 @@ XPLMDataRef drFOVoff_x;
 XPLMDataRef drFOVoff_y;
 XPLMDataRef drFOV;
 XPLMDataRef drFOV_x;
+XPLMDataRef drWindowHeight;
+XPLMDataRef drWindowWidth;
 float fov2;
 int fov_notfound = 0;
 XPLMDataRef drGForce;
@@ -363,6 +365,8 @@ int initDataRefs() {
     lTmp += findDataRef("sim/graphics/view/field_of_view_vertical_deg", &drFOVoff_y);
     lTmp += findDataRef("sim/graphics/view/field_of_view_horizontal_deg", &drFOVoff_x);
     lTmp += findDataRef("sim/graphics/view/field_of_view_deg", &drFOV_x);
+    lTmp += findDataRef("sim/graphics/view/window_height", &drWindowHeight);
+    lTmp += findDataRef("sim/graphics/view/window_width", &drWindowWidth);
 
     if (findDataRef("sim/graphics/view/vertical_field_of_view_deg", &drFOV) == -1) {
         fov2 = 30;
@@ -775,4 +779,12 @@ void SetGlassDarknessCB(void* inRefcon, float inValue) {
 }
 GLuint getFBO() {
     return XPLMGetDatai(drFBO);
+}
+
+int getWindow() {
+    return XPLMGetDatai(drPrickActive);
+}
+
+int getWindowWidth() {
+    return XPLMGetDatai(drPrickActive);
 }

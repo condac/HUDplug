@@ -152,12 +152,24 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     initGlResources();
     initDataRefs();
     //xplm_Phase_FirstCockpit // funkar med opengl och skärm offsets
-    //xplm_Phase_Window
+
+
+    //xplm_Phase_Window // den vi brukar köra
+    // XPLMRegisterDrawCallback(MyDrawCallback,
+    //                          xplm_Phase_Window, /* Draw when sim is doing windows */
+    //                          0,                 /* Before plugin windows */
+    //                          NULL);             /* No refcon needed */
     //xplm_Phase_LastCockpit
+
+    //xplm_Phase_Panel
     XPLMRegisterDrawCallback(MyDrawCallback,
-                             xplm_Phase_Window, /* Draw when sim is doing windows */
+                             xplm_Phase_Panel, /* Draw when sim is doing windows */
                              0,                 /* Before plugin windows */
                              NULL);             /* No refcon needed */
+
+
+
+
   //   XPLMRegisterDrawCallback(MyDrawCallback,
   //                         40, /* Draw when sim is doing windows */
   //                         0,                 /* Before plugin windows */
