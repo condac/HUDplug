@@ -742,6 +742,7 @@ void DrawHorizionLines() {
 
 void DrawSpeed(float x, float y) {
     char temp[100];
+    char temp2[50];
     float frp = getFRP();
     float airspeed = getIAS();
     float groundspeed = getGroundSpeed() * 1.944;
@@ -857,7 +858,15 @@ void DrawSpeed(float x, float y) {
     //DrawHUDText(temp, &fontMain, (SPEED_POS_X - 30)  , (SPEED_POS_Y  ) - (textHeight(1.0) / 2), 2, color);
     drawLineText(temp, (SPEED_POS_X - 30), (y) - (textHeight(1.0) / 2), 1.0, 2);
 
-    sprintf(temp, "M %.2f", mach);
+    sprintf(temp2, "%.2f", mach);
+    if (temp2[0] == '0') {
+        temp2[0] = ' ';
+    }
+    if (temp2[1] == '.') {
+        temp2[1] = ',';
+    }
+    
+    sprintf(temp, "M%s", temp2);
     //DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120)  ) - ((textHeight(1.0) * text_scale)), 2, color);
     drawLineText(temp, (SPEED_POS_X)*HUD_SCALE, ((y - 120)) - (textHeight(1.4) * 1), 1.0, 2);
 
