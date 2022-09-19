@@ -979,7 +979,7 @@ void DrawAlpha(float x, float y) {
 #define ALT_POS_X 255
 #define ALT_POS_Y -50
 #define ALT_SCALE_METER 450.0f
-#define ALT_SCALE_PIXEL 220.0f
+#define ALT_SCALE_PIXEL 150.0f
 
 float altToPixelY(float value) {
     return value * (ALT_SCALE_PIXEL / ALT_SCALE_METER);

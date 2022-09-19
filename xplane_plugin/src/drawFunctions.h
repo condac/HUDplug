@@ -42,5 +42,6 @@ float to_degrees(float radians);
 float lim(float value, float lower, float upper);
 
 float max2(float value1, float value2);
+void DrawGlassObject(float width);
 
 #endif

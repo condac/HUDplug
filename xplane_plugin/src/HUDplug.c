@@ -287,37 +287,7 @@ char inputbuf[8200];
 
 
 void drawHUD() {
-    char scratch_buffer[150];
-    float col_white[] = {1.0, 1.0, 1.0};
     
-    sprintf(scratch_buffer, "getPanel cord: L:%f R:%f T:%f B:%f", getPanelL(), getPanelR(), getPanelT(), getPanelB() );
-    XPLMDrawString(col_white, 10, 20, scratch_buffer, NULL, xplmFont_Proportional);
-    sprintf(scratch_buffer, "getModelMatrix: %f %f %f %f", getModelMatrix(0), getModelMatrix(1), getModelMatrix(2), getModelMatrix(4) );
-    XPLMDrawString(col_white, 10, 40, scratch_buffer, NULL, xplmFont_Proportional);
-    sprintf(scratch_buffer, "getFOV: %f ", getFOV(0));
-    XPLMDrawString(col_white, 10, 50, scratch_buffer, NULL, xplmFont_Proportional);
-    glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
-    glBegin(GL_QUADS);
-    glVertex2i( 10, 10);
-    glVertex2i( 10, 300);
-    glVertex2i(300, 300);
-    glVertex2i(300, 10);
-    glEnd();
-    int screen_width;
-    int screen_height;
-    XPLMGetScreenSize(&screen_width, &screen_height);
-    sprintf(scratch_buffer, "screen size: %d %d", screen_width, screen_height );
-    XPLMDrawString(col_white, 10, 30, scratch_buffer, NULL, xplmFont_Proportional);
-    
-    sprintf(scratch_buffer, "window: %d %d", getWindow(), getWindowWidth() );
-    XPLMDrawString(col_white, 10, 60, scratch_buffer, NULL, xplmFont_Proportional);
-    
-    for (int ix = 0;ix<3000; ix+=50) {
-        sprintf(scratch_buffer, "%d", ix);
-        XPLMDrawString(col_white, ix, 5, scratch_buffer, NULL, xplmFont_Proportional);
-        XPLMDrawString(col_white, 10, ix, scratch_buffer, NULL, xplmFont_Proportional);
-        
-    }
     
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POLYGON_SMOOTH);
@@ -343,7 +313,7 @@ void drawHUD() {
     
     if (getViewType() == 1000) {
         //glTranslatef(offset_x+getPanelL(), offset_y+getPanelT()-512 -35-29, 0);
-        glTranslatef(offset_x+TEXTURE_WIDTH/2, offset_y, 0);
+        glTranslatef(offset_x+TEXTURE_WIDTH/2, offset_y+TEXTURE_WIDTH*0.666f, 0);
         float fovscale = 30/getFOV_x();
         fovscale = 30.0f/80.0f;
         glScalef(hud_scale, hud_scale, 0); // gör om 1024 pixlar till den ungefärliga storleken på HUD glaset vi ritar på
@@ -382,7 +352,7 @@ void drawHUD() {
 
     } else {
         TranslateToCenter();
-        DrawGlass();
+        //DrawGlass();
         glPushMatrix();
         if (g_sway) {
             glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
@@ -474,18 +444,7 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
         debugLog("skapar framebuffer klart3\n");
     }
     else {
-        int mx, my, sx, sy;
-        XPLMGetMouseLocation(&mx, &my);
-        XPLMGetScreenSize(&sx, &sy);
-        unsigned char* c = buffer;
-        for (int y = 0; y < HEIGHT; ++y) {
-            for (int x = 0; x < WIDTH; ++x) {
-                *c++ = x * 255 / WIDTH;
-                *c++ = y * 255 / HEIGHT;
-                *c++ = mx * 255 / sx;
-                *c++ = my * 255 / sy;
-            }
-        }
+        
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         debugLog("render bind framebuffer \n");
         glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -501,7 +460,7 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
         glLoadIdentity();
 
         
-        glClearColor(0.2f,0.1f,0.2f,0.5f);
+        glClearColor(0.0f,0.0f,0.0f,0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         drawHUD();
         // unbind FBO
@@ -527,13 +486,7 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
         glMatrixMode (GL_MODELVIEW);
         glPushMatrix();
         glLoadIdentity();
-        XPLMSetGraphicsState(0,  // No fog, equivalent to glDisable(GL_FOG);
-                             1,  // One texture, equivalent to glEnable(GL_TEXTURE_2D);
-                             0,  // No lighting, equivalent to glDisable(GL_LIGHT0);
-                             0,  // No alpha testing, e.g glDisable(GL_ALPHA_TEST);
-                             1,  // Use alpha blending, e.g. glEnable(GL_BLEND);
-                             0,  // No depth read, e.g. glDisable(GL_DEPTH_TEST);
-                             0); // No depth write, e.g. glDepthMask(GL_FALSE);
+        XPLMSetGraphicsState(0,1,0,0,1, 0, 0); 
         glClearColor(0.0f,0.0f,0.0f,0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         XPLMBindTexture2d(fboTexture, 0);
@@ -581,80 +534,72 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     int screen_height;
     XPLMGetScreenSize(&screen_width, &screen_height);
     float hud_x = 1024*30/getFOV_x();
+    
+    
+    // Glasskivan
     glPushMatrix();
-    //XPLMBindTexture2d(fboTexture, 0);
-    // Blur först
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0);
     glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // den jag kört
+    //float colorglass[] = {0.2, 0.0, 0.2, 0.5};
+    //colorglass[3] = GetGlassDarkness() * glass_darkness;
+    
+    glColor4f(0.2, 0.0, 0.2, GetGlassDarkness() * glass_darkness);
+    //glColor4f(0.2, 0.0, 0.2, 0.5);
+    glTranslatef(512-hud_x, 512*((float)screen_height / (float)screen_width) -hud_x*(2.0f/3.0f), 0.0f);
+    DrawGlassObject(hud_x);
+    
+    //XPLMBindTexture2d(fboTexture, 0);
+    
+    XPLMSetGraphicsState(0,  // No fog, equivalent to glDisable(GL_FOG);
+                         1,  // One texture, equivalent to glEnable(GL_TEXTURE_2D);
+                         0,  // No lighting, equivalent to glDisable(GL_LIGHT0);
+                         0,  // No alpha testing, e.g glDisable(GL_ALPHA_TEST);
+                         1,  // Use alpha blending, e.g. glEnable(GL_BLEND);
+                         0,  // No depth read, e.g. glDisable(GL_DEPTH_TEST);
+                         0); // No depth write, e.g. glDepthMask(GL_FALSE);
+
+    glPopMatrix();
+    //slut glasskivan
+
+
+    // Blur först
+    glPushMatrix();
     glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
     XPLMBindTexture2d(fboTexture_blur, 0);
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    glTranslatef(512-hud_x/2, 512*((float)screen_height / (float)screen_width) -hud_x/2, 0.0f);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i( 0, hud_x);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(hud_x, hud_x);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(hud_x, 0);
-    glEnd();
+    glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
+    //glTranslatef(512-hud_x/2, 512*((float)screen_height / (float)screen_width) -hud_x/2, 0.0f);
+    glTranslatef(512-hud_x, 512*((float)screen_height / (float)screen_width) -hud_x*(2.0f/3.0f), 0.0f);
+    // glBegin(GL_QUADS);
+    // glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
+    // glTexCoord2f(0.0f, 1.0f); glVertex2i( 0, hud_x);
+    // glTexCoord2f(1.0f, 1.0f); glVertex2i(hud_x, hud_x);
+    // glTexCoord2f(1.0f, 0.0f); glVertex2i(hud_x, 0);
+    // glEnd();
+    DrawGlassObject(hud_x);
     glPopMatrix();
+    // Slut Blur
     
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Riktiga bilden
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // den jag kört
+    glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
     glPushMatrix();
     XPLMBindTexture2d(fboTexture, 0);
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    glTranslatef(512-hud_x/2, 512*((float)screen_height / (float)screen_width) -hud_x/2, 0.0f);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i( 0, hud_x);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(hud_x, hud_x);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(hud_x, 0);
-    glEnd();
+    glColor4f(1.0f, 0.8f, 1.0f, 1.0f);
+    glTranslatef(512-hud_x, 512*((float)screen_height / (float)screen_width) -hud_x*(2.0f/3.0f), 0.0f);
+    // glBegin(GL_QUADS);
+    // glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
+    // glTexCoord2f(0.0f, 1.0f); glVertex2i( 0, hud_x);
+    // glTexCoord2f(1.0f, 1.0f); glVertex2i(hud_x, hud_x);
+    // glTexCoord2f(1.0f, 0.0f); glVertex2i(hud_x, 0);
+    // glEnd();
+    DrawGlassObject(hud_x);
     glPopMatrix();
     
-    XPLMBindTexture2d(g_tex_num, 0);
-    // Note: if the tex size is not changing, glTexSubImage2D is faster than glTexImage2D.
-    glTexSubImage2D(GL_TEXTURE_2D,
-                    0, // mipmap level
-                    0, // x-offset
-                    0, // y-offset
-                    WIDTH,
-                    HEIGHT,
-                    GL_RGBA,          // color of data we are seding
-                    GL_UNSIGNED_BYTE, // encoding of data we are sending
-                    buffer);
-
-
-
-    XPLMBindTexture2d(fboTexture_blur, 0);
-    glColor3f(1, 1, 1); // Set color to white.
-    int x1 = 20;
-    int y1 = 20;
-    int x2 = x1 + WIDTH;
-    int y2 = y1 + HEIGHT;
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex2f(x1, y1); // We draw one textured quad.  Note: the first numbers 0,1 are texture coordinates, which are ratios.
-    glTexCoord2f(0, 1);
-    glVertex2f(x1, y2); // lower left is 0,0, upper right is 1,1.  So if we wanted to use the lower half of the texture, we
-    glTexCoord2f(1, 1);
-    glVertex2f(x2, y2); // would use 0,0 to 0,0.5 to 1,0.5, to 1,0.  Note that for X-Plane front facing polygons are clockwise
-    glTexCoord2f(1, 0);
-    glVertex2f(x2, y1); // unless you change it; if you change it, change it back!
-    glEnd();
-    
-    glPushMatrix();
-    XPLMBindTexture2d(fboTexture_blur, 0);
-
-    glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-    glTranslatef(20.0f, 200.0f, 0.0f);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i( 0, 300);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(300, 300);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i(300, 0);
-    glEnd();
-    glPopMatrix();
+    // Slut riktiga bilden
     
     // XPLMBindTexture2d(g_tex_num, 0);
+    // // Note: if the tex size is not changing, glTexSubImage2D is faster than glTexImage2D.
     // glTexSubImage2D(GL_TEXTURE_2D,
     //                 0, // mipmap level
     //                 0, // x-offset
@@ -664,26 +609,69 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //                 GL_RGBA,          // color of data we are seding
     //                 GL_UNSIGNED_BYTE, // encoding of data we are sending
     //                 buffer);
-    
-    
-    
-    snurr = snurr + 0.1f;
-    glPushMatrix();
-    glTranslatef(WIDTH, HEIGHT,0);
-    glRotatef(snurr,0, 0, 1);
-    glTranslatef(-WIDTH, -HEIGHT,0);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex2f(x1, y1); // We draw one textured quad.  Note: the first numbers 0,1 are texture coordinates, which are ratios.
-    glTexCoord2f(0, 1);
-    glVertex2f(x1, y2); // lower left is 0,0, upper right is 1,1.  So if we wanted to use the lower half of the texture, we
-    glTexCoord2f(1, 1);
-    glVertex2f(x2, y2); // would use 0,0 to 0,0.5 to 1,0.5, to 1,0.  Note that for X-Plane front facing polygons are clockwise
-    glTexCoord2f(1, 0);
-    glVertex2f(x2, y1); // unless you change it; if you change it, change it back!
-    glEnd();
-    
-    glPopMatrix();
+    // 
+    // 
+    // 
+    // XPLMBindTexture2d(fboTexture_blur, 0);
+    // glColor3f(1, 1, 1); // Set color to white.
+    // int x1 = 20;
+    // int y1 = 20;
+    // int x2 = x1 + WIDTH;
+    // int y2 = y1 + HEIGHT;
+    // glBegin(GL_QUADS);
+    // glTexCoord2f(0, 0);
+    // glVertex2f(x1, y1); // We draw one textured quad.  Note: the first numbers 0,1 are texture coordinates, which are ratios.
+    // glTexCoord2f(0, 1);
+    // glVertex2f(x1, y2); // lower left is 0,0, upper right is 1,1.  So if we wanted to use the lower half of the texture, we
+    // glTexCoord2f(1, 1);
+    // glVertex2f(x2, y2); // would use 0,0 to 0,0.5 to 1,0.5, to 1,0.  Note that for X-Plane front facing polygons are clockwise
+    // glTexCoord2f(1, 0);
+    // glVertex2f(x2, y1); // unless you change it; if you change it, change it back!
+    // glEnd();
+    // 
+    // glPushMatrix();
+    // XPLMBindTexture2d(fboTexture, 0);
+    // 
+    // glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+    // glTranslatef(20.0f, 200.0f, 0.0f);
+    // glBegin(GL_QUADS);
+    // glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
+    // glTexCoord2f(1.0f, 0.0f); glVertex2i( 0, 300);
+    // glTexCoord2f(1.0f, 1.0f); glVertex2i(300, 300);
+    // glTexCoord2f(0.0f, 1.0f); glVertex2i(300, 0);
+    // glEnd();
+    // glPopMatrix();
+    // 
+    // // XPLMBindTexture2d(g_tex_num, 0);
+    // // glTexSubImage2D(GL_TEXTURE_2D,
+    // //                 0, // mipmap level
+    // //                 0, // x-offset
+    // //                 0, // y-offset
+    // //                 WIDTH,
+    // //                 HEIGHT,
+    // //                 GL_RGBA,          // color of data we are seding
+    // //                 GL_UNSIGNED_BYTE, // encoding of data we are sending
+    // //                 buffer);
+    // 
+    // 
+    // 
+    // snurr = snurr + 0.1f;
+    // glPushMatrix();
+    // glTranslatef(WIDTH, HEIGHT,0);
+    // glRotatef(snurr,0, 0, 1);
+    // glTranslatef(-WIDTH, -HEIGHT,0);
+    // glBegin(GL_QUADS);
+    // glTexCoord2f(0, 0);
+    // glVertex2f(x1, y1); // We draw one textured quad.  Note: the first numbers 0,1 are texture coordinates, which are ratios.
+    // glTexCoord2f(0, 1);
+    // glVertex2f(x1, y2); // lower left is 0,0, upper right is 1,1.  So if we wanted to use the lower half of the texture, we
+    // glTexCoord2f(1, 1);
+    // glVertex2f(x2, y2); // would use 0,0 to 0,0.5 to 1,0.5, to 1,0.  Note that for X-Plane front facing polygons are clockwise
+    // glTexCoord2f(1, 0);
+    // glVertex2f(x2, y1); // unless you change it; if you change it, change it back!
+    // glEnd();
+    // 
+    // glPopMatrix();
     // if (config->visible == 0 || (config->visible == 1 && config->toggleOutside && getViewIsExternal()))
     //     return 1;
 

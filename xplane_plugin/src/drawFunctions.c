@@ -304,3 +304,49 @@ float max2(float value1, float value2) {
     }
     return value2;
 }
+
+void DrawGlassObject(float width) {
+    
+    float scale = width/280;
+    
+    glPushMatrix();
+    glTranslatef(width, width*0.857142857143f, 0);
+    glBegin(GL_POLYGON);
+    //glColor4fv(colorglass);
+    glTexCoord2f(0.142857142857f, 0.0f); 
+    glVertex2f(-100*scale, -240*scale);
+    glTexCoord2f(0.0f, 0.321428571429f); 
+    glVertex2f(-140*scale, -150*scale);
+
+    glTexCoord2f(0.0f, 0.660714285714f);
+    glVertex2f(-140*scale, -55*scale);
+    glTexCoord2f(0.121428571429f, 0.798214285714f); 
+    glVertex2f(-106*scale, -16.5*scale);
+
+    // böjen
+    glTexCoord2f(0.257142857143f, 0.835428571429f); 
+    glVertex2f(-68*scale, -6.08*scale);
+    glTexCoord2f(0.364285714286f, 0.849714285714f); 
+    glVertex2f(-38*scale, -2.08*scale);
+    glTexCoord2f(0.5f, 0.857142857143f); 
+    glVertex2f(-0*scale, -0.00*scale);
+
+    // andra sidan
+    glTexCoord2f(1.0f-0.364285714286f, 0.849714285714f); 
+    glVertex2f(38*scale, -2.08*scale);
+    glTexCoord2f(1.0f-0.257142857143f, 0.835428571429f); 
+    glVertex2f(68*scale, -6.08*scale);
+    
+    glTexCoord2f(1.0f-0.121428571429f, 0.798214285714f); 
+    glVertex2f(106*scale, -16.5*scale);
+    glTexCoord2f(1.0f, 0.660714285714f); 
+    glVertex2f(140*scale, -55*scale);
+
+    glTexCoord2f(1.0f, 0.321428571429f); 
+    glVertex2f(140*scale, -150*scale);
+    glTexCoord2f(1.0f-0.142857142857f, 0.0f);
+    glVertex2f(100*scale, -240*scale);
+
+    glEnd();
+    glPopMatrix();
+}
