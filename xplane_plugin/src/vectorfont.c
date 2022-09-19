@@ -4,7 +4,7 @@
 #include "vectorfont.h"
 #include "jasroman.font"
 
-float scalefactor = 0.2;
+float scalefactor = 0.2*0.781818181818;
 
 void vectorFontCharacter(int c) {
     const StrokeCharRec* ch;

@@ -47,49 +47,46 @@ XPLMDataRef drHUDheartbeat;
 int TeensyControls_show = 0;
 int statusDisplayShow = 0;
 
+GLuint hud_texture;
+GLuint rbo_;
+GLuint fbo_;
+GLuint fbo;
+GLuint fboDepth;
+GLuint fboBuff;
+GLuint fboTexture;
+
+GLuint fbo_blur;
+GLuint fboDepth_blur;
+GLuint fboBuff_blur;
+GLuint fboTexture_blur;
+
+GLuint nullptr;
+// This is our texture ID.  Texture IDs in OpenGL are just ints...but this is a global for the life of our plugin.
+static int g_tex_num = 0;
+int fboInit = 0;
+#define WIDTH 128
+#define HEIGHT 128
+#define TEXTURE_WIDTH 1024
+#define TEXTURE_HEIGHT 1024
+#define TEXTURE_WIDTH_BLUR 128
+#define TEXTURE_WIDTH_BLUR 128
+static unsigned char buffer[WIDTH * HEIGHT * 4];
+
 PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
-    strcpy(outName, "HUDplug");
-    strcpy(outSig, "github.condac.HUDplug");
-    strcpy(outDesc, "A plug-in for HUDplug.");
-
+    strcpy(outName, "HUDplugtest");
+    strcpy(outSig, "github.condac.HUDplug2");
+    strcpy(outDesc, "A plug-in for HUDplug2.");
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        debugLog("HUDplug: GLEW init failed: %s\n", (const char*) glewGetErrorString(err));
+        
+    } else {
+        debugLog("HUDplug: GLEW init ok\n");
+    }
 #ifdef XPLM301
-    // We're not guaranteed that the main monitor's lower left is at (0, 0)... we'll need to query for the global desktop bounds!
-	int global_desktop_bounds[4]; // left, bottom, right, top
-	XPLMGetScreenBoundsGlobal(&global_desktop_bounds[0], &global_desktop_bounds[3], &global_desktop_bounds[2], &global_desktop_bounds[1]);
-
-	XPLMCreateWindow_t params;
-	params.structSize = sizeof(params);
-	// Set the window bounds such that we stretch the full *width* of the global desktop, and cover the top 200 bx
-	params.left = global_desktop_bounds[0];
-	params.bottom = global_desktop_bounds[3] - 200;
-	params.right = global_desktop_bounds[2];
-	params.top = global_desktop_bounds[3];
-	params.visible = 1;
-	params.drawWindowFunc = draw12;
-	params.handleMouseClickFunc = dummy_mouse_handler;
-	params.handleRightClickFunc = dummy_mouse_handler;
-	params.handleMouseWheelFunc = dummy_wheel_handler;
-	params.handleKeyFunc = dummy_key_handler;
-	params.handleCursorFunc = dummy_cursor_status_handler;
-	params.refcon = NULL;
-	params.layer = xplm_WindowLayerFlightOverlay; // stick our window beneath all floating windows (like the X-Plane 11 map)
-	params.decorateAsFloatingWindow = 0;
-	
-	g_window = XPLMCreateWindowEx(&params);
-	
-	//XPLMSetWindowPositioningMode(g_window, xplm_WindowPositionFree, -1);
-	// As the X-Plane window resizes, glue our left and right edges to the sides of the screen
-	// (causing our width to grow and shrink to match the window size), but keep a constant
-	// height for our window (with the same y position relative to the window's top).
-	//XPLMSetWindowGravity(g_window, 0, 1, 1, 1);
-	
+    
 	
 #endif
-    // Position the window as a "free" floating window, which the user can drag around
-    //XPLMSetWindowPositioningMode(g_window, xplm_WindowPositionFree, -1);
-    // Limit resizing our window: maintain a minimum width/height of 100 boxels and a max width/height of 300 boxels
-    //XPLMSetWindowResizingLimits(g_window, 200, 200, 300, 300);
-    //XPLMSetWindowTitle(g_window, "HUDplug");
 
     // Menu
     XPLMMenuID myMenu;
@@ -98,12 +95,12 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     /* First we put a new menu item into the plugin menu.
      * This menu item will contain a submenu for us. */
     mySubMenuItem = XPLMAppendMenuItem(XPLMFindPluginsMenu(), /* Put in plugins menu */
-                                       "HUDplug",             /* Item Title */
+                                       "HUDplugtest",             /* Item Title */
                                        0,                     /* Item Ref */
                                        1);                    /* Force English */
 
     /* Now create a submenu attached to our menu item. */
-    myMenu = XPLMCreateMenu("HUDplug",
+    myMenu = XPLMCreateMenu("HUDplugtest",
                             XPLMFindPluginsMenu(),
                             mySubMenuItem,         /* Menu Item to attach to. */
                             MyMenuHandlerCallback, /* The handler */
@@ -163,35 +160,33 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     //xplm_Phase_Panel
     XPLMRegisterDrawCallback(MyDrawCallback,
-                             xplm_Phase_Gauges, /* Draw when sim is doing windows */
+                             xplm_Phase_Panel, /* Draw when sim is doing windows */
                              0,                 /* Before plugin windows */
                              NULL);             /* No refcon needed */
 
 
+     // Initialization: allocate a textiure number.
+     XPLMGenerateTextureNumbers(&g_tex_num, 1);
+     XPLMBindTexture2d(g_tex_num, 0);
+     // Init to black for now.
+     memset(buffer, 0, WIDTH * HEIGHT * 4);
+     // The first time we must use glTexImage2D.
+     glTexImage2D(GL_TEXTURE_2D,
+                  0,       // mipmap level
+                  GL_RGBA, // internal format for the GL to use.  (We could ask for a floating point tex or 16-bit tex if we were crazy!)
+                  WIDTH,
+                  HEIGHT,
+                  0,                // border size
+                  GL_RGBA,          // format of color we are giving to GL
+                  GL_UNSIGNED_BYTE, // encoding of our data
+                  buffer);
+
+     // Note: we must set the filtering params to SOMETHING or OpenGL won't draw anything!
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 
-  //   XPLMRegisterDrawCallback(MyDrawCallback,
-  //                         40, /* Draw when sim is doing windows */
-  //                         0,                 /* Before plugin windows */
-  //                         NULL);             /* No refcon needed */
-  // XPLMRegisterDrawCallback(MyDrawCallback,
-  //                          45, /* Draw when sim is doing windows */
-  //                          0,                 /* Before plugin windows */
-  //                          NULL);             /* No refcon needed */
-  //  XPLMRegisterDrawCallback(MyDrawCallback,
-  //                           50, /* Draw when sim is doing windows */
-  //                           0,                 /* Before plugin windows */
-  //                           NULL);             /* No refcon needed */
-  // 
-  //   XPLMRegisterDrawCallback(MyDrawCallback,
-  //                            55, /* Draw when sim is doing windows */
-  //                            0,                 /* Before plugin windows */
-  //                            NULL);             /* No refcon needed */
-// GLuint fbo_;
-// // create a framebuffer object
-    // glGenFramebuffers(1, &fbo_);
-    // glBindFramebuffer(GL_FRAMEBUFFER_EXT, fbo_);
-//return (g_window != NULL);
+
     return 1; //g_window != NULL;
 }
 
@@ -210,22 +205,6 @@ PLUGIN_API int XPluginEnable(void) {
     return 1;
 }
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inParam) {
-}
-
-void draw_hello_world(XPLMWindowID in_window_id, void* in_refcon) {
-    // Mandatory: We *must* set the OpenGL state before drawing
-    // (we can't make any assumptions about it)
-    XPLMSetGraphicsState(
-        0 /* no fog */, 0 /* 0 texture units */, 0 /* no lighting */, 0 /* no alpha testing */, 1 /* do alpha blend */, 1 /* do depth testing */, 0 /* no depth writing */
-    );
-
-    int l, t, r, b;
-    XPLMGetWindowGeometry(in_window_id, &l, &t, &r, &b);
-
-    float col_white[] = {1.0, 1.0, 1.0}; // red, green, blue
-
-    XPLMDrawString(col_white, l + 10, t - 20, "Hello world!", NULL, xplmFont_Proportional);
-    XPLMDrawString(col_white, l + 10, t - 20, "Hello world2!", NULL, xplmFont_Proportional);
 }
 
 void MyMenuHandlerCallback(void* inMenuRef, void* inItemRef) {
@@ -306,27 +285,39 @@ int ifCharInArray(char* str, char val) {
 
 char inputbuf[8200];
 
-float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon) {
 
-    /* The actual callback.  First we read the sim's time and the data. */
-    //XPLMDebugString("HUDplug: flightloop\n");
-
-    //float elapsed = XPLMGetElapsedTime();
-
-    /* Return 1.0 to indicate that we want to be called again in 1 second. */
-    return 0.01;
-}
-
-int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
-
-    // if (config->visible == 0 || (config->visible == 1 && config->toggleOutside && getViewIsExternal()))
-    //     return 1;
-
-    // // reload aircraft values when needed
-    // if (--acfValuesReloadFrameCount == 0) {
-    //     acfValuesReloadFrameCount = ACF_VALUES_RELOAD_FRAME;
-    //     initAcfValues();
-    // }
+void drawHUD() {
+    char scratch_buffer[150];
+    float col_white[] = {1.0, 1.0, 1.0};
+    
+    sprintf(scratch_buffer, "getPanel cord: L:%f R:%f T:%f B:%f", getPanelL(), getPanelR(), getPanelT(), getPanelB() );
+    XPLMDrawString(col_white, 10, 20, scratch_buffer, NULL, xplmFont_Proportional);
+    sprintf(scratch_buffer, "getModelMatrix: %f %f %f %f", getModelMatrix(0), getModelMatrix(1), getModelMatrix(2), getModelMatrix(4) );
+    XPLMDrawString(col_white, 10, 40, scratch_buffer, NULL, xplmFont_Proportional);
+    sprintf(scratch_buffer, "getFOV: %f ", getFOV(0));
+    XPLMDrawString(col_white, 10, 50, scratch_buffer, NULL, xplmFont_Proportional);
+    glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
+    glBegin(GL_QUADS);
+    glVertex2i( 10, 10);
+    glVertex2i( 10, 300);
+    glVertex2i(300, 300);
+    glVertex2i(300, 10);
+    glEnd();
+    int screen_width;
+    int screen_height;
+    XPLMGetScreenSize(&screen_width, &screen_height);
+    sprintf(scratch_buffer, "screen size: %d %d", screen_width, screen_height );
+    XPLMDrawString(col_white, 10, 30, scratch_buffer, NULL, xplmFont_Proportional);
+    
+    sprintf(scratch_buffer, "window: %d %d", getWindow(), getWindowWidth() );
+    XPLMDrawString(col_white, 10, 60, scratch_buffer, NULL, xplmFont_Proportional);
+    
+    for (int ix = 0;ix<3000; ix+=50) {
+        sprintf(scratch_buffer, "%d", ix);
+        XPLMDrawString(col_white, ix, 5, scratch_buffer, NULL, xplmFont_Proportional);
+        XPLMDrawString(col_white, 10, ix, scratch_buffer, NULL, xplmFont_Proportional);
+        
+    }
     
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POLYGON_SMOOTH);
@@ -349,8 +340,19 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //     return 1;
     // }
 
-    glTranslatef(offset_x, offset_y, 0);
-    glScalef(hud_scale, hud_scale, 0);
+    
+    if (getViewType() == 1000) {
+        //glTranslatef(offset_x+getPanelL(), offset_y+getPanelT()-512 -35-29, 0);
+        glTranslatef(offset_x+TEXTURE_WIDTH/2, offset_y, 0);
+        float fovscale = 30/getFOV_x();
+        fovscale = 30.0f/80.0f;
+        glScalef(hud_scale, hud_scale, 0); // gör om 1024 pixlar till den ungefärliga storleken på HUD glaset vi ritar på
+        
+    } else {
+        glScalef(hud_scale, hud_scale, 0);
+        glTranslatef(offset_x, offset_y, 0);
+    }
+    
 
     if (viggen_mode == 1) {
         TranslateToCenter();
@@ -390,51 +392,11 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
         }
 
         DrawModesJAS();
-        // DrawCompass();
-        //
-        // TranslateToCenter();
-        // DrawVector();
-        //
-        // TranslateToCenter();
-        // DrawSpeed();
-        // DrawAlpha();
-        //
-        // TranslateToCenter();
-        // DrawAltitude();
-        // DrawGroundCollision();
-        // DrawFuelTime();
-        //
-        // TranslateToCenter();
-        // DrawHorizionLines();
+
         glPopMatrix();
     }
 
     glPopMatrix();
-    // /* Do the actual drawing.  use GL_LINES to draw sets of discrete lines.
-    //  * Each one will go 100 meters in any direction from the plane. */
-    // TranslateToCenter();
-    // if (config->visPitchRoll) {
-    //     DrawCenterBox();
-    //     DrawNoseBox(getPitch(), getRoll());
-    // }
-    // if (config->visMovementArrow)
-    //     DrawMovementArrow(getTrueHeading(), getVX(), getVY(), getVZ());
-    // // VSI & ball covered inside
-    // DrawVerticalSpeedIndicator(getVV());
-    // if (config->visLandingBars)
-    //     DrawLandingBars(getRadarAltitude());
-    // if (config->visIas)
-    //     DrawSpeedIndicator(getIAS());
-    // if (config->visWind)
-    //     DrawWind(getWindDirection(), getWindSpeed(), getHeading());
-    // DrawBalanceIndicator(getBalance(), getYawStringAngle());
-    // if (config->visTorque) {
-    //     float lTorqs[10];
-    //     getTorque(lTorqs);
-    //     DrawTorque(lTorqs);
-    // }
-    // DrawTexts();
-    //glBindFramebuffer(GL_FRAMEBUFFER, getFBO());
 
     glDisable(GL_LINE_SMOOTH);
     glDisable(GL_POLYGON_SMOOTH);
@@ -446,135 +408,292 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     static int heartbeat = 0;
     heartbeat++;
     XPLMSetDatai(drHUDheartbeat, heartbeat);
+}
+
+
+float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon) {
+
+    if (!fboInit) {
+        debugLog("skapar framebuffer");
+        glewInit();
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearDepth(1.0f);
+        // Create and bind FBO
+        glGenFramebuffers(1, &fbo);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+        glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH, TEXTURE_WIDTH);
+        glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT, TEXTURE_WIDTH);
+        glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_SAMPLES, 4);
+        // Create depth renderbuffer
+        glGenRenderbuffers(1, &fboDepth);
+        glBindRenderbuffer(GL_RENDERBUFFER, fboDepth);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, TEXTURE_WIDTH, TEXTURE_WIDTH);
+        // Create the texture
+        XPLMGenerateTextureNumbers((int*)&fboTexture, 1);//glGenTextures(1, &fboTexture);
+        XPLMBindTexture2d(fboTexture, 0);//glBindTexture(GL_RENDERBUFFER, fboTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEXTURE_WIDTH, TEXTURE_WIDTH, 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // Attached texture to first color attachment and the depth to the depth attachment
+        glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fboDepth);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTexture, 0);
+        
+        // Create and bind FBO_BLUR
+        glGenFramebuffers(1, &fbo_blur);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo_blur);
+        glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH, TEXTURE_WIDTH_BLUR);
+        glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT, TEXTURE_WIDTH_BLUR);
+        glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_SAMPLES, 4);
+        // Create depth renderbuffer
+        glGenRenderbuffers(1, &fboDepth_blur);
+        glBindRenderbuffer(GL_RENDERBUFFER, fboDepth_blur);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, TEXTURE_WIDTH_BLUR, TEXTURE_WIDTH_BLUR);
+        // Create the texture
+        XPLMGenerateTextureNumbers((int*)&fboTexture_blur, 1);//glGenTextures(1, &fboTexture);
+        XPLMBindTexture2d(fboTexture_blur, 0);//glBindTexture(GL_RENDERBUFFER, fboTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEXTURE_WIDTH_BLUR, TEXTURE_WIDTH_BLUR, 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // Attached texture to first color attachment and the depth to the depth attachment
+        glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fboDepth_blur);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTexture_blur, 0);
+        
+        GLenum fboStatus = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
+        if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
+            fbo = 0;
+            fboDepth = 0;
+            fboTexture = 0;
+            debugLog("skapar framebuffer error?\n");
+        } else {
+            // Reste FBO Binding
+            debugLog("skapar framebuffer klart1\n");
+            glBindFramebuffer(GL_FRAMEBUFFER, getFBO()); // ställ tillbaka till vad x-plane hade innan
+            debugLog("skapar framebuffer klart2\n");
+        }
+        fboInit = 1;
+        debugLog("skapar framebuffer klart3\n");
+    }
+    else {
+        int mx, my, sx, sy;
+        XPLMGetMouseLocation(&mx, &my);
+        XPLMGetScreenSize(&sx, &sy);
+        unsigned char* c = buffer;
+        for (int y = 0; y < HEIGHT; ++y) {
+            for (int x = 0; x < WIDTH; ++x) {
+                *c++ = x * 255 / WIDTH;
+                *c++ = y * 255 / HEIGHT;
+                *c++ = mx * 255 / sx;
+                *c++ = my * 255 / sy;
+            }
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        debugLog("render bind framebuffer \n");
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        debugLog("render glDrawBuffers\n");
+        glPushAttrib(GL_VIEWPORT_BIT);
+        glViewport(0,0,1024, 1024);
+        glMatrixMode (GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        glOrtho(0,1024, 0, 1024, 0, 1);
+        glMatrixMode (GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+
+        
+        glClearColor(0.2f,0.1f,0.2f,0.5f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        drawHUD();
+        // unbind FBO
+        glPopMatrix();
+        glMatrixMode (GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopAttrib();
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, getFBO());
+        
+        
+        // BLUR
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo_blur);
+        debugLog("render bind framebuffer \n");
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        debugLog("render glDrawBuffers\n");
+        glPushAttrib(GL_VIEWPORT_BIT);
+        glViewport(0,0,TEXTURE_WIDTH_BLUR, TEXTURE_WIDTH_BLUR);
+        glMatrixMode (GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        glOrtho(0,TEXTURE_WIDTH_BLUR, 0, TEXTURE_WIDTH_BLUR, 0, 1);
+        glMatrixMode (GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+        XPLMSetGraphicsState(0,  // No fog, equivalent to glDisable(GL_FOG);
+                             1,  // One texture, equivalent to glEnable(GL_TEXTURE_2D);
+                             0,  // No lighting, equivalent to glDisable(GL_LIGHT0);
+                             0,  // No alpha testing, e.g glDisable(GL_ALPHA_TEST);
+                             1,  // Use alpha blending, e.g. glEnable(GL_BLEND);
+                             0,  // No depth read, e.g. glDisable(GL_DEPTH_TEST);
+                             0); // No depth write, e.g. glDepthMask(GL_FALSE);
+        glClearColor(0.0f,0.0f,0.0f,0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        XPLMBindTexture2d(fboTexture, 0);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
+        glTexCoord2f(0.0f, 1.0f); glVertex2i( 0, TEXTURE_WIDTH_BLUR);
+        glTexCoord2f(1.0f, 1.0f); glVertex2i(TEXTURE_WIDTH_BLUR, TEXTURE_WIDTH_BLUR);
+        glTexCoord2f(1.0f, 0.0f); glVertex2i(TEXTURE_WIDTH_BLUR, 0);
+        glEnd();
+        glPopMatrix();
+        // unbind FBO
+        glPopMatrix();
+        glMatrixMode (GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopAttrib();
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, getFBO()); // ställ tillbaka till vad x-plane hade innan
+    }
+    /* The actual callback.  First we read the sim's time and the data. */
+    //XPLMDebugString("HUDplug: flightloop\n");
+
+    //float elapsed = XPLMGetElapsedTime();
+
+    /* Return 1.0 to indicate that we want to be called again in 1 second. */
+    return 0.01;
+}
+
+int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
+    static float snurr = 0;
+    
+    if (!fboInit) {
+        return 1;
+    }
+    // The drawing part.
+    XPLMSetGraphicsState(0,  // No fog, equivalent to glDisable(GL_FOG);
+                         1,  // One texture, equivalent to glEnable(GL_TEXTURE_2D);
+                         0,  // No lighting, equivalent to glDisable(GL_LIGHT0);
+                         0,  // No alpha testing, e.g glDisable(GL_ALPHA_TEST);
+                         1,  // Use alpha blending, e.g. glEnable(GL_BLEND);
+                         0,  // No depth read, e.g. glDisable(GL_DEPTH_TEST);
+                         0); // No depth write, e.g. glDepthMask(GL_FALSE);
+    int screen_width;
+    int screen_height;
+    XPLMGetScreenSize(&screen_width, &screen_height);
+    float hud_x = 1024*30/getFOV_x();
+    glPushMatrix();
+    //XPLMBindTexture2d(fboTexture, 0);
+    // Blur först
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
+    XPLMBindTexture2d(fboTexture_blur, 0);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glTranslatef(512-hud_x/2, 512*((float)screen_height / (float)screen_width) -hud_x/2, 0.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i( 0, hud_x);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(hud_x, hud_x);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(hud_x, 0);
+    glEnd();
+    glPopMatrix();
+    
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glPushMatrix();
+    XPLMBindTexture2d(fboTexture, 0);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glTranslatef(512-hud_x/2, 512*((float)screen_height / (float)screen_width) -hud_x/2, 0.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i( 0, hud_x);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(hud_x, hud_x);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(hud_x, 0);
+    glEnd();
+    glPopMatrix();
+    
+    XPLMBindTexture2d(g_tex_num, 0);
+    // Note: if the tex size is not changing, glTexSubImage2D is faster than glTexImage2D.
+    glTexSubImage2D(GL_TEXTURE_2D,
+                    0, // mipmap level
+                    0, // x-offset
+                    0, // y-offset
+                    WIDTH,
+                    HEIGHT,
+                    GL_RGBA,          // color of data we are seding
+                    GL_UNSIGNED_BYTE, // encoding of data we are sending
+                    buffer);
+
+
+
+    XPLMBindTexture2d(fboTexture_blur, 0);
+    glColor3f(1, 1, 1); // Set color to white.
+    int x1 = 20;
+    int y1 = 20;
+    int x2 = x1 + WIDTH;
+    int y2 = y1 + HEIGHT;
+    glBegin(GL_QUADS);
+    glTexCoord2f(0, 0);
+    glVertex2f(x1, y1); // We draw one textured quad.  Note: the first numbers 0,1 are texture coordinates, which are ratios.
+    glTexCoord2f(0, 1);
+    glVertex2f(x1, y2); // lower left is 0,0, upper right is 1,1.  So if we wanted to use the lower half of the texture, we
+    glTexCoord2f(1, 1);
+    glVertex2f(x2, y2); // would use 0,0 to 0,0.5 to 1,0.5, to 1,0.  Note that for X-Plane front facing polygons are clockwise
+    glTexCoord2f(1, 0);
+    glVertex2f(x2, y1); // unless you change it; if you change it, change it back!
+    glEnd();
+    
+    glPushMatrix();
+    XPLMBindTexture2d(fboTexture_blur, 0);
+
+    glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+    glTranslatef(20.0f, 200.0f, 0.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i( 0, 300);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(300, 300);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(300, 0);
+    glEnd();
+    glPopMatrix();
+    
+    // XPLMBindTexture2d(g_tex_num, 0);
+    // glTexSubImage2D(GL_TEXTURE_2D,
+    //                 0, // mipmap level
+    //                 0, // x-offset
+    //                 0, // y-offset
+    //                 WIDTH,
+    //                 HEIGHT,
+    //                 GL_RGBA,          // color of data we are seding
+    //                 GL_UNSIGNED_BYTE, // encoding of data we are sending
+    //                 buffer);
+    
+    
+    
+    snurr = snurr + 0.1f;
+    glPushMatrix();
+    glTranslatef(WIDTH, HEIGHT,0);
+    glRotatef(snurr,0, 0, 1);
+    glTranslatef(-WIDTH, -HEIGHT,0);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0, 0);
+    glVertex2f(x1, y1); // We draw one textured quad.  Note: the first numbers 0,1 are texture coordinates, which are ratios.
+    glTexCoord2f(0, 1);
+    glVertex2f(x1, y2); // lower left is 0,0, upper right is 1,1.  So if we wanted to use the lower half of the texture, we
+    glTexCoord2f(1, 1);
+    glVertex2f(x2, y2); // would use 0,0 to 0,0.5 to 1,0.5, to 1,0.  Note that for X-Plane front facing polygons are clockwise
+    glTexCoord2f(1, 0);
+    glVertex2f(x2, y1); // unless you change it; if you change it, change it back!
+    glEnd();
+    
+    glPopMatrix();
+    // if (config->visible == 0 || (config->visible == 1 && config->toggleOutside && getViewIsExternal()))
+    //     return 1;
+
+    // // reload aircraft values when needed
+    // if (--acfValuesReloadFrameCount == 0) {
+    //     acfValuesReloadFrameCount = ACF_VALUES_RELOAD_FRAME;
+    //     initAcfValues();
+    // }
+    // Display the window bounds (centered within the window)
+
     return 1;
 }
 
-void	draw12(XPLMWindowID in_window_id, void * in_refcon)
-{
-    return;
-	XPLMSetGraphicsState(
-			0 /* no fog */,
-			0 /* 0 texture units */,
-			0 /* no lighting */,
-			0 /* no alpha testing */,
-			1 /* do alpha blend */,
-			1 /* do depth testing */,
-			0 /* no depth writing */
-	);
-	
-	int b[4];
-	XPLMGetWindowGeometry(in_window_id, &b[0], &b[3], &b[2], &b[1]);
-	
-	// Draw our window's translucent background overlay
-	XPLMDrawTranslucentDarkBox(b[0], b[3], b[2], b[1]);
-	
-	// Display the window bounds (centered within the window)
-	char scratch_buffer[150];
-	sprintf(scratch_buffer, "Window bounds: %d %d %d %d", b[0], b[1], b[2], b[3]);
-	float col_white[] = {1.0, 1.0, 1.0};
-	int text_width = XPLMMeasureString(xplmFont_Proportional, scratch_buffer, strlen(scratch_buffer));
-	float text_midpoint_x = (b[2] + b[0]) / 2;
-	XPLMDrawString(col_white, text_midpoint_x - text_width / 2, (b[3] + b[1]) / 2, scratch_buffer, NULL, xplmFont_Proportional);
-	
-	glColor4f(1.0, 0.0, 0.0, 0.9);
-	glLineWidth(2);
-	glBegin(GL_LINE_LOOP);
-	
-	glVertex2f(0, 0);
-	glVertex2f(10, 0);
-	glVertex2f(0, 10);
-	glVertex2f(-20, 0);
-	glVertex2f(0, -20);
-	glVertex2f(-100, -100);
-	glVertex2f(100, -100);
-	glVertex2f(100, 100);
-
-    glEnd();
-	//glEnable(GL_BLEND);
-	XPLMSetGraphicsState(0 /*Fog*/, 0 /*TexUnits*/, 0 /*Lighting*/, 0 /*AlphaTesting*/, 1 /*AlphaBlending*/, 0 /*DepthTesting*/, 0 /*DepthWriting*/);
-	glEnable(GL_BLEND);
-	glColor4f(0.0, 0.0, 1.0, 0.9);
-	
-	glLineWidth(4);
-	glBegin(GL_LINE_LOOP);
-
-	glVertex2f(100, 100);
-	glVertex2f(10, 0);
-	glVertex2f(0, 10);
-	glVertex2f(-20, 0);
-	glVertex2f(0, -20);
-	glVertex2f(-100, -100);
-	glVertex2f(100, -100);
-	glVertex2f(100, 100);
-
-	glEnd();
-    glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_POLYGON_SMOOTH);
-    //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-
-    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
-
-    glPushMatrix();
-    DrawTest();
-    CalculateCenter();
-
-    glTranslatef(offset_x, offset_y, 0);
-    glScalef(hud_scale, hud_scale, 0);
-
-    if (viggen_mode == 1) {
-        TranslateToCenter();
-        DrawGlass();
-        glPushMatrix();
-        if (g_sway) {
-            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
-        }
-        if (draw_test) {
-            DrawTest();
-        }
-        DrawViggen();
-        glPopMatrix();
-
-    } else if (viggen_mode == 2) {
-        TranslateToCenter();
-        DrawGlass();
-        glPushMatrix();
-        if (g_sway) {
-            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
-        }
-        if (draw_test) {
-            DrawTest();
-        }
-        DrawViggenMode2();
-        glPopMatrix();
-
-    } else {
-        TranslateToCenter();
-        DrawGlass();
-        glPushMatrix();
-        if (g_sway) {
-            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
-        }
-        if (draw_test) {
-            DrawTest();
-        }
-
-        DrawModesJAS();
-        glPopMatrix();
-    }
-
-    glPopMatrix();
-
-    glDisable(GL_LINE_SMOOTH);
-    glDisable(GL_POLYGON_SMOOTH);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_BLEND);
-    glDisable(GL_SCISSOR_TEST);
-    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
-
-    static int heartbeat = 0;
-    heartbeat++;
-    XPLMSetDatai(drHUDheartbeat, heartbeat);
-    
-
-}

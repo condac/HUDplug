@@ -69,7 +69,7 @@
 #    include <windows.h>
 #endif
 #if LIN
-//#    include <GL/glew.h>
+#    include <GL/glew.h>
 #    include <GL/gl.h> // apt install mesa-common-dev
 #    include <GL/glu.h>
 //#    include <GL/glut.h>

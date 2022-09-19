@@ -290,7 +290,7 @@ int initDataRefs() {
 
     lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
     lTmp += findDataRef("sim/flightmodel/position/phi", &drRoll);
-    lTmp += findDataRef("sim/flightmodel/position/magpsi", &drHeading);
+    lTmp += findDataRef("sim/flightmodel2/position/mag_psi", &drHeading);
     lTmp += findDataRef("sim/flightmodel/position/psi", &drTrueHeading);
     lTmp += findDataRef("sim/flightmodel/position/local_vx", &drVX);
     lTmp += findDataRef("sim/flightmodel/position/local_vy", &drVY);
@@ -476,6 +476,10 @@ float getFOV() {
         return fov2;
     }
     return XPLMGetDataf(drFOV);
+}
+float getFOV_x() {
+    
+    return XPLMGetDataf(drFOV_x);
 }
 
 float getTotalWeight() {
@@ -782,9 +786,92 @@ GLuint getFBO() {
 }
 
 int getWindow() {
-    return XPLMGetDatai(drPrickActive);
+    return XPLMGetDatai(drWindowHeight);
 }
 
 int getWindowWidth() {
-    return XPLMGetDatai(drPrickActive);
+    return XPLMGetDatai(drWindowWidth);
+}
+
+float getProjectionMatrix(int index) {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "sim/graphics/view/projection_matrix";
+        findDataRef(name, &dr);
+        init = 1;
+    }
+    return getArrayValuef(dr, index);
+}
+float getProjectionMatrix3d(int index) {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "sim/graphics/view/projection_matrix_3d";
+        findDataRef(name, &dr);
+        init = 1;
+    }
+    return getArrayValuef(dr, index);
+}
+float getModelMatrix(int index) {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "sim/graphics/view/modelview_matrix";
+        findDataRef(name, &dr);
+        init = 1;
+    }
+    return getArrayValuef(dr, index);
+}
+
+float getPanelL() {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "sim/graphics/view/panel_total_pnl_l";
+        findDataRef(name, &dr);
+        init = 1;
+    }
+    return XPLMGetDataf(dr);
+}
+float getPanelR() {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "sim/graphics/view/panel_total_pnl_r";
+        findDataRef(name, &dr);
+        init = 1;
+    }
+    return XPLMGetDataf(dr);
+}
+float getPanelT() {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "sim/graphics/view/panel_total_pnl_t";
+        findDataRef(name, &dr);
+        init = 1;
+    }
+    return XPLMGetDataf(dr);
+}
+float getPanelB() {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "sim/graphics/view/panel_total_pnl_b";
+        findDataRef(name, &dr);
+        init = 1;
+    }
+    return XPLMGetDataf(dr);
+}
+
+int getViewType() {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "sim/graphics/view/view_type";
+        findDataRef(name, &dr);
+        init = 1;
+    }
+    return XPLMGetDatai(dr);
 }
