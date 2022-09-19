@@ -21,6 +21,8 @@ float getFRP();
 float getAlphaA();
 float getBetaA();
 float getFOV();
+
+float getFOV_x();
 float getFOVoff_y();
 float getFOVoff_x();
 float getPitch();
@@ -140,4 +142,17 @@ void SetJASAutoAttCB(void* inRefcon, float inValue);
 float GetJASAutoAltCB(void* inRefcon);
 void SetJASAutoAltCB(void* inRefcon, float inValue);
 
+float getProjectionMatrix(int index);
+float getProjectionMatrix3d(int index);
+float getModelMatrix(int index);
+
+int getViewType();
+int getWindow();
+
+int getWindowWidth() ;
+
+float getPanelL();
+float getPanelR() ;
+float getPanelT() ;
+float getPanelB() ;
 #endif

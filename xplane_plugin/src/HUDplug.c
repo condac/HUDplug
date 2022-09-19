@@ -65,17 +65,12 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 	params.right = global_desktop_bounds[2];
 	params.top = global_desktop_bounds[3];
 	params.visible = 1;
-	params.drawWindowFunc = draw12;
-	params.handleMouseClickFunc = dummy_mouse_handler;
-	params.handleRightClickFunc = dummy_mouse_handler;
-	params.handleMouseWheelFunc = dummy_wheel_handler;
-	params.handleKeyFunc = dummy_key_handler;
-	params.handleCursorFunc = dummy_cursor_status_handler;
+	
 	params.refcon = NULL;
 	params.layer = xplm_WindowLayerFlightOverlay; // stick our window beneath all floating windows (like the X-Plane 11 map)
 	params.decorateAsFloatingWindow = 0;
 	
-	g_window = XPLMCreateWindowEx(&params);
+	//g_window = XPLMCreateWindowEx(&params);
 	
 	//XPLMSetWindowPositioningMode(g_window, xplm_WindowPositionFree, -1);
 	// As the X-Plane window resizes, glue our left and right edges to the sides of the screen
@@ -327,6 +322,32 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //     acfValuesReloadFrameCount = ACF_VALUES_RELOAD_FRAME;
     //     initAcfValues();
     // }
+    // Display the window bounds (centered within the window)
+	char scratch_buffer[150];
+    float col_white[] = {1.0, 1.0, 1.0};
+	
+    sprintf(scratch_buffer, "getPanel cord: L:%f R:%f T:%f B:%f", getPanelL(), getPanelR(), getPanelT(), getPanelB() );
+    XPLMDrawString(col_white, 10, 20, scratch_buffer, NULL, xplmFont_Proportional);
+    sprintf(scratch_buffer, "getModelMatrix: %f %f %f %f", getModelMatrix(0), getModelMatrix(1), getModelMatrix(2), getModelMatrix(4) );
+    XPLMDrawString(col_white, 10, 40, scratch_buffer, NULL, xplmFont_Proportional);
+    sprintf(scratch_buffer, "getFOV: %f ", getFOV(0));
+    XPLMDrawString(col_white, 10, 50, scratch_buffer, NULL, xplmFont_Proportional);
+    
+    int screen_width;
+    int screen_height;
+    XPLMGetScreenSize(&screen_width, &screen_height);
+    sprintf(scratch_buffer, "screen size: %d %d", screen_width, screen_height );
+    XPLMDrawString(col_white, 10, 30, scratch_buffer, NULL, xplmFont_Proportional);
+    
+    sprintf(scratch_buffer, "window: %d %d", getWindow(), getWindowWidth() );
+    XPLMDrawString(col_white, 10, 60, scratch_buffer, NULL, xplmFont_Proportional);
+    
+    for (int ix = 0;ix<3000; ix+=50) {
+        sprintf(scratch_buffer, "%d", ix);
+        XPLMDrawString(col_white, ix, 5, scratch_buffer, NULL, xplmFont_Proportional);
+        XPLMDrawString(col_white, 10, ix, scratch_buffer, NULL, xplmFont_Proportional);
+        
+    }
     
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POLYGON_SMOOTH);
@@ -349,8 +370,18 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     //     return 1;
     // }
 
-    glTranslatef(offset_x, offset_y, 0);
-    glScalef(hud_scale, hud_scale, 0);
+    
+    if (getViewType() == 1000) {
+        glTranslatef(offset_x+getPanelL(), offset_y+getPanelT()-512 -35-29, 0);
+        
+        float fovscale = 30/getFOV_x();
+        glScalef(hud_scale*fovscale, hud_scale*fovscale, 0); // gör om 1024 pixlar till den ungefärliga storleken på HUD glaset vi ritar på
+        
+    } else {
+        glScalef(hud_scale, hud_scale, 0);
+        glTranslatef(offset_x, offset_y, 0);
+    }
+    
 
     if (viggen_mode == 1) {
         TranslateToCenter();

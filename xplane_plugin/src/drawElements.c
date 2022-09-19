@@ -25,7 +25,7 @@ void DrawTest() {
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Standard blend, baserat på alpha
     // detta motsvarar mode 6 7
     //glBlendFunc(modes[glass_type], modes[glass_type2]);
-    float testcolor[] = {0.0, 1.0, 0.0, 1.0};
+    float testcolor[] = {-0.5, 1.0, -0.5, 1.0};
     float testcolor2[] = {0.0, 1.0, 0.0, 0.5};
     float testcolor3[] = {0.0, 0.5, 0.0, 0.5};
     for (int i = 0; i < 15; i++) {
@@ -311,20 +311,47 @@ void DrawGlass() {
     glTranslatef(-glass_width / 2, -glass_height / 2, 0);
     if (draw_glass == 1) {
         //glColor4fv(colorglass);
+        float scale = glass_width/280;
+        glTranslatef(glass_width / 2, glass_height / 2+ glass_width/3, 0);
         glBegin(GL_POLYGON);
+        
+        // glColor4fv(colorglassB);
+        // glVertex2f(0, -glass_height);
+        // 
+        // glColor4fv(colorglass);
+        // glVertex2f(0, glass_height - 50);
+        // glVertex2f(100, glass_height);
+        // 
+        // glVertex2f(glass_width - 100, glass_height);
+        // glVertex2f(glass_width, glass_height - 50);
+        // 
+        // glColor4fv(colorglassB);
+        // glVertex2f(glass_width, -glass_height);
+        
         glColor4fv(colorglassB);
-        glVertex2f(0, -glass_height);
-
+        glVertex2f(-100*scale, -240*scale);
+        glVertex2f(-140*scale, -150*scale);
+        
         glColor4fv(colorglass);
-        glVertex2f(0, glass_height - 50);
-        glVertex2f(100, glass_height);
+        glVertex2f(-140*scale, -55*scale);
+        glVertex2f(-106*scale, -16.5*scale);
+        
+        // böjen
+        glVertex2f(-68*scale, -6.08*scale);
+        glVertex2f(-38*scale, -2.08*scale);
+        glVertex2f(-0*scale, -0.00*scale);
+        
+        // andra sidan
+        
+        glVertex2f(38*scale, -2.08*scale);
+        glVertex2f(68*scale, -6.08*scale);
+        
+        glVertex2f(106*scale, -16.5*scale);
+        glVertex2f(140*scale, -55*scale);
+        
+        glVertex2f(140*scale, -150*scale);
+        glVertex2f(100*scale, -240*scale);
 
-        //glColor4f(0.2, 0.0, 0.2, 0.2);
-        glVertex2f(glass_width - 100, glass_height);
-        glVertex2f(glass_width, glass_height - 50);
-
-        glColor4fv(colorglassB);
-        glVertex2f(glass_width, -glass_height);
 
         glEnd();
     }
@@ -354,8 +381,9 @@ void DrawVector() {
     float x_pos = 0.0;
     float alpha = CalcFOVAngle(myGetAlpha());
     float beta = CalcFOVAngle(myGetBeta());
-    float tail_pos = airspeed - getLandingSpeed() + 20;
+    float tail_pos = airspeed - getLandingSpeed() + 10;
     float angle = getRoll();
+    float alphaA = getAlphaA();
     // float prickx = getPrickX();
     // float pricky = getPrickY();
     int gear = getGear();
@@ -390,6 +418,9 @@ void DrawVector() {
         y_pos = screen_height / 2 / hud_scale - 30;
         utanfor = 1;
     }
+    if (alphaA>20) {
+        utanfor = 1;
+    }
 
     glPushMatrix();
     //glRotatef(angle, 0, 0, 1);
@@ -397,10 +428,10 @@ void DrawVector() {
     //glRotatef(-angle, 0, 0, 1);
 
     if (!markKontakt() && utanfor == 0) {
-        DrawCircle(10);
+        DrawCircle(8);
     }
     if (utanfor == 1) {
-        float alphaA = getAlphaA();
+        
         char tempText[10];
         sprintf(tempText, "%.0f", alphaA);
         //DrawHUDText(tempText, &fontMain, 0, -textHeight(1.0), 1, color);
@@ -409,11 +440,11 @@ void DrawVector() {
     glLineWidth(line_width);
     glBegin(GL_LINES);
 
-    glVertex2f(10, 0);
-    glVertex2f(30, 0);
+    glVertex2f(8, 0);
+    glVertex2f(31, 0);
 
-    glVertex2f(-10, 0);
-    glVertex2f(-30, 0);
+    glVertex2f(-8, 0);
+    glVertex2f(-31, 0);
 
     if (gear) {
         glVertex2f(0, tail_pos - 10);
@@ -481,17 +512,19 @@ void DrawHorizionLines() {
         glVertex2f((i)*HUD_SCALE, 0);
         glVertex2f((i + (line_width * 2)), 0);
     }
-    glVertex2f(160, 0);
-    glVertex2f(295, 0);
+    
+    // Solida 0 linjen med uppehåll för hastighet och höjd
+    glVertex2f(124, 0);
+    glVertex2f(230, 0);
 
-    glVertex2f(410, 0);
-    glVertex2f(480, 0);
+    glVertex2f(330, 0);
+    glVertex2f(490, 0);
 
-    glVertex2f(-160, 0);
-    glVertex2f(-295, 0);
+    glVertex2f(-124, 0);
+    glVertex2f(-230, 0);
 
-    glVertex2f(-410, 0);
-    glVertex2f(-480, 0);
+    glVertex2f(-330, 0);
+    glVertex2f(-490, 0);
 
     glEnd();
 
@@ -737,8 +770,9 @@ void DrawHorizionLines() {
     // XPLMDrawString(color, -250, 350, buffer, NULL, xplmFont_Basic);
 }
 
-#define SPEED_POS_X -315
+#define SPEED_POS_X -250
 #define SPEED_POS_Y -50
+#define SPEED_SCALE_PIXEL 150.0f
 
 void DrawSpeed(float x, float y) {
     char temp[100];
@@ -777,8 +811,8 @@ void DrawSpeed(float x, float y) {
     glLineWidth(line_width);
     glBegin(GL_LINES);
 
-    glVertex2f(SPEED_POS_X, y - 100);
-    glVertex2f(SPEED_POS_X, y + 100);
+    glVertex2f(SPEED_POS_X, y - SPEED_SCALE_PIXEL/2);
+    glVertex2f(SPEED_POS_X, y + SPEED_SCALE_PIXEL/2);
 
     // Markör för snabbast stigningshastighet
     if (airspeed < climbSpeed + 50 && airspeed > climbSpeed - 50) {
@@ -822,15 +856,13 @@ void DrawSpeed(float x, float y) {
         glVertex2f(SPEED_POS_X + 20, y - 10 - (airspeed - eco) * 2);
         glVertex2f(SPEED_POS_X + 10, y - 10 - (airspeed - eco) * 2);
     }
-    glVertex2f(SPEED_POS_X, y - 100);
-    glVertex2f(SPEED_POS_X, y + 100);
 
     // pil vid hastighetstexten
     glVertex2f(SPEED_POS_X, y + 0);
-    glVertex2f((SPEED_POS_X - 20), y + 10);
+    glVertex2f((SPEED_POS_X - 13), y + 6);
 
     glVertex2f(SPEED_POS_X, y + 0);
-    glVertex2f((SPEED_POS_X - 20), y - 10);
+    glVertex2f((SPEED_POS_X - 13), y - 6);
 
     // Linjer upp och ner beroende på om hatigheten ökar eller minskar
 
@@ -856,7 +888,7 @@ void DrawSpeed(float x, float y) {
         sprintf(temp, "%.0f", airspeed);
     }
     //DrawHUDText(temp, &fontMain, (SPEED_POS_X - 30)  , (SPEED_POS_Y  ) - (textHeight(1.0) / 2), 2, color);
-    drawLineText(temp, (SPEED_POS_X - 30), (y) - (textHeight(1.0) / 2), 1.0, 2);
+    drawLineText(temp, (SPEED_POS_X - 18), (y) - (textHeight(1.0) / 2), 1.0, 2);
 
     sprintf(temp2, "%.2f", mach);
     if (temp2[0] == '0') {
@@ -868,7 +900,7 @@ void DrawSpeed(float x, float y) {
     
     sprintf(temp, "M%s", temp2);
     //DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120)  ) - ((textHeight(1.0) * text_scale)), 2, color);
-    drawLineText(temp, (SPEED_POS_X)*HUD_SCALE, ((y - 120)) - (textHeight(1.4) * 1), 1.0, 2);
+    drawLineText(temp, (SPEED_POS_X)*HUD_SCALE, ((y - 85)) - (textHeight(1.4) * 1), 1.0, 2);
 
     if (metric) {
         sprintf(temp, "GS%.0f", knotsTokmh(groundspeed));
@@ -877,7 +909,7 @@ void DrawSpeed(float x, float y) {
     }
     //sprintf(temp, "GS%.0f", groundspeed);
     //    DrawHUDText(temp, &fontMain, (SPEED_POS_X)*HUD_SCALE, ((SPEED_POS_Y - 120)  ) - ((textHeight(1.0) * text_scale) * 2), 2, color);
-    drawLineText(temp, (SPEED_POS_X)*HUD_SCALE, ((y - 120)) - (textHeight(1.4) * 2.5), 1.0, 2);
+    drawLineText(temp, (SPEED_POS_X)*HUD_SCALE, ((y - 85)) - (textHeight(1.4) * 2.0), 1.0, 2);
     // Markör för snabbast stigningshastighet
     if (airspeed < climbSpeed + 50 && airspeed > climbSpeed - 50) {
         DrawHUDText("O", &fontMain, SPEED_POS_X + 10, y - (airspeed - climbSpeed) * 2 - ((textHeight(1.0) / 2 * text_scale)), 0, color);
@@ -932,7 +964,7 @@ void DrawAlpha(float x, float y) {
     SetGLText(); // turn on blending
 
     sprintf(temp, "G %.1f", gforce);
-    DrawHUDText(temp, &fontMain, (x), ((y + 120)) + ((textHeight(1.0) * text_scale)), 2, color);
+    DrawHUDText(temp, &fontMain, (x-60), ((y + 65)) + ((textHeight(1.0) * text_scale)), 0, color);
 
     if (getIAS() > 50) {
         sprintf(temp, "& %.0f", alpha);
@@ -940,13 +972,13 @@ void DrawAlpha(float x, float y) {
         sprintf(temp, "& X");
     }
 
-    DrawHUDText(temp, &fontMain, (x), ((y + 120)) + ((textHeight(1.4) * text_scale) * 2.5), 2, color);
+    DrawHUDText(temp, &fontMain, (x-60), ((y + 65)) + ((textHeight(1.4)*2 * text_scale)), 0, color);
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
 
-#define ALT_POS_X 315
+#define ALT_POS_X 255
 #define ALT_POS_Y -50
-#define ALT_SCALE_METER 400.0f
+#define ALT_SCALE_METER 450.0f
 #define ALT_SCALE_PIXEL 220.0f
 
 float altToPixelY(float value) {
@@ -1048,8 +1080,18 @@ void DrawAltitude(float x, float y) {
                 //     int aaa = m2feet(i);
                 //     sprintf(temp, "%d", aaa);
                 // }
-                sprintf(temp, "%d", i);
-                DrawHUDText(temp, &fontMain, (ALT_POS_X + 20), ((y + altToPixelY(-altitude) + altToPixelY(i))) - ((textHeight(1.0) * text_scale) / 2), 0, color);
+                if (i < 1000) {
+                    sprintf(temp, "%d", i);
+                    DrawHUDText(temp, &fontMain, (ALT_POS_X + 20), ((y + altToPixelY(-altitude) + altToPixelY(i))) - ((textHeight(1.0) * text_scale) / 2), 0, color);
+                } else {
+                    int tusental = i/1000;
+                    sprintf(temp, "%d", tusental);
+                    //DrawHUDText(temp, &fontMain, (ALT_POS_X + 20), ((y + altToPixelY(-altitude) + altToPixelY(i))) - ((textHeight(1.0) * text_scale) / 2), 0, color);
+                    drawLineText(temp, (ALT_POS_X + 48), ((y + altToPixelY(-altitude) + altToPixelY(i))) - ((textHeight(1.0) * text_scale) / 2), 1.0, 2);
+                    tusental = tusental*1000;
+                    sprintf(temp, "%03d", i-tusental);
+                    drawLineText(temp, (ALT_POS_X + 48), ((y + altToPixelY(-altitude) + altToPixelY(i))) - ((textHeight(1.0) * text_scale) / 2), 0.7, 0);
+                }
             }
         }
     }
@@ -1060,9 +1102,13 @@ void DrawAltitude(float x, float y) {
     } else {
         altdraw = altitude / 10;
     }
-    altdraw = altitude / 10;
-    sprintf(temp, "%d", altdraw * 10);
-    DrawHUDText(temp, &fontMain, (ALT_POS_X - 30), (y) - ((textHeight(1.0) * text_scale) / 2), 2, color);
+    
+    if (altitude < 1050) {
+        altdraw = altitude / 10;
+        sprintf(temp, "%d", altdraw * 10);
+        DrawHUDText(temp, &fontMain, (ALT_POS_X - 30), (y) - ((textHeight(1.0) * text_scale) / 2), 2, color);
+    }
+    
 
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
@@ -1626,7 +1672,7 @@ void DrawModesJAS() {
     if (gear) {
         // Landings mod
         TranslateToCenter();
-        DrawCompass(0, y_pos + 220);
+        DrawCompass(0, y_pos + 170);
         TranslateToCenter();
         DrawSpeed(0, y_pos);
         DrawAlpha(SPEED_POS_X, y_pos);
@@ -1635,7 +1681,7 @@ void DrawModesJAS() {
         // DrawFuelTime(-glass_width / 2 + 30, 310);
     } else {
         TranslateToCenter();
-        DrawCompass(0, 320);
+        DrawCompass(0, 170);
         TranslateToCenter();
         DrawSpeed(0, 0);
         DrawAlpha(SPEED_POS_X, 0);

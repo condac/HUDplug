@@ -18,7 +18,7 @@ float line_width = 2.0;
 float fov;
 float fov_pixels;
 
-float color[] = {0.0, 1.0, 0.0, 1.0};
+float color[] = {-0.5, 1.0, -0.5, 1.0};
 int viggen_mode = 1;
 
 int blendmodes[] = {GL_ZERO,
@@ -52,9 +52,19 @@ int CalculateCenter(void) {
     float FOV_off_y = getFOVoff_y();
     float FOV_off_x = getFOVoff_x();
     float ratio = (float)screen_height / (float)screen_width;
-    float scalex = screen_width/1024;
+    float scalex = screen_width/(1024 +getPanelL() );
     fov = getFOV();
-    fov_pixels = (float)1024*ratio / (float)fov;
+    float fovscale = 30/getFOV_x();
+    float scissor_x = fovscale*screen_width;
+    float scissor_y = 20/getFOV_x()*screen_width*0.8671875;
+    
+    if (getViewType() == 1000) {
+        fov_pixels = (0.8671875*1024/getFOV_x()/fovscale); //*24/getFOV_x()
+        //fov_pixels = 11.08/fovscale;
+    }else {
+        fov_pixels = screen_height / fov / hud_scale;
+    }
+    
     line_width = line_scale * hud_scale;
     CalculateColors();
     FOV_off_y = CalcFOVAngle(20)* hud_scale;
@@ -66,15 +76,21 @@ int CalculateCenter(void) {
 
     //glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
     glTranslated(512, 512*ratio , 0);
-    // glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,
-    //           -FOV_off_y,
-    //           offset_x + glass_width * hud_scale,
-    //           offset_y + screen_height / 2 + glass_height * hud_scale / 2);
-    glScissor((screen_width / 2)- glass_width/2 * scalex * hud_scale,
-            screen_height / 2 - FOV_off_y,
-            glass_width * scalex,
-            FOV_off_x);
-    //glEnable(GL_SCISSOR_TEST);
+    
+    if (getViewType() == 1000) {
+        glScissor(getPanelL()+screen_width / 2 -scissor_x/2* hud_scale,
+                screen_height/2 -scissor_y,
+                scissor_x* hud_scale,
+                scissor_x*0.8671875* hud_scale);
+    }else {
+        glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,
+                  -FOV_off_y,
+                  offset_x + glass_width * hud_scale,
+                  offset_y + screen_height / 2 + glass_height * hud_scale / 2);
+    }
+    
+    
+    glEnable(GL_SCISSOR_TEST);
     return 1;
 }
 
