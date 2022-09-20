@@ -38,22 +38,22 @@ else ifeq ($(OS), WINDOWS)
 
 
 CC ?= i686-w64-mingw32-gcc
-INC += -ISDK2/CHeaders/XPLM -ISDK2/CHeaders/Widgets -I/mingw32/include
+INC += -ISDK2/CHeaders/XPLM -ISDK2/CHeaders/Widgets -I/mingw32/include -I./glew/glew-2.2.0/include
 CFLAGS += -Wall -O2 -D$(OS) $(INC) -g
 LDFLAGS += -Wl,--version-script=exports.txt -g
 LDDYNFLAGS += -shared
-LIBS += -L/mingw32/lib SDK2/Libraries/Win/XPLM.lib -lhid -lsetupapi -lwsock32 -lopengl32 -lglu32
+LIBS += -L/mingw32/lib SDK2/Libraries/Win/XPLM.lib -L./lib32/ -lhid -lsetupapi -lwsock32 -lopengl32 -lglu32 -lglew32
 TARGET ?= win.xpl
 
 else ifeq ($(OS), WINDOWS64)
 #  sudo apt-get install  gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64
 #  x86_64-w64-mingw32-gcc
 CC ?= x86_64-w64-mingw32-gcc
-INC += -ISDK/CHeaders/XPLM -ISDK/CHeaders/Widgets -I/mingw64/include
+INC += -ISDK/CHeaders/XPLM -ISDK/CHeaders/Widgets -I/mingw64/include -I./glew/glew-2.2.0/include
 CFLAGS += -Wall -O2 -D$(OS) $(INC)
 LDFLAGS += -Wl,--version-script=exports.txt
 LDDYNFLAGS += -shared
-LIBS += -L/mingw64/lib SDK/Libraries/Win/XPLM_64.lib -lhid -lsetupapi -lwsock32 -lopengl32 -lglu32
+LIBS += -L/mingw64/lib SDK/Libraries/Win/XPLM_64.lib -L./glew/glew-2.2.0/lib/ -lhid -lsetupapi -lwsock32 -lopengl32 -lglu32 -lglew32
 TARGET ?= win.xpl
 endif
 

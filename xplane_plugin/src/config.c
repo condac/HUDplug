@@ -6,7 +6,7 @@
 
 //master_struct masters[MAXMASTERS];
 
-char filename[512];
+char filename[1512];
 
 float landing_speed1 = 140;
 float landing_speed2 = 180;
@@ -28,8 +28,8 @@ int glass_type = 6;
 int glass_type2 = 4;
 int text_blend1 = 6;
 int text_blend2 = 7;
-int image_blend1 = 6;
-int image_blend2 = 7;
+int image_blend1 = 1;
+int image_blend2 = 1;
 int th1 = 0;
 int g_sway = 0;
 int draw_test = 0;

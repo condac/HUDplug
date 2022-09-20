@@ -38,6 +38,8 @@ void dummy_key_handler(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, 
 #endif
 static float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon);
 static int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon);
+static int DrawPanelCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon);
+static int DrawScreenCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon);
 static XPLMDataRef gDataRef = NULL;
 static XPLMDataRef testDataRef = NULL;
 XPLMDataRef drHUDheartbeat;
@@ -72,9 +74,9 @@ int fboInit = 0;
 static unsigned char buffer[WIDTH * HEIGHT * 4];
 
 PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
-    strcpy(outName, "HUDplugtest");
-    strcpy(outSig, "github.condac.HUDplug2");
-    strcpy(outDesc, "A plug-in for HUDplug2.");
+    strcpy(outName, "HUDplug");
+    strcpy(outSig, "github.condac.HUDplug");
+    strcpy(outDesc, "A plug-in for HUDplug.");
     GLenum err = glewInit();
     if (err != GLEW_OK) {
         debugLog("HUDplug: GLEW init failed: %s\n", (const char*)glewGetErrorString(err));
@@ -149,14 +151,14 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     //xplm_Phase_FirstCockpit // funkar med opengl och skärm offsets
 
     //xplm_Phase_Window // den vi brukar köra
-    // XPLMRegisterDrawCallback(MyDrawCallback,
-    //                          xplm_Phase_Window, /* Draw when sim is doing windows */
-    //                          0,                 /* Before plugin windows */
-    //                          NULL);             /* No refcon needed */
-    //xplm_Phase_LastCockpit
+    XPLMRegisterDrawCallback(DrawScreenCallback,
+                             xplm_Phase_Window, /* Draw when sim is doing windows */
+                             0,                 /* Before plugin windows */
+                             NULL);             /* No refcon needed */
+                                                //    xplm_Phase_LastCockpit
 
     //xplm_Phase_Panel
-    XPLMRegisterDrawCallback(MyDrawCallback,
+    XPLMRegisterDrawCallback(DrawPanelCallback,
                              xplm_Phase_Panel, /* Draw when sim is doing windows */
                              0,                /* Before plugin windows */
                              NULL);            /* No refcon needed */
@@ -305,8 +307,8 @@ void drawHUD() {
     if (getViewType() == 1000) {
         //glTranslatef(offset_x+getPanelL(), offset_y+getPanelT()-512 -35-29, 0);
         glTranslatef(offset_x + TEXTURE_WIDTH / 2, offset_y + TEXTURE_WIDTH * 0.666f, 0);
-        float fovscale = 30 / getFOV_x();
-        fovscale = 30.0f / 80.0f;
+        //float fovscale = 30 / getFOV_x();
+        //fovscale = 30.0f / 80.0f;
         glScalef(hud_scale, hud_scale, 0); // gör om 1024 pixlar till den ungefärliga storleken på HUD glaset vi ritar på
 
     } else {
@@ -371,7 +373,9 @@ void drawHUD() {
 }
 
 float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon) {
-
+    GLint xp_rbo, xp_fbo;
+    glGetIntegerv(GL_RENDERBUFFER_BINDING, &xp_rbo);
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &xp_fbo);
     if (!fboInit) {
         debugLog("skapar framebuffer");
         glewInit();
@@ -452,31 +456,7 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // Draw background.
-        //glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_SRC_COLOR, GL_ZERO);
-        // Draw mask.
 
-        // XPLMBindTexture2d(texturemask, 0);
-        // // Note: if the tex size is not changing, glTexSubImage2D is faster than glTexImage2D.
-        //
-        // //XPLMBindTexture2d(fboTexture_blur, 0);
-        // //glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // Set color to white.
-        // int x1 = 20;
-        // int y1 = 20;
-        // int x2 = x1 + 1024;
-        // int y2 = y1 + 1024;
-        // glBegin(GL_QUADS);
-        // glTexCoord2f(0, 0);
-        // glVertex2f(x1, y1); // We draw one textured quad.  Note: the first numbers 0,1 are texture coordinates, which are ratios.
-        // glTexCoord2f(0, 1);
-        // glVertex2f(x1, y2); // lower left is 0,0, upper right is 1,1.  So if we wanted to use the lower half of the texture, we
-        // glTexCoord2f(1, 1);
-        // glVertex2f(x2, y2); // would use 0,0 to 0,0.5 to 1,0.5, to 1,0.  Note that for X-Plane front facing polygons are clockwise
-        // glTexCoord2f(1, 0);
-        // glVertex2f(x2, y1); // unless you change it; if you change it, change it back!
-        // glEnd();
-
-        //glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
         drawHUD();
 
         glPopMatrix();
@@ -546,14 +526,36 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
         glMatrixMode(GL_MODELVIEW);
         glPopAttrib();
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, getFBO()); // ställ tillbaka till vad x-plane hade innan
+        //glBindFramebuffer(GL_DRAW_FRAMEBUFFER, xp_fbo);
+
+        XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
     /* The actual callback.  First we read the sim's time and the data. */
     //XPLMDebugString("HUDplug: flightloop\n");
 
     //float elapsed = XPLMGetElapsedTime();
 
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0);
     /* Return 1.0 to indicate that we want to be called again in 1 second. */
     return 0.01;
+}
+
+int DrawPanelCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
+    if (getViewType() != 1000) { // 1000 är 2d panel view
+        return 1;
+    }
+
+    MyDrawCallback(inPhase, inIsBefore, inRefcon);
+    return 1;
+}
+
+int DrawScreenCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
+    if (getViewType() == 1000) { // 1000 är 2d panel view
+        return 1;
+    }
+    MyDrawCallback(inPhase, inIsBefore, inRefcon);
+    return 1;
 }
 
 int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
@@ -620,7 +622,8 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     }
     if (draw_glass == 2) {
         // Glasskivan
-        glBlendEquationSeparate( GL_MIN,  GL_FUNC_ADD);
+        glBlendEquationSeparate(GL_MIN, GL_FUNC_ADD);
+        //glBlendEquation(GL_MIN);
         glPushMatrix();
         XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0);
         glEnable(GL_BLEND);
@@ -630,7 +633,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
         glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
         DrawGlassObject(hud_x);
         glPopMatrix();
-        glBlendEquationSeparate( GL_FUNC_ADD,  GL_FUNC_ADD);
+        glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
         XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
         //slut glasskivan
     }
@@ -672,11 +675,11 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     if (draw_test == 1) {
         hud_x = hud_x / 10;
         // testa glasskivan
-        
+
         for (int i = 0; i < 15; i++) {
             for (int y = 0; y < 15; y++) {
                 //SetGLTransparentLines();
-                glBlendEquationSeparate( GL_MIN,  GL_FUNC_ADD);
+                glBlendEquationSeparate(GL_MIN, GL_FUNC_ADD);
                 glPushMatrix();
                 XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0);
                 glEnable(GL_BLEND);
@@ -686,8 +689,8 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
                 glTranslatef(hud_x * i, hud_x * y, 0.0f);
                 DrawGlassObject(hud_x);
                 glPopMatrix();
-                
-                glBlendEquationSeparate( GL_FUNC_ADD,  GL_FUNC_ADD);
+
+                glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
                 XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
                 glEnable(GL_BLEND);
                 glBlendFunc(modes[image_blend1], modes[image_blend2]);
@@ -814,5 +817,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     // }
     // Display the window bounds (centered within the window)
 
+    XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     return 1;
 }

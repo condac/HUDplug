@@ -50,7 +50,7 @@ int CalculateCenter(void) {
     // HudConfig* lConfig = getHudConfig();
     float FOV_off_y = getFOVoff_y();
     float FOV_off_x = getFOVoff_x();
-    float ratio = (float)screen_height / (float)screen_width;
+    //float ratio = (float)screen_height / (float)screen_width;
     //float scalex = screen_width/(1024 +getPanelL() );
     fov = getFOV();
     float fovscale = 30 / getFOV_x();
@@ -62,6 +62,8 @@ int CalculateCenter(void) {
         //fov_pixels = 11.08/fovscale;
     } else {
         fov_pixels = screen_height / fov / hud_scale;
+        //fov_pixels = (0.9571875 * 1024 / getFOV_x() / fovscale);
+        glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
     }
 
     line_width = line_scale * hud_scale;
