@@ -481,19 +481,19 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 
         glBlendFunc(GL_ZERO, GL_SRC_COLOR); // tar bort färgen
 
-        // XPLMBindTexture2d(texturemask, 0);
-        // glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        //
-        // glBegin(GL_QUADS);
-        // glTexCoord2f(0.0f, 0.0f);
-        // glVertex2i(0, 0);
-        // glTexCoord2f(0.0f, 1.0f);
-        // glVertex2i(0, 1024);
-        // glTexCoord2f(1.0f, 1.0f);
-        // glVertex2i(1024, 1024);
-        // glTexCoord2f(1.0f, 0.0f);
-        // glVertex2i(1024, 0);
-        // glEnd();
+        XPLMBindTexture2d(texturemask, 0);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex2i(0, 0);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex2i(0, 1024);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex2i(1024, 1024);
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex2i(1024, 0);
+        glEnd();
 
         // unbind FBO
 
