@@ -40,10 +40,9 @@ int blendmodes[] = {GL_ZERO,
 int CalculateCenter(void) {
     int screen_width;
     int screen_height;
-    
-    
+
     XPLMGetScreenSize(&screen_width, &screen_height);
-    
+
     //debugLog("window geo %d %d %d %d", b[0], b[1], b[2], b[3]);
     //debugLog("ScreenSize %d %d", screen_width,screen_height);
     screen_width = screen_width;
@@ -54,20 +53,20 @@ int CalculateCenter(void) {
     float ratio = (float)screen_height / (float)screen_width;
     //float scalex = screen_width/(1024 +getPanelL() );
     fov = getFOV();
-    float fovscale = 30/getFOV_x();
-    float scissor_x = fovscale*screen_width;
-    float scissor_y = 20/getFOV_x()*screen_width*0.8671875;
-    
+    float fovscale = 30 / getFOV_x();
+    float scissor_x = fovscale * screen_width;
+    float scissor_y = 20 / getFOV_x() * screen_width * 0.8671875;
+
     if (getViewType() == 1000) {
-        fov_pixels = (0.8671875*1024/getFOV_x()/fovscale); //*24/getFOV_x()
+        fov_pixels = (0.8671875 * 1024 / getFOV_x() / fovscale); //*24/getFOV_x()
         //fov_pixels = 11.08/fovscale;
-    }else {
+    } else {
         fov_pixels = screen_height / fov / hud_scale;
     }
-    
+
     line_width = line_scale * hud_scale;
     CalculateColors();
-    FOV_off_y = CalcFOVAngle(20)* hud_scale;
+    FOV_off_y = CalcFOVAngle(20) * hud_scale;
     FOV_off_x = CalcFOVAngle(30) * hud_scale;
 
     // if (FOV_off_x > 1000 || FOV_off_x < -1000) {
@@ -76,20 +75,16 @@ int CalculateCenter(void) {
 
     //glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
     //glTranslated(512, 512*ratio , 0);
-    
+
     if (getViewType() == 1000) {
-        glScissor(getPanelL()+screen_width / 2 -scissor_x/2* hud_scale,
-                screen_height/2 -scissor_y,
-                scissor_x* hud_scale,
-                scissor_x*0.8671875* hud_scale);
-    }else {
+        glScissor(getPanelL() + screen_width / 2 - scissor_x / 2 * hud_scale, screen_height / 2 - scissor_y, scissor_x * hud_scale, scissor_x * 0.8671875 * hud_scale);
+    } else {
         glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,
                   -FOV_off_y,
                   offset_x + glass_width * hud_scale,
                   offset_y + screen_height / 2 + glass_height * hud_scale / 2);
     }
-    
-    
+
     //glEnable(GL_SCISSOR_TEST);
     return 1;
 }
@@ -211,19 +206,17 @@ void DrawCircleUp(float radius, float x, float y, float heading) {
     glEnd();
 }
 void DrawBanaXY(float radius, float x, float y) {
-    
+
     glBegin(GL_LINES);
-    glVertex2f(x+radius, y);
-    glVertex2f(x-radius, y);
+    glVertex2f(x + radius, y);
+    glVertex2f(x - radius, y);
 
-    glVertex2f(x+radius*0.8, y+radius*1.2);
-    glVertex2f(x+radius, y);
+    glVertex2f(x + radius * 0.8, y + radius * 1.2);
+    glVertex2f(x + radius, y);
 
-    glVertex2f(x-radius*0.8, y+radius*1.2);
-    glVertex2f(x-radius, y);
+    glVertex2f(x - radius * 0.8, y + radius * 1.2);
+    glVertex2f(x - radius, y);
     glEnd();
-    
-    
 }
 float CalcFOVAngle(float input) {
     float out = (input * fov_pixels) / hud_scale;
@@ -306,47 +299,108 @@ float max2(float value1, float value2) {
 }
 
 void DrawGlassObject(float width) {
-    
-    float scale = width/280;
-    
+
+    float scale = width / 280;
+
     glPushMatrix();
-    glTranslatef(width, width*0.857142857143f, 0);
+    glTranslatef(width, width * 0.857142857143f, 0);
     glBegin(GL_POLYGON);
     //glColor4fv(colorglass);
-    glTexCoord2f(0.142857142857f, 0.0f); 
-    glVertex2f(-100*scale, -240*scale);
-    glTexCoord2f(0.0f, 0.321428571429f); 
-    glVertex2f(-140*scale, -150*scale);
+    glTexCoord2f(0.142857142857f, 0.0f);
+    glVertex2f(-100 * scale, -240 * scale);
+    glTexCoord2f(0.0f, 0.321428571429f);
+    glVertex2f(-140 * scale, -150 * scale);
 
     glTexCoord2f(0.0f, 0.660714285714f);
-    glVertex2f(-140*scale, -55*scale);
-    glTexCoord2f(0.121428571429f, 0.798214285714f); 
-    glVertex2f(-106*scale, -16.5*scale);
+    glVertex2f(-140 * scale, -55 * scale);
+    glTexCoord2f(0.121428571429f, 0.798214285714f);
+    glVertex2f(-106 * scale, -16.5 * scale);
 
     // böjen
-    glTexCoord2f(0.257142857143f, 0.835428571429f); 
-    glVertex2f(-68*scale, -6.08*scale);
-    glTexCoord2f(0.364285714286f, 0.849714285714f); 
-    glVertex2f(-38*scale, -2.08*scale);
-    glTexCoord2f(0.5f, 0.857142857143f); 
-    glVertex2f(-0*scale, -0.00*scale);
+    glTexCoord2f(0.257142857143f, 0.835428571429f);
+    glVertex2f(-68 * scale, -6.08 * scale);
+    glTexCoord2f(0.364285714286f, 0.849714285714f);
+    glVertex2f(-38 * scale, -2.08 * scale);
+    glTexCoord2f(0.5f, 0.857142857143f);
+    glVertex2f(-0 * scale, -0.00 * scale);
 
     // andra sidan
-    glTexCoord2f(1.0f-0.364285714286f, 0.849714285714f); 
-    glVertex2f(38*scale, -2.08*scale);
-    glTexCoord2f(1.0f-0.257142857143f, 0.835428571429f); 
-    glVertex2f(68*scale, -6.08*scale);
-    
-    glTexCoord2f(1.0f-0.121428571429f, 0.798214285714f); 
-    glVertex2f(106*scale, -16.5*scale);
-    glTexCoord2f(1.0f, 0.660714285714f); 
-    glVertex2f(140*scale, -55*scale);
+    glTexCoord2f(1.0f - 0.364285714286f, 0.849714285714f);
+    glVertex2f(38 * scale, -2.08 * scale);
+    glTexCoord2f(1.0f - 0.257142857143f, 0.835428571429f);
+    glVertex2f(68 * scale, -6.08 * scale);
 
-    glTexCoord2f(1.0f, 0.321428571429f); 
-    glVertex2f(140*scale, -150*scale);
-    glTexCoord2f(1.0f-0.142857142857f, 0.0f);
-    glVertex2f(100*scale, -240*scale);
+    glTexCoord2f(1.0f - 0.121428571429f, 0.798214285714f);
+    glVertex2f(106 * scale, -16.5 * scale);
+    glTexCoord2f(1.0f, 0.660714285714f);
+    glVertex2f(140 * scale, -55 * scale);
+
+    glTexCoord2f(1.0f, 0.321428571429f);
+    glVertex2f(140 * scale, -150 * scale);
+    glTexCoord2f(1.0f - 0.142857142857f, 0.0f);
+    glVertex2f(100 * scale, -240 * scale);
 
     glEnd();
     glPopMatrix();
+}
+
+int LoadTexture(const char* filename) {
+    int texture;
+    int width, height;
+    unsigned char* data;
+    char lDirName[512];
+    char loadfile[1512];
+    // find out plugin path
+    XPLMPluginID lMyID = XPLMGetMyID();
+    XPLMGetPluginInfo(lMyID, NULL, lDirName, NULL, NULL);
+    char* lFilePart = XPLMExtractFileAndPath(lDirName);
+    const char* lSep = XPLMGetDirectorySeparator();
+    if (lFilePart != NULL) {
+        *lFilePart = 0;
+        strcat(lDirName, lSep);
+    }
+    strcat(lDirName, "..");
+    strcat(lDirName, lSep);
+    sprintf(loadfile, "%s/%s", lDirName, filename);
+
+    debugLog("read file %s \n", loadfile);
+
+    FILE* file;
+    file = fopen(loadfile, "rb");
+
+    if (file == NULL) {
+        debugLog("error loading texture %s", loadfile);
+
+        return 0;
+    }
+
+    width = 1024;
+    height = 1024;
+    data = (unsigned char*)malloc(width * height * 3);
+    //int size = fseek(file,);
+    fread(data, width * height * 3, 1, file);
+    fclose(file);
+
+    // for (int i = 0; i < width * height; ++i) {
+    //     int index = i * 3;
+    //     unsigned char B, R;
+    //     B = data[index];
+    //     R = data[index + 2];
+    //
+    //     data[index] = R;
+    //     data[index + 2] = B;
+    // }
+
+    XPLMGenerateTextureNumbers((int*)&texture, 1); //glGenTextures(1, &texture);
+    XPLMBindTexture2d(texture, 0);                 //glBindTexture(GL_TEXTURE_2D, texture);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+    free(data);
+    debugLog("loaded texture %s %d", loadfile, texture);
+    return texture;
 }

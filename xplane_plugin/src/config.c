@@ -28,6 +28,8 @@ int glass_type = 6;
 int glass_type2 = 4;
 int text_blend1 = 6;
 int text_blend2 = 7;
+int image_blend1 = 6;
+int image_blend2 = 7;
 int th1 = 0;
 int g_sway = 0;
 int draw_test = 0;
@@ -217,6 +219,20 @@ void parseLine(char* line) {
         XPLMDebugString(line + 8);
         sscanf(line + 8, "%f", &i);
         error_y = i;
+    }
+    if (strncmp("image_blend1=", line, 13) == 0) {
+        //hud_scale
+        int i = 0;
+        XPLMDebugString(line + 13);
+        sscanf(line + 13, "%d", &i);
+        image_blend1 = i;
+    }
+    if (strncmp("image_blend2=", line, 13) == 0) {
+        //hud_scale
+        int i = 0;
+        XPLMDebugString(line + 13);
+        sscanf(line + 13, "%d", &i);
+        image_blend2 = i;
     }
 }
 
