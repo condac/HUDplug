@@ -590,7 +590,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     XPLMGetScreenSize(&screen_width, &screen_height);
     float hud_x = 1024 * 30 / getFOV_x();
 
-    if (draw_glass >= 1) {
+    if (draw_glass == 1) {
         // Glasskivan
         glPushMatrix();
         XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0);
@@ -616,6 +616,22 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
                              0); // No depth write, e.g. glDepthMask(GL_FALSE);
 
         glPopMatrix();
+        //slut glasskivan
+    }
+    if (draw_glass == 2) {
+        // Glasskivan
+        glBlendEquationSeparate( GL_MIN,  GL_FUNC_ADD);
+        glPushMatrix();
+        XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0);
+        glEnable(GL_BLEND);
+        glBlendFunc(modes[glass_type], modes[glass_type2]);
+        glColor4f(0.2, 0.0, 0.2, GetGlassDarkness() * glass_darkness);
+        glColor4f(0.8, 0.7, 0.8, 0.5);
+        glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
+        DrawGlassObject(hud_x);
+        glPopMatrix();
+        glBlendEquationSeparate( GL_FUNC_ADD,  GL_FUNC_ADD);
+        XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
         //slut glasskivan
     }
 
@@ -656,19 +672,22 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     if (draw_test == 1) {
         hud_x = hud_x / 10;
         // testa glasskivan
+        
         for (int i = 0; i < 15; i++) {
             for (int y = 0; y < 15; y++) {
                 //SetGLTransparentLines();
+                glBlendEquationSeparate( GL_MIN,  GL_FUNC_ADD);
                 glPushMatrix();
                 XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0);
                 glEnable(GL_BLEND);
                 glBlendFunc(modes[i], modes[y]);
                 glColor4f(0.2, 0.0, 0.2, GetGlassDarkness() * glass_darkness);
-                //glColor4f(0.2, 0.0, 0.2, 0.5);
+                glColor4f(0.9, 0.8, 0.9, 1.0);
                 glTranslatef(hud_x * i, hud_x * y, 0.0f);
                 DrawGlassObject(hud_x);
                 glPopMatrix();
-
+                
+                glBlendEquationSeparate( GL_FUNC_ADD,  GL_FUNC_ADD);
                 XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
                 glEnable(GL_BLEND);
                 glBlendFunc(modes[image_blend1], modes[image_blend2]);
