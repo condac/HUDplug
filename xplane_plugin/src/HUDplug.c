@@ -1,4 +1,5 @@
 
+
 #include "HUDplug.h"
 #include "datarefs.h"
 #include "config.h"
@@ -65,13 +66,24 @@ GLuint nullptr;
 // This is our texture ID.  Texture IDs in OpenGL are just ints...but this is a global for the life of our plugin.
 static int g_tex_num = 0;
 int fboInit = 0;
-#define WIDTH 128
-#define HEIGHT 128
-#define TEXTURE_WIDTH 1024
-#define TEXTURE_HEIGHT 1024
-#define TEXTURE_WIDTH_BLUR 256
-#define TEXTURE_WIDTH_BLUR 256
+
 static unsigned char buffer[WIDTH * HEIGHT * 4];
+
+int modes[] = {GL_ZERO,
+               GL_ONE,
+               GL_SRC_COLOR,
+               GL_ONE_MINUS_SRC_COLOR,
+               GL_DST_COLOR,
+               GL_ONE_MINUS_DST_COLOR,
+               GL_SRC_ALPHA,
+               GL_ONE_MINUS_SRC_ALPHA,
+               GL_DST_ALPHA,
+               GL_ONE_MINUS_DST_ALPHA,
+               GL_CONSTANT_COLOR,
+               GL_ONE_MINUS_CONSTANT_COLOR,
+               GL_CONSTANT_ALPHA,
+               GL_ONE_MINUS_CONSTANT_ALPHA,
+               GL_SRC_ALPHA_SATURATE};
 
 PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     strcpy(outName, "HUDplug");
@@ -95,12 +107,12 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     /* First we put a new menu item into the plugin menu.
      * This menu item will contain a submenu for us. */
     mySubMenuItem = XPLMAppendMenuItem(XPLMFindPluginsMenu(), /* Put in plugins menu */
-                                       "HUDplugtest",         /* Item Title */
+                                       "HUDplug",             /* Item Title */
                                        0,                     /* Item Ref */
                                        1);                    /* Force English */
 
     /* Now create a submenu attached to our menu item. */
-    myMenu = XPLMCreateMenu("HUDplugtest",
+    myMenu = XPLMCreateMenu("HUDplug",
                             XPLMFindPluginsMenu(),
                             mySubMenuItem,         /* Menu Item to attach to. */
                             MyMenuHandlerCallback, /* The handler */
@@ -289,6 +301,7 @@ void drawHUD() {
     //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+    //drawLineText("-startmitt-", 512, 512, 1.0, 2);
     //glClearColor(0.0, 0.0, 0.0, 0.0);
     //XPLMSetGraphicsState(0 /*Fog*/, 1 /*TexUnits*/, 0 /*Lighting*/, 1 /*AlphaTesting*/, 1 /*AlphaBlending*/, 0 /*DepthTesting*/, 0 /*DepthWriting*/);
 
@@ -300,22 +313,25 @@ void drawHUD() {
     glPushMatrix();
     //DrawTest();
     CalculateCenter();
+    //drawLineText("CalculateCenter", 0, 0, 1.0, 1);
     // if (CalculateCenter() == -1) {
     //     return 1;
     // }
 
     if (getViewType() == 1000) {
         //glTranslatef(offset_x+getPanelL(), offset_y+getPanelT()-512 -35-29, 0);
-        glTranslatef(offset_x + TEXTURE_WIDTH / 2, offset_y + TEXTURE_WIDTH * 0.666f, 0);
+        //glTranslatef(offset_x + TEXTURE_WIDTH / 2, 0, 0);
         //float fovscale = 30 / getFOV_x();
         //fovscale = 30.0f / 80.0f;
-        glScalef(hud_scale, hud_scale, 0); // gör om 1024 pixlar till den ungefärliga storleken på HUD glaset vi ritar på
+        //glScalef(hud_scale, hud_scale, 0); // gör om 1024 pixlar till den ungefärliga storleken på HUD glaset vi ritar på
 
     } else {
-        glScalef(hud_scale, hud_scale, 0);
-        glTranslatef(offset_x, offset_y, 0);
-    }
 
+        //glTranslatef(offset_x, offset_y, 0);
+        //glTranslatef(offset_x + TEXTURE_WIDTH / 2, 0, 0);
+        //glScalef(hud_scale, hud_scale, 0);
+    }
+    //drawLineText("getViewType", 0, 0, 1.0, 1);
     if (viggen_mode == 1) {
         TranslateToCenter();
         DrawGlass();
@@ -347,12 +363,13 @@ void drawHUD() {
         //DrawGlass();
         glPushMatrix();
         if (g_sway) {
-            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
+            glTranslatef(-getGForceX() * 10 * g_sway, -(getGForce() - 1) * 5 * g_sway, 0);
         }
         if (draw_test == 3) {
             DrawTest();
         }
 
+        //drawLineText("jas", 0, 0, 1.0, 1);
         DrawModesJAS();
 
         glPopMatrix();
@@ -456,29 +473,27 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        //drawLineText("hudstart", 512, 512, 1.0, 1);
         drawHUD();
 
         glPopMatrix();
         XPLMSetGraphicsState(0, 1, 0, 1, 1, 0, 0);
-        //glBlendEquationSeparate( GL_FUNC_ADD,  GL_MIN);
+
         glBlendFunc(GL_ZERO, GL_SRC_COLOR); // tar bort färgen
-        //glBlendFunc(GL_DST_ALPHA, GL_SRC_ALPHA);
-        //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-        XPLMBindTexture2d(texturemask, 0);
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex2i(0, 0);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex2i(0, 1024);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex2i(1024, 1024);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex2i(1024, 0);
-        glEnd();
+        // XPLMBindTexture2d(texturemask, 0);
+        // glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        //
+        // glBegin(GL_QUADS);
+        // glTexCoord2f(0.0f, 0.0f);
+        // glVertex2i(0, 0);
+        // glTexCoord2f(0.0f, 1.0f);
+        // glVertex2i(0, 1024);
+        // glTexCoord2f(1.0f, 1.0f);
+        // glVertex2i(1024, 1024);
+        // glTexCoord2f(1.0f, 0.0f);
+        // glVertex2i(1024, 0);
+        // glEnd();
 
         // unbind FBO
 
@@ -529,7 +544,7 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
         //glBindFramebuffer(GL_DRAW_FRAMEBUFFER, xp_fbo);
 
         XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // ställ tillbaka till deafault som x-plane 9 vill ha
     }
     /* The actual callback.  First we read the sim's time and the data. */
     //XPLMDebugString("HUDplug: flightloop\n");
@@ -541,7 +556,68 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
     return 0.01;
 }
 
+void drawGlassTexture() {
+    if (draw_glass == 1 || draw_glass == 3) {
+        // Glasskivan
+        //glBlendEquationSeparate(GL_MIN, GL_FUNC_ADD);
+        //glBlendEquation(GL_MIN);
+        glPushMatrix();
+        XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0);
+        glEnable(GL_BLEND);
+        //glBlendFunc(modes[glass_type], modes[glass_type2]);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //glColor4f(0.2, 0.0, 0.2, GetGlassDarkness() * glass_darkness);
+        glColor4f(0.00, 0.00, 0.00, 0.004 * 10);
+        //glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
+        glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
+        DrawGlassObject(280);
+        glPopMatrix();
+        glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+        XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
+        //slut glasskivan
+    }
+    if (draw_glass == 2 || draw_glass == 1) {
+        // Glasskivan
+        glBlendEquationSeparate(GL_MIN, GL_FUNC_ADD);
+        //glBlendEquation(GL_MIN);
+        glPushMatrix();
+        XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0);
+        glEnable(GL_BLEND);
+        glBlendFunc(modes[glass_type], modes[glass_type2]);
+        //glColor4f(0.2, 0.0, 0.2, GetGlassDarkness() * glass_darkness);
+        glColor4f(0.8, 0.7, 0.8, 0.5);
+        //glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
+        glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
+        DrawGlassObject(280);
+        glPopMatrix();
+        glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+        XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
+        //slut glasskivan
+    }
+}
+void drawHudTexture() {
+    // Riktiga bilden
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // den jag kört
+    //glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
+    XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
+    glBlendFunc(modes[image_blend1], modes[image_blend2]);
+    glPushMatrix();
+    XPLMBindTexture2d(fboTexture, 0);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
+
+    DrawGlassObject(280);
+    glPopMatrix();
+
+    // Slut riktiga bilden
+}
+void drawBlurTexture() {
+}
+
 int DrawPanelCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
+    if (!fboInit) {
+        return 1;
+    }
     if (getViewType() != 1000) { // 1000 är 2d panel view
         return 1;
     }
@@ -551,30 +627,63 @@ int DrawPanelCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) 
 }
 
 int DrawScreenCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
+    if (!fboInit) {
+        return 1;
+    }
     if (getViewType() == 1000) { // 1000 är 2d panel view
         return 1;
     }
-    MyDrawCallback(inPhase, inIsBefore, inRefcon);
+    int screen_width;
+    int screen_height;
+    XPLMGetScreenSize(&screen_width, &screen_height);
+    float FOV_off_y = getFOVoff_y(); // måste multipliceras med antalet grader per pixel
+    float FOV_off_x = getFOVoff_x();
+    float fov = getFOV();
+    float screen_h = (float)screen_height;
+    float scale_hud = (screen_h / 280.0f) * (GLASS_FOV / fov);
+
+    glPushMatrix();
+    //drawLineText("DrawScreenCallback", screen_width/2, screen_height/2-50, 1.0, 1);
+
+    //MyDrawCallback(inPhase, inIsBefore, inRefcon);
+    glTranslatef(screen_width / 2, screen_height / 2, 0.0f);
+
+    //drawLineText("scale_hud", 0, 0, 1.0, 1);
+    glTranslatef(FOV_off_x * (screen_h / fov), -FOV_off_y * (screen_h / fov), 0.0f);
+
+    glScalef(scale_hud, scale_hud, 0); // skalan baserat på nuvarande FOV
+
+    glScalef(hud_scale, hud_scale, 0); // skalan från configfilen
+    // char temp[512];
+    // sprintf(temp, "FOV_off_x %f getFOV(%f) glass:%f screen_height %f", FOV_off_x, fov,GLASS_FOV,  screen_h);
+    // drawLineText(temp, 10, 10, 1.0, 1);
+    drawGlassTexture();
+
+    drawHudTexture();
+
+    // XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
+    // glBlendFunc(modes[image_blend1], modes[image_blend2]);
+    // glPushMatrix();
+    // XPLMBindTexture2d(fboTexture, 0);
+    // glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    // glPushMatrix();
+    // glTranslatef(0, -512*(2.0f/3.0f), 0.0f);
+    // // glBegin(GL_QUADS);
+    // // glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
+    // // glTexCoord2f(0.0f, 1.0f); glVertex2i( 0, 512);
+    // // glTexCoord2f(1.0f, 1.0f); glVertex2i(512, 512);
+    // // glTexCoord2f(1.0f, 0.0f); glVertex2i(512, 0);
+    // // glEnd();
+    // glPopMatrix();
+    // glTranslatef(0, -256, 0.0f);
+    // //DrawGlassObject(512);
+    // glPopMatrix();
+
+    glPopMatrix();
     return 1;
 }
 
 int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
-
-    int modes[] = {GL_ZERO,
-                   GL_ONE,
-                   GL_SRC_COLOR,
-                   GL_ONE_MINUS_SRC_COLOR,
-                   GL_DST_COLOR,
-                   GL_ONE_MINUS_DST_COLOR,
-                   GL_SRC_ALPHA,
-                   GL_ONE_MINUS_SRC_ALPHA,
-                   GL_DST_ALPHA,
-                   GL_ONE_MINUS_DST_ALPHA,
-                   GL_CONSTANT_COLOR,
-                   GL_ONE_MINUS_CONSTANT_COLOR,
-                   GL_CONSTANT_ALPHA,
-                   GL_ONE_MINUS_CONSTANT_ALPHA,
-                   GL_SRC_ALPHA_SATURATE};
 
     if (!fboInit) {
         return 1;
@@ -590,6 +699,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     int screen_width;
     int screen_height;
     XPLMGetScreenSize(&screen_width, &screen_height);
+
     float hud_x = 1024 * 30 / getFOV_x();
 
     if (draw_glass == 1) {
@@ -604,7 +714,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
 
         glColor4f(0.2, 0.0, 0.2, GetGlassDarkness() * glass_darkness);
         //glColor4f(0.2, 0.0, 0.2, 0.5);
-        glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
+        glTranslatef(512, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
         DrawGlassObject(hud_x);
 
         //XPLMBindTexture2d(fboTexture, 0);
@@ -630,7 +740,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
         glBlendFunc(modes[glass_type], modes[glass_type2]);
         glColor4f(0.2, 0.0, 0.2, GetGlassDarkness() * glass_darkness);
         glColor4f(0.8, 0.7, 0.8, 0.5);
-        glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
+        glTranslatef(512, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
         DrawGlassObject(hud_x);
         glPopMatrix();
         glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
@@ -647,7 +757,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     XPLMBindTexture2d(fboTexture_blur, 0);
     glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
     //glTranslatef(512-hud_x/2, 512*((float)screen_height / (float)screen_width) -hud_x/2, 0.0f);
-    glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
+    glTranslatef(512, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
 
     DrawGlassObject(hud_x);
     glPopMatrix();
@@ -660,7 +770,7 @@ int MyDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
     glPushMatrix();
     XPLMBindTexture2d(fboTexture, 0);
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
+    glTranslatef(512, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
     // glBegin(GL_QUADS);
     // glTexCoord2f(0.0f, 0.0f); glVertex2i( 0, 0);
     // glTexCoord2f(0.0f, 1.0f); glVertex2i( 0, hud_x);

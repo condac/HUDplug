@@ -48,44 +48,46 @@ int CalculateCenter(void) {
     screen_width = screen_width;
     screen_height = screen_height;
     // HudConfig* lConfig = getHudConfig();
-    float FOV_off_y = getFOVoff_y();
-    float FOV_off_x = getFOVoff_x();
+    // float FOV_off_y = getFOVoff_y();
+    // float FOV_off_x = getFOVoff_x();
     //float ratio = (float)screen_height / (float)screen_width;
     //float scalex = screen_width/(1024 +getPanelL() );
     fov = getFOV();
-    float fovscale = 30 / getFOV_x();
-    float scissor_x = fovscale * screen_width;
-    float scissor_y = 20 / getFOV_x() * screen_width * 0.8671875;
+    float fovscale = GLASS_FOV / getFOV_x();
+    //float scissor_x = fovscale * screen_width;
+    //float scissor_y = 20 / getFOV_x() * screen_width * 0.8671875;
 
     if (getViewType() == 1000) {
         fov_pixels = (0.9571875 * 1024 / getFOV_x() / fovscale); //*24/getFOV_x()  kalibreringsfaktor 0.8671875
         //fov_pixels = 11.08/fovscale;
     } else {
         fov_pixels = screen_height / fov / hud_scale;
+        fov_pixels = (0.9571875 * 1024 / getFOV_x() / fovscale);
         //fov_pixels = (0.9571875 * 1024 / getFOV_x() / fovscale);
-        glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
+        //glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
     }
+    fov_pixels = 1024 / GLASS_FOV;
 
     line_width = line_scale * hud_scale;
     CalculateColors();
-    FOV_off_y = CalcFOVAngle(20) * hud_scale;
-    FOV_off_x = CalcFOVAngle(30) * hud_scale;
+    // FOV_off_y = CalcFOVAngle(20) * hud_scale;
+    // FOV_off_x = CalcFOVAngle(30) * hud_scale;
 
     // if (FOV_off_x > 1000 || FOV_off_x < -1000) {
     //     return -1;
     // }
 
-    //glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
-    //glTranslated(512, 512*ratio , 0);
+    //glTranslatef((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
+    glTranslatef(TEXTURE_WIDTH / 2, TEXTURE_WIDTH * (2.0f / 3.0f), 0);
 
-    if (getViewType() == 1000) {
-        glScissor(getPanelL() + screen_width / 2 - scissor_x / 2 * hud_scale, screen_height / 2 - scissor_y, scissor_x * hud_scale, scissor_x * 0.8671875 * hud_scale);
-    } else {
-        glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,
-                  -FOV_off_y,
-                  offset_x + glass_width * hud_scale,
-                  offset_y + screen_height / 2 + glass_height * hud_scale / 2);
-    }
+    // if (getViewType() == 1000) {
+    //     glScissor(getPanelL() + screen_width / 2 - scissor_x / 2 * hud_scale, screen_height / 2 - scissor_y, scissor_x * hud_scale, scissor_x * 0.8671875 * hud_scale);
+    // } else {
+    //     glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,
+    //               -FOV_off_y,
+    //               offset_x + glass_width * hud_scale,
+    //               offset_y + screen_height / 2 + glass_height * hud_scale / 2);
+    // }
 
     //glEnable(GL_SCISSOR_TEST);
     return 1;
@@ -129,8 +131,8 @@ float m2feet(float in) {
     return in / 0.3048;
 }
 void TranslateToCenter(void) {
-
-    glTranslated(screen_width / 2, screen_height / 2, 0);
+    // Har denna funkat?
+    //glTranslated(screen_width / 2, screen_height / 2, 0);
 }
 
 void initGlResources() {
@@ -304,47 +306,46 @@ void DrawGlassObject(float width) {
 
     float scale = width / 280.0f;
     float center = 20.0f;
-    float centerUV = center/ scale/280.0f;
+    float centerUV = center / scale / 280.0f;
     //centerUV = 0.0f;
-    
 
     glPushMatrix();
-    glTranslatef(width, width * 0.857142857143f, 0);
+    glTranslatef(0, width * 0.857142857143f, 0);
     glBegin(GL_POLYGON);
     //glColor4fv(colorglass);
-    glTexCoord2f(0.142857142857f, centerUV+0.0f);
-    glVertex2f(-100 * scale, center-240 * scale);
-    glTexCoord2f(0.0f, centerUV+0.321428571429f);
-    glVertex2f(-140 * scale, center-150 * scale);
+    glTexCoord2f(0.142857142857f, centerUV + 0.0f);
+    glVertex2f(-100 * scale, center - 240 * scale);
+    glTexCoord2f(0.0f, centerUV + 0.321428571429f);
+    glVertex2f(-140 * scale, center - 150 * scale);
 
-    glTexCoord2f(0.0f, centerUV+0.660714285714f);
-    glVertex2f(-140 * scale, center-55 * scale);
-    glTexCoord2f(0.121428571429f, centerUV+0.798214285714f);
-    glVertex2f(-106 * scale, center-16.5 * scale);
+    glTexCoord2f(0.0f, centerUV + 0.660714285714f);
+    glVertex2f(-140 * scale, center - 55 * scale);
+    glTexCoord2f(0.121428571429f, centerUV + 0.798214285714f);
+    glVertex2f(-106 * scale, center - 16.5 * scale);
 
     // böjen
-    glTexCoord2f(0.257142857143f, centerUV+0.835428571429f);
-    glVertex2f(-68 * scale, center-6.08 * scale);
-    glTexCoord2f(0.364285714286f, centerUV+0.849714285714f);
-    glVertex2f(-38 * scale, center-2.08 * scale);
-    glTexCoord2f(0.5f, centerUV+0.857142857143f);
-    glVertex2f(-0 * scale, center-0.00 * scale);
+    glTexCoord2f(0.257142857143f, centerUV + 0.835428571429f);
+    glVertex2f(-68 * scale, center - 6.08 * scale);
+    glTexCoord2f(0.364285714286f, centerUV + 0.849714285714f);
+    glVertex2f(-38 * scale, center - 2.08 * scale);
+    glTexCoord2f(0.5f, centerUV + 0.857142857143f);
+    glVertex2f(-0 * scale, center - 0.00 * scale);
 
     // andra sidan
-    glTexCoord2f(1.0f - 0.364285714286f, centerUV+0.849714285714f);
-    glVertex2f(38 * scale, center-2.08 * scale);
-    glTexCoord2f(1.0f - 0.257142857143f, centerUV+0.835428571429f);
-    glVertex2f(68 * scale, center-6.08 * scale);
+    glTexCoord2f(1.0f - 0.364285714286f, centerUV + 0.849714285714f);
+    glVertex2f(38 * scale, center - 2.08 * scale);
+    glTexCoord2f(1.0f - 0.257142857143f, centerUV + 0.835428571429f);
+    glVertex2f(68 * scale, center - 6.08 * scale);
 
-    glTexCoord2f(1.0f - 0.121428571429f, centerUV+0.798214285714f);
-    glVertex2f(106 * scale, center-16.5 * scale);
-    glTexCoord2f(1.0f, centerUV+0.660714285714f);
-    glVertex2f(140 * scale, center-55 * scale);
+    glTexCoord2f(1.0f - 0.121428571429f, centerUV + 0.798214285714f);
+    glVertex2f(106 * scale, center - 16.5 * scale);
+    glTexCoord2f(1.0f, centerUV + 0.660714285714f);
+    glVertex2f(140 * scale, center - 55 * scale);
 
-    glTexCoord2f(1.0f, centerUV+0.321428571429f);
-    glVertex2f(140 * scale, center-150 * scale);
-    glTexCoord2f(1.0f - 0.142857142857f, centerUV+0.0f);
-    glVertex2f(100 * scale, center-240 * scale);
+    glTexCoord2f(1.0f, centerUV + 0.321428571429f);
+    glVertex2f(140 * scale, center - 150 * scale);
+    glTexCoord2f(1.0f - 0.142857142857f, centerUV + 0.0f);
+    glVertex2f(100 * scale, center - 240 * scale);
 
     glEnd();
     glPopMatrix();

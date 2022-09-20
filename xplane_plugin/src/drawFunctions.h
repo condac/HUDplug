@@ -2,6 +2,15 @@
 #ifndef DRAWFUNC_H_INCLUDED
 #define DRAWFUNC_H_INCLUDED
 
+#define WIDTH 128
+#define HEIGHT 128
+#define TEXTURE_WIDTH 1024
+#define TEXTURE_HEIGHT 1024
+#define TEXTURE_WIDTH_BLUR 256
+#define TEXTURE_WIDTH_BLUR 256
+
+#define GLASS_FOV 30.0f
+
 // extern int screen_width;
 // extern int screen_height;
 extern float fov;
