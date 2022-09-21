@@ -8,10 +8,10 @@
 
 char filename[1512];
 
-float landing_speed1 = 140;
-float landing_speed2 = 180;
-float landing_weight1 = 18000;
-float landing_weight2 = 48000;
+float landing_speed1 = 135;
+float landing_speed2 = 175;
+float landing_weight1 = 8800;
+float landing_weight2 = 13000;
 
 float hud_scale = 1.0;
 float text_scale = 1.0;
@@ -22,10 +22,10 @@ float glass_width = 1000;
 float glass_height = 760;
 float glass_x;
 float glass_y;
-float glass_darkness = 0.2;
+float glass_darkness = 1.0;
 int draw_glass = 1;
 int glass_type = 6;
-int glass_type2 = 4;
+int glass_type2 = 7;
 int text_blend1 = 6;
 int text_blend2 = 7;
 int image_blend1 = 1;
@@ -37,6 +37,8 @@ int metric = 1;
 float offset_x = 0;
 float offset_y = 0;
 float error_y = 1.0;
+float viggen_landning_alfa = 12;
+float fov_trim = 1.0f;
 
 void readConfig() {
     debugLog("readConfig \n");
@@ -233,6 +235,20 @@ void parseLine(char* line) {
         XPLMDebugString(line + 13);
         sscanf(line + 13, "%d", &i);
         image_blend2 = i;
+    }
+    if (strncmp("viggen_landning_alfa=", line, 21) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 21);
+        sscanf(line + 21, "%f", &i);
+        viggen_landning_alfa = i;
+    }
+    if (strncmp("fov_trim=", line, 9) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 9);
+        sscanf(line + 9, "%f", &i);
+        fov_trim = i;
     }
 }
 

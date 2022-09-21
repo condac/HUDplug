@@ -333,42 +333,40 @@ void drawHUD() {
         //glScalef(hud_scale, hud_scale, 0);
     }
     //drawLineText("getViewType", 0, 0, 1.0, 1);
+    if (draw_test) {
+        DrawTest();
+    }
+    if (g_sway) {
+        glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
+    }
     if (viggen_mode == 1) {
         TranslateToCenter();
-        DrawGlass();
+        //DrawGlass();
         glPushMatrix();
-        if (g_sway) {
-            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
-        }
-        if (draw_test) {
-            DrawTest();
-        }
-        DrawViggen();
+
+        DrawViggenMode1();
         glPopMatrix();
 
     } else if (viggen_mode == 2) {
         TranslateToCenter();
-        DrawGlass();
+        //DrawGlass();
         glPushMatrix();
-        if (g_sway) {
-            glTranslatef(-getGForceX() * 10 * g_sway, -getGForce() * 5 * g_sway, 0);
-        }
-        if (draw_test) {
-            DrawTest();
-        }
+
         DrawViggenMode2();
+        glPopMatrix();
+
+    } else if (viggen_mode == 3) {
+        TranslateToCenter();
+        //DrawGlass();
+        glPushMatrix();
+
+        DrawViggenMode3();
         glPopMatrix();
 
     } else {
         TranslateToCenter();
         //DrawGlass();
         glPushMatrix();
-        if (g_sway) {
-            glTranslatef(-getGForceX() * 10 * g_sway, -(getGForce() - 1) * 5 * g_sway, 0);
-        }
-        if (draw_test == 3) {
-            DrawTest();
-        }
 
         //drawLineText("jas", 0, 0, 1.0, 1);
         DrawModesJAS();
@@ -484,7 +482,7 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 
         XPLMBindTexture2d(texturemask, 0);
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        
+
         glBegin(GL_QUADS);
         glTexCoord2f(0.0f, 0.0f);
         glVertex2i(0, 0);
@@ -568,7 +566,7 @@ void drawGlassTexture() {
         //glBlendFunc(modes[glass_type], modes[glass_type2]);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         //glColor4f(0.2, 0.0, 0.2, GetGlassDarkness() * glass_darkness);
-        glColor4f(0.00, 0.00, 0.00, 0.004 * 10);
+        glColor4f(0.00, 0.00, 0.00, glass_darkness * 0.004 * 10);
         //glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
         glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
         DrawGlassObject(280);

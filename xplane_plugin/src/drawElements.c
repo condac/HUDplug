@@ -383,6 +383,8 @@ void DrawVector() {
     float tail_pos = airspeed - getLandingSpeed() + 10;
     float angle = getRoll();
     float alphaA = getAlphaA();
+    float radaralt = getRadarAltitude();
+    float local_vy = getVY();
     // float prickx = getPrickX();
     // float pricky = getPrickY();
     int gear = getGear();
@@ -390,7 +392,22 @@ void DrawVector() {
     int screen_height;
     XPLMGetScreenSize(&screen_width, &screen_height);
 
-    tail_pos = fmin(tail_pos, 40); // Fenans längd ska motsvara 20km/h
+    if (viggen_mode >= 1) {
+        // Fenan ska ligga diktan vid alfa 12, (eller alfa 15 om valt)
+        // Halva fenan fel motsvarar ca 2 alfa enheter
+        // Fenan är 20 pixlar lång
+        float landningsAlfa = viggen_landning_alfa;
+        tail_pos = 8 + (landningsAlfa - alphaA) * 5.0f;
+    } else {
+        // JAS
+        tail_pos = airspeed - getLandingSpeed() + 0;
+    }
+    if (getGroundSpeed() < 5) {
+        alpha = 0;
+        beta = 0;
+    }
+
+    tail_pos = fmin(tail_pos, 30); // Fenans längd ska motsvara 20km/h
     tail_pos = fmax(tail_pos, -40);
     //y_pos = fov_pixels * getAlphaA();
     glColor4fv(color);
@@ -400,26 +417,45 @@ void DrawVector() {
     x_pos = x_pos + cos(to_radians(angle)) * beta;
     y_pos = y_pos + sin(to_radians(angle)) * beta;
 
+    if (viggen_mode >= 1) {
+        // Med Viggen när man landar så ska vektorns position övergå till att visa sjunkhastighet relaterat till 2.96 meter per sekund
+        // Detta sker vid ca 20 meter RHM
+        if (radaralt < 20) {
+            float y_pos2 = CalcFOVAngle(getPitch());
+            //y_pos = CalcFOVAngle(local_vy);
+            x_pos = sin(to_radians(-angle)) * CalcFOVAngle(-local_vy);
+            y_pos = cos(to_radians(-angle)) * CalcFOVAngle(-local_vy);
+            x_pos = x_pos + cos(to_radians(angle)) * beta;
+            y_pos = y_pos2 + CalcFOVAngle(-local_vy);
+        }
+        if (markKontakt() >= 1) {
+            float y_pos2 = CalcFOVAngle(getPitch());
+            y_pos = y_pos2 + CalcFOVAngle(8); // AD bromsningsvinkel 16
+        }
+    }
     int utanfor = 0;
-    if (x_pos > glass_width / 2) {
-        x_pos = glass_width / 2 - 30;
+    if (x_pos > 400) {
+        x_pos = 400 - 60;
         utanfor = 1;
     }
-    if (x_pos < -glass_width / 2) {
-        x_pos = -glass_width / 2 + 30;
+    if (x_pos < -400) {
+        x_pos = -400 + 60;
         utanfor = 1;
     }
-    if (y_pos < -glass_height / 2) {
-        y_pos = -glass_height / 2 + 30;
+    if (y_pos < -240) {
+        y_pos = -240 + 30;
         utanfor = 1;
     }
-    if (y_pos > screen_height / 2 / hud_scale) {
-        y_pos = screen_height / 2 / hud_scale - 30;
+    if (y_pos > 612.0f) { // 682 är TEXTURE_WIDTH*0.666 som är 2/3 delar av glaset i nederkan
+        y_pos = 612.0f - 30;
         utanfor = 1;
     }
-    if (alphaA > 20) {
-        utanfor = 1;
-    }
+    // if (alphaA > 20) {
+    //     utanfor = 1;
+    // }
+    // if (alphaA < -10) {
+    //     utanfor = 1;
+    // }
 
     glPushMatrix();
     //glRotatef(angle, 0, 0, 1);
@@ -428,6 +464,8 @@ void DrawVector() {
 
     if (!markKontakt() && utanfor == 0) {
         DrawCircle(8);
+    } else if (viggen_mode >= 1) {
+        DrawCircle(8); // viggen ritar alltid en cirkel
     }
     if (utanfor == 1) {
 
@@ -446,8 +484,17 @@ void DrawVector() {
     glVertex2f(-31, 0);
 
     if (gear) {
-        glVertex2f(0, tail_pos - 10);
-        glVertex2f(0, tail_pos + 10);
+        if (viggen_mode >= 1) {
+            // Viggen ritarn ingen fena på marken i vissa lägen
+            //if (!markKontakt()) {
+            glVertex2f(0, tail_pos - 0);
+            glVertex2f(0, tail_pos + 20);
+            //}
+        } else {
+            glVertex2f(0, tail_pos - 0);
+            glVertex2f(0, tail_pos + 20);
+        }
+
     } else {
         glVertex2f(0, 20 - 10);
         glVertex2f(0, 20 + 10);
@@ -767,8 +814,6 @@ void DrawHorizionLines() {
     // XPLMDrawString(color, -250, 350, buffer, NULL, xplmFont_Basic);
 }
 
-
-
 // #define SPEED_POS_X -250 // flyttade till .h filen
 // #define SPEED_POS_Y -50
 // #define SPEED_SCALE_PIXEL 150.0f
@@ -806,6 +851,8 @@ void DrawSpeed(float x, float y) {
     SetGLTransparentLines();
     glColor4fv(color);
 
+    glPushMatrix();
+    glTranslatef(x, y, 0);
     // lodrät linje för hastighetsmätaren
     glLineWidth(line_width);
     glBegin(GL_LINES);
@@ -931,7 +978,7 @@ void DrawSpeed(float x, float y) {
     // }
     if (getParkBrake()) {
         sprintf(temp, "PARKERINGSBROMS");
-        DrawHUDText(temp, &fontMain, (0), ((225)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
+        DrawHUDText(temp, &fontMain, (0), ((225 - 80)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
     }
     // if (stab_error > 100 && !getPause() && viggen_mode == 0) {
     //     sprintf(temp, "FEL I STABILISERINGS PLUGIN");
@@ -949,7 +996,7 @@ void DrawSpeed(float x, float y) {
         sprintf(temp, "MINSKA FART");
         DrawHUDText(temp, &fontMain, (0), ((175)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
     }
-
+    glPopMatrix();
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
 
@@ -1290,7 +1337,6 @@ void DrawNAVText(float x, float y) {
     }
 }
 
-
 void DrawHorizionLinesViggen() {
     // Viggen mode
     float airspeed = getIAS();
@@ -1376,14 +1422,14 @@ void DrawHorizionLinesViggen() {
     alt = alt / 10;
     alt = alt * 10;
     snprintf(tempText, 13, "%03d", alt);
-    DrawHUDText(tempText, &fontMain, -200, yy, 1, color);
+    DrawHUDText(tempText, &fontMain, -135, yy + line_width * 3, 1, color);
 
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
     SetGLTransparentLines();
     // linjer
     glColor4fv(color);
     for (int i = 5; i < 90; i += 5) {
-        if ((i > pitch - 8) && (i < pitch + 8)) {
+        if ((i > pitch - 28) && (i < pitch + 28)) {
             glLineWidth(line_width);
             glBegin(GL_LINES);
 
@@ -1400,7 +1446,7 @@ void DrawHorizionLinesViggen() {
         start = -10;
     }
     for (int i = start; i > -90; i -= 5) {
-        if ((i > pitch - 8) && (i < pitch + 8)) {
+        if ((i > pitch - 28) && (i < pitch + 28)) {
             glLineWidth(line_width);
             glBegin(GL_LINES);
 
@@ -1416,7 +1462,7 @@ void DrawHorizionLinesViggen() {
 
     glScalef(smallTextScale, smallTextScale, 0);
     for (int i = 5; i < 90; i += 5) {
-        if ((i > pitch - 8) && (i < pitch + 8)) {
+        if ((i > pitch - 28) && (i < pitch + 28)) {
 
             sprintf(tempText, "%d", i);
             DrawHUDText(tempText, &fontMain, 200 / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
@@ -1427,7 +1473,7 @@ void DrawHorizionLinesViggen() {
         start = -10;
     }
     for (int i = start; i > -90; i -= 5) {
-        if ((i > pitch - 8) && (i < pitch + 8)) {
+        if ((i > pitch - 28) && (i < pitch + 28)) {
 
             sprintf(tempText, "%d", i);
             DrawHUDText(tempText, &fontMain, 200 / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
@@ -1436,4 +1482,144 @@ void DrawHorizionLinesViggen() {
     glPopMatrix();
 }
 
+void DrawCompassViggen(float x, float y) {
+    // Compas lines
+    int gear = getGear();
+    float angle = getRoll();
 
+    float heading = getHeading();
+    float pitch = getPitch();
+    char tempText[32];
+
+    float smallTextScale = 0.85;
+
+    float compas_y = CalcFOVAngle(-4);
+    if (gear) {
+
+        compas_y = CalcFOVAngle(0.5);
+    }
+    glPushMatrix();
+
+    float y_pos = CalcFOVAngle(pitch);
+
+    glRotatef(angle, 0, 0, 1);
+    glTranslatef(0, -y_pos, 0);
+
+    SetGLTransparentLines();
+    glColor4fv(color);
+
+    glLineWidth(line_width);
+    glBegin(GL_LINES);
+    for (int i = 0; i < 37; i++) {
+
+        float offset = (i * 10) - heading + 5;
+        if (offset > 180) {
+
+            offset -= 360;
+        }
+        if (offset < -180) {
+
+            offset += 360;
+        }
+        if ((offset < 90) && (offset > -90)) {
+            offset = CalcFOVAngle(offset);
+            glVertex2f(offset, compas_y);
+            glVertex2f(offset, (compas_y + 20));
+        }
+    }
+    glEnd();
+
+    SetGLText(); // turn on blending
+
+    glScalef(smallTextScale, smallTextScale, 0);
+
+    // Compas lines text
+    for (int i = 0; i < 36; i++) {
+
+        float offset = (i * 10) - heading;
+        if (offset > 180) {
+
+            offset -= 360;
+        }
+        if (offset < -180) {
+
+            offset += 360;
+        }
+        if ((offset < 90) && (offset > -90)) {
+            offset = CalcFOVAngle(offset);
+            sprintf(tempText, "%02d", i);
+            DrawHUDText(tempText, &fontMain, offset / smallTextScale, compas_y / smallTextScale, 1, color);
+        }
+    }
+    glRotatef(-angle, 0, 0, 1);
+    glPopMatrix();
+}
+
+void drawSpeedAlphaViggen(float x, float y) {
+    float airspeed = getIAS();
+    float alpha = myGetAlpha();
+    float mach = getMachSpeed();
+
+    char tempText[32];
+
+    sprintf(tempText, "& %.0f", alpha); // $ is replaced with alpha sign in bitmap
+    DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y + 120)) + ((textHeight(1.0) * text_scale) * 2), 1, color);
+
+    //sprintf(tempText, "%.0f", airspeed);
+    if (metric) {
+        sprintf(tempText, "%.0f", knotsTokmh(airspeed));
+    } else {
+        sprintf(tempText, "%.0f", airspeed);
+    }
+    DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y + 120)), 1, color);
+
+    sprintf(tempText, "M %.2f", mach);
+    DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y - 120)) - ((textHeight(1.0) * text_scale)), 1, color);
+}
+
+void drawADHelp() {
+    // liten linje och indikerare för att få 16 grader AD broms
+    if (markKontakt()) {
+
+        float angle = getRoll();
+
+        float pitch = getPitch();
+        char tempText[32];
+
+        float smallTextScale = 0.85;
+
+        glPushMatrix();
+        SetGLTransparentLines();
+        glColor4fv(color);
+
+        glLineWidth(line_width);
+        glBegin(GL_LINES);
+
+        glVertex2f(0, 0);
+        glVertex2f(0, -20);
+
+        glEnd();
+
+        float y_pos = CalcFOVAngle(pitch);
+        float ad_angle = CalcFOVAngle(16);
+        glRotatef(angle, 0, 0, 1);
+        glTranslatef(0, -y_pos, 0);
+
+        glBegin(GL_LINES);
+
+        glVertex2f(-30, ad_angle);
+        glVertex2f(30, ad_angle);
+
+        glEnd();
+
+        SetGLText(); // turn on blending
+
+        glScalef(smallTextScale, smallTextScale, 0);
+
+        sprintf(tempText, "AD");
+        DrawHUDText(tempText, &fontMain, 0, ad_angle / smallTextScale, 1, color);
+
+        glRotatef(-angle, 0, 0, 1);
+        glPopMatrix();
+    }
+}

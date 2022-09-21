@@ -223,7 +223,7 @@ void DrawBanaXY(float radius, float x, float y) {
     glEnd();
 }
 float CalcFOVAngle(float input) {
-    float out = (input * fov_pixels) / hud_scale;
+    float out = (input * fov_pixels * fov_trim) / hud_scale;
 
     return out;
 }

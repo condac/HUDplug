@@ -6,7 +6,6 @@
 #include "datarefs.h"
 #include <math.h>
 
-
 void DrawViggen() {
     // Viggen mode
     float airspeed = getIAS();
@@ -226,8 +225,6 @@ void DrawViggen() {
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
 
-
-
 void DrawModesJAS() {
 
     int gear = getGear();
@@ -277,11 +274,8 @@ void DrawModesJAS() {
     TranslateToCenter();
     DrawHorizionLines();
 }
-
-void DrawViggenMode2() {
-    
-    // Viggen mode 2 är en overklig variant där vi lyft in det vi saknar i fysisk instrumentering
-    
+void DrawViggenMode1() {
+    // Viggen mode 1
     int gear = getGear();
     int mark = markKontakt();
     float y_pos = CalcFOVAngle(-myGetAlpha());
@@ -297,18 +291,96 @@ void DrawViggenMode2() {
     }
     if (gear) {
         // Landings mod
-        TranslateToCenter();
-        DrawCompass(0, y_pos + 220);
-        TranslateToCenter();
+        DrawCompassViggen(0, y_pos + 220);
+        drawSpeedAlphaViggen(SPEED_POS_X, -50);
+        //DrawSpeed(-50, 0);
+        //DrawAlpha(SPEED_POS_X-50, 0);
+        //DrawAltitude(0, y_pos);
+        drawADHelp();
+
+    } else {
+
+        DrawCompassViggen(0, 320);
+        drawSpeedAlphaViggen(SPEED_POS_X, -50);
+        //DrawSpeed(-50, 0);
+        //DrawSpeed(0, 0);
+        //DrawAlpha(SPEED_POS_X-50, 0);
+        //DrawAltitude(0, 0);
+        //DrawNAVText(-100, -450);
+        //DrawFuelTime(-450, -750);
+    }
+    DrawVector();
+    DrawGroundCollision();
+    DrawHorizionLinesViggen();
+}
+void DrawViggenMode2() {
+
+    // Viggen mode 2 är en overklig variant där vi lyft in det vi saknar i fysisk instrumentering
+
+    int gear = getGear();
+    int mark = markKontakt();
+    float y_pos = CalcFOVAngle(-myGetAlpha());
+
+    if (mark) {
+        y_pos = CalcFOVAngle(-3);
+    }
+    if (y_pos > 20) {
+        y_pos = 20;
+    }
+    if (y_pos < -600) {
+        y_pos = -600;
+    }
+    if (gear) {
+        // Landings mod
+        DrawCompassViggen(0, y_pos + 220);
+        //drawSpeedAlphaViggen(SPEED_POS_X, -50);
+        DrawSpeed(-50, 0);
+        DrawAlpha(SPEED_POS_X - 50, 0);
+        //DrawAltitude(0, y_pos);
+        //DrawNAVText(-100, 280);
+        //DrawFuelTime(-450, 300);
+    } else {
+        DrawCompassViggen(0, 320);
+        DrawSpeed(-50, 0);
+        DrawAlpha(SPEED_POS_X - 50, 0);
+        //DrawAltitude(0, 0);
+        //DrawNAVText(-100, -450);
+        //DrawFuelTime(-450, -750);
+    }
+
+    DrawVector();
+    DrawGroundCollision();
+    DrawHorizionLinesViggen();
+}
+
+void DrawViggenMode3() {
+
+    // Viggen mode 2 är en overklig variant där vi lyft in det vi saknar i fysisk instrumentering
+
+    int gear = getGear();
+    int mark = markKontakt();
+    float y_pos = CalcFOVAngle(-myGetAlpha());
+
+    if (mark) {
+        y_pos = CalcFOVAngle(-3);
+    }
+    if (y_pos > 20) {
+        y_pos = 20;
+    }
+    if (y_pos < -600) {
+        y_pos = -600;
+    }
+    if (gear) {
+        // Landings mod
+        DrawCompassViggen(0, y_pos + 220);
+        drawSpeedAlphaViggen(SPEED_POS_X, -50);
         DrawSpeed(0, y_pos);
         DrawAlpha(SPEED_POS_X, y_pos);
         DrawAltitude(0, y_pos);
         //DrawNAVText(-100, 280);
         //DrawFuelTime(-450, 300);
     } else {
-        TranslateToCenter();
-        DrawCompass(0, 320);
-        TranslateToCenter();
+        DrawCompassViggen(0, 320);
         DrawSpeed(0, 0);
         DrawAlpha(SPEED_POS_X, 0);
         DrawAltitude(0, 0);
@@ -316,13 +388,7 @@ void DrawViggenMode2() {
         //DrawFuelTime(-450, -750);
     }
 
-    TranslateToCenter();
     DrawVector();
-
-    TranslateToCenter();
-
     DrawGroundCollision();
-
-    TranslateToCenter();
     DrawHorizionLinesViggen();
 }
