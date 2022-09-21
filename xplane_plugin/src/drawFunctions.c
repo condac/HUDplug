@@ -58,15 +58,15 @@ int CalculateCenter(void) {
     //float scissor_y = 20 / getFOV_x() * screen_width * 0.8671875;
 
     if (getViewType() == 1000) {
-        fov_pixels = (0.9571875 * 1024 / getFOV_x() / fovscale); //*24/getFOV_x()  kalibreringsfaktor 0.8671875
+        fov_pixels = (0.9571875 * TEXTURE_WIDTH / getFOV_x() / fovscale); //*24/getFOV_x()  kalibreringsfaktor 0.8671875
         //fov_pixels = 11.08/fovscale;
     } else {
         fov_pixels = screen_height / fov / hud_scale;
-        fov_pixels = (0.9571875 * 1024 / getFOV_x() / fovscale);
+        fov_pixels = (0.9571875 * TEXTURE_WIDTH / getFOV_x() / fovscale);
         //fov_pixels = (0.9571875 * 1024 / getFOV_x() / fovscale);
         //glTranslated((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
     }
-    fov_pixels = 1024 / GLASS_FOV;
+    fov_pixels = TEXTURE_WIDTH / GLASS_FOV;
 
     line_width = line_scale * hud_scale;
     CalculateColors();
