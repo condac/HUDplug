@@ -6,6 +6,7 @@
 #include "statusDisplay.h"
 #include "drawFunctions.h"
 #include "drawElements.h"
+#include "drawModes.h"
 // Downloaded from https://developer.x-plane.com/code-sample/hello-world-sdk-3/
 
 #include "XPLMDisplay.h"
