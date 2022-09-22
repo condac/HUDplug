@@ -41,8 +41,8 @@ CC ?= i686-w64-mingw32-gcc
 INC += -ISDK2/CHeaders/XPLM -ISDK2/CHeaders/Widgets -I/mingw32/include -I./glew/glew-2.2.0/include
 CFLAGS += -Wall -O2 -D$(OS) $(INC) -g
 LDFLAGS += -Wl,--version-script=exports.txt -g
-LDDYNFLAGS += -shared
-LIBS += -L/mingw32/lib SDK2/Libraries/Win/XPLM.lib -L./lib32/ -lhid -lsetupapi -lwsock32 -lopengl32 -lglu32 -lglew32
+LDDYNFLAGS += -shared -static -static-libgcc -static-libstdc++
+LIBS += -L/mingw32/lib SDK2/Libraries/Win/XPLM.lib lib32/libglew32.a -L./lib32/ -lhid -lsetupapi -lwsock32 -lopengl32 -lglu32 -lglew32
 TARGET ?= win.xpl
 
 else ifeq ($(OS), WINDOWS64)
