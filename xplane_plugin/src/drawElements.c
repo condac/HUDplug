@@ -582,21 +582,22 @@ void DrawHorizionLines() {
     if (getPrickActive() == 1 && markKontakt() == 0) {
 
         int utanfor = 0;
-        if (x_pos > glass_width / 4) {
-            x_pos = glass_width / 4;
+        if (x_pos > TEXTURE_WIDTH / 6) {
+            x_pos = TEXTURE_WIDTH / 6;
             utanfor = 1;
         }
-        if (x_pos < -glass_width / 4) {
-            x_pos = -glass_width / 4;
+        if (x_pos < -glass_width / 6) {
+            x_pos = -glass_width / 6;
             utanfor = 1;
         }
-        if (y_pos - y_prick < -glass_height / 2) {
-            y_prick = y_pos + glass_height / 2 - 30;
+        if (y_pos - y_prick < -1024 / 3) {
+            y_prick = y_pos + 1024 / 3 - 100;
             utanfor = 1;
             //y_prick = y_pos;
         }
-        if (y_pos - y_prick > -CalcFOVAngle(-15)) {
-            y_prick = y_pos + CalcFOVAngle(-15);
+        if (y_pos - y_prick > -CalcFOVAngle(-19)) {
+            // den här är nedåt
+            y_prick = y_pos + CalcFOVAngle(-19);
             utanfor = 1;
             //     y_prick = y_pos-glass_height / 2;
             //

@@ -90,6 +90,9 @@ rm -f target/HUDplug.zip
 
 # copy config file
 cp -r config.txt $TARGETDIR/config_example.txt
+cp -r config_example_viggen.txt $TARGETDIR/config_example_viggen.txt
+cp -r lib64/* $TARGETDIR/64/
+cp -r lib32/* $TARGETDIR/32/
 
 # Copy images
 cp -r res $TARGETDIR/
