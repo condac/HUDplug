@@ -69,7 +69,7 @@
 #    include <windows.h>
 #endif
 #if LIN
-#    ifndef NO_FRAMEBUFFER
+#    ifndef NO_GLEW
 #        include <GL/glew.h>
 #    endif
 #    include <GL/gl.h> // apt install mesa-common-dev
@@ -78,7 +78,7 @@
 #    include <GL/glext.h>
 
 #elif __GNUC__
-#    ifndef NO_FRAMEBUFFER
+#    ifndef NO_GLEW
 #        include <GL/glew.h>
 #    endif
 #    include <GL/gl.h>

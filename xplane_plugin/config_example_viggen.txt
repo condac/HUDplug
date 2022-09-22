@@ -13,13 +13,10 @@ glass_type=6
 glass_type2=7
 th1=0
 glass_darkness=2.0
-text_blend1=6
-text_blend2=11
+text_blend1=5
+text_blend2=1
 g_sway=0
 draw_test=0
-offset_y=0
+offset_y=15
 viggen_landning_alfa=12
-fov_trim=0.99
-
-
-
+fov_trim=0.75

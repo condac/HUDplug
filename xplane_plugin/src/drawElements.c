@@ -855,7 +855,7 @@ void DrawSpeed(float x, float y) {
     glColor4fv(color);
 
     glPushMatrix();
-    glTranslatef(x, y, 0);
+    glTranslatef(x, 0, 0);
     // lodrät linje för hastighetsmätaren
     glLineWidth(line_width);
     glBegin(GL_LINES);

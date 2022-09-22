@@ -607,21 +607,28 @@ void drawGlassTexture() {
 
         glPopMatrix();
         //glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-        glBlendEquation(GL_FUNC_ADD);
+        //glBlendEquation(GL_FUNC_ADD);
         XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
         //slut glasskivan
     }
     if (draw_glass == 2 || draw_glass == 1) {
         // Glasskivan
-        //glBlendEquationSeparate(GL_MIN, GL_FUNC_ADD);
-        glBlendEquation(GL_MIN);
-        //glBlendEquation(GL_MIN);
-        glPushMatrix();
         XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0);
         glEnable(GL_BLEND);
+        #ifdef NO_GLEW
+        //glBlendEquation(GL_MIN);
+        glColor4f(0.0, 0.0, 0.0, glass_darkness * 0.004 * 10.0f);
+        #else
+        //glBlendEquationSeparate(GL_MIN, GL_FUNC_ADD);
+        glBlendEquation(GL_MIN);
+        glColor4f(0.8, 0.7, 0.8, 0.5);
+        #endif
+        //glBlendEquation(GL_MIN);
+        glPushMatrix();
+        
         glBlendFunc(modes[glass_type], modes[glass_type2]);
         //glColor4f(0.2, 0.0, 0.2, GetGlassDarkness() * glass_darkness);
-        glColor4f(0.8, 0.7, 0.8, 0.5);
+        
         //glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
 
         if (viggen_mode >= 1) {
@@ -636,7 +643,14 @@ void drawGlassTexture() {
         }
         glPopMatrix();
         //glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+        
+        #ifdef NO_GLEW
+        //glBlendEquation(GL_FUNC_ADD);
+        
+        #else
+        //glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
         glBlendEquation(GL_FUNC_ADD);
+        #endif
         XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
         //slut glasskivan
     }
@@ -653,7 +667,7 @@ void drawHudTexture() {
     glPushMatrix();
 
     float sc = 280.0f / TEXTURE_WIDTH;
-    float screen_w = screen_width / 2.0f / sc;
+    //float screen_w = screen_width / 2.0f / sc;
     float fov = getFOV();
     float fox_pixlar_x = screen_height / fov;
 

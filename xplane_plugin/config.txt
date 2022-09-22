@@ -1,7 +1,7 @@
 viggen_mode=0
 text_scale=1.0
-hud_scale=0.7
-line_scale=1.7
+hud_scale=1.0
+line_scale=1.0
 line_text_scale=1.0
 landing_speed1=135
 landing_speed2=175

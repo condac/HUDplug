@@ -290,7 +290,7 @@ int initDataRefs() {
 
     lTmp += findDataRef("sim/flightmodel/position/theta", &drPitch);
     lTmp += findDataRef("sim/flightmodel/position/phi", &drRoll);
-    lTmp += findDataRef("sim/flightmodel2/position/mag_psi", &drHeading);
+    lTmp += findDataRef("sim/flightmodel/position/magpsi", &drHeading);
     lTmp += findDataRef("sim/flightmodel/position/psi", &drTrueHeading);
     lTmp += findDataRef("sim/flightmodel/position/local_vx", &drVX);
     lTmp += findDataRef("sim/flightmodel/position/local_vy", &drVY);
