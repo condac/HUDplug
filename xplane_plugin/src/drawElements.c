@@ -159,7 +159,7 @@ void DrawCompass(float x, float y) {
 
     SetGLText();
     // Compas lines text
-    for (int i = 0; i < 37; i++) {
+    for (int i = 0; i < 36; i++) {
 
         float offset = (i * 10) - heading;
         if (offset > 180) {
@@ -420,7 +420,7 @@ void DrawVector() {
     if (viggen_mode >= 1) {
         // Med Viggen när man landar så ska vektorns position övergå till att visa sjunkhastighet relaterat till 2.96 meter per sekund
         // Detta sker vid ca 20 meter RHM
-        if (radaralt < 20) {
+        if (radaralt < 20 && local_vy<0.0f && gear) {
             float y_pos2 = CalcFOVAngle(getPitch());
             //y_pos = CalcFOVAngle(local_vy);
             x_pos = sin(to_radians(-angle)) * CalcFOVAngle(-local_vy);
@@ -917,12 +917,12 @@ void DrawSpeed(float x, float y) {
     newspeed = fmax(newspeed, -120);
     newspeed = fmin(newspeed, 120);
     if (newspeed > 0) {
-        glVertex2f((SPEED_POS_X - 20), y + 10);
-        glVertex2f((SPEED_POS_X - 20), y + 10 + newspeed);
+        glVertex2f((SPEED_POS_X - 13), y + 7);
+        glVertex2f((SPEED_POS_X - 13), y + 7 + newspeed);
     }
     if (newspeed < 0) {
-        glVertex2f((SPEED_POS_X - 20), y - 10);
-        glVertex2f((SPEED_POS_X - 20), y - 10 + newspeed);
+        glVertex2f((SPEED_POS_X - 13), y - 7);
+        glVertex2f((SPEED_POS_X - 13), y - 7 + newspeed);
     }
 
     glEnd();
@@ -1422,7 +1422,7 @@ void DrawHorizionLinesViggen() {
     alt = alt / 10;
     alt = alt * 10;
     snprintf(tempText, 13, "%03d", alt);
-    DrawHUDText(tempText, &fontMain, -135, yy + line_width * 3, 1, color);
+    DrawHUDText(tempText, &fontMain, 135, yy + line_width * 3, 1, color);
 
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
     SetGLTransparentLines();

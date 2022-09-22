@@ -175,6 +175,10 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
                              xplm_Phase_Panel, /* Draw when sim is doing windows */
                              0,                /* Before plugin windows */
                              NULL);            /* No refcon needed */
+    XPLMRegisterDrawCallback(DrawPanelCallback,
+                          xplm_Phase_Gauges, /* Draw when sim is doing windows */
+                          0,                /* Before plugin windows */
+                          NULL);            /* No refcon needed */
 
     // Initialization: allocate a textiure number.
     XPLMGenerateTextureNumbers(&g_tex_num, 1);
@@ -461,11 +465,11 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
         glDrawBuffer(GL_COLOR_ATTACHMENT0);
         //debugLog("render glDrawBuffers\n");
         glPushAttrib(GL_VIEWPORT_BIT);
-        glViewport(0, 0, 1024, 1024);
+        glViewport(0, 0, TEXTURE_WIDTH, TEXTURE_WIDTH);
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
-        glOrtho(0, 1024, 0, 1024, 0, 1);
+        glOrtho(0, TEXTURE_WIDTH, 0, TEXTURE_WIDTH, 0, 1);
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         glLoadIdentity();
@@ -487,11 +491,11 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
         glTexCoord2f(0.0f, 0.0f);
         glVertex2i(0, 0);
         glTexCoord2f(0.0f, 1.0f);
-        glVertex2i(0, 1024);
+        glVertex2i(0, TEXTURE_WIDTH);
         glTexCoord2f(1.0f, 1.0f);
-        glVertex2i(1024, 1024);
+        glVertex2i(TEXTURE_WIDTH, TEXTURE_WIDTH);
         glTexCoord2f(1.0f, 0.0f);
-        glVertex2i(1024, 0);
+        glVertex2i(TEXTURE_WIDTH, 0);
         glEnd();
 
         // unbind FBO
@@ -618,10 +622,35 @@ int DrawPanelCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) 
         return 1;
     }
     if (getViewType() != 1000) { // 1000 är 2d panel view
-        return 1;
+        //return 1;
     }
+    int screen_width;
+    int screen_height;
+    XPLMGetScreenSize(&screen_width, &screen_height);
+    float FOV_off_y = getFOVoff_y(); // måste multipliceras med antalet grader per pixel
+    float FOV_off_x = getFOVoff_x();
+    float fov = getFOV();
+    float screen_h = (float)PANEL_WIDTH * ((float)screen_height / (float)screen_width);
+    float scale_hud = (screen_h / 280.0f) * (GLASS_FOV / fov);
 
-    MyDrawCallback(inPhase, inIsBefore, inRefcon);
+    glPushMatrix();
+
+    glTranslatef(PANEL_WIDTH / 2, 512  * ((float)screen_height / (float)screen_width) , 0.0f);
+
+    //drawLineText("scale_hud", 0, 0, 1.0, 1);
+    glTranslatef(FOV_off_x * (screen_h / fov), -FOV_off_y * (screen_h / fov), 0.0f);
+
+    glScalef(scale_hud, scale_hud, 0); // skalan baserat på nuvarande FOV
+
+    glScalef(hud_scale, hud_scale, 0); // skalan från configfilen
+
+    drawGlassTexture();
+
+    drawHudTexture();
+
+
+    glPopMatrix();
+    //MyDrawCallback(inPhase, inIsBefore, inRefcon);
     return 1;
 }
 
