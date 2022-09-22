@@ -7,6 +7,9 @@
 #define ALT_SCALE_METER 450.0f
 #define ALT_SCALE_PIXEL 150.0f
 
+#define VIGGEN_HUD_FOV 14.634f // uträknat från 135mm bred glas och 530mm från ögat
+#define VIGGEN_HUD_FOV_Y 20.0f
+
 void DrawTest();
 void DrawVector();
 void DrawMovementArrow(float trueHeading, float vx, float vy, float vz);

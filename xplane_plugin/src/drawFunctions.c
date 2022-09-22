@@ -80,16 +80,19 @@ int CalculateCenter(void) {
     //glTranslatef((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
     glTranslatef(TEXTURE_WIDTH / 2, TEXTURE_WIDTH * (2.0f / 3.0f), 0);
 
-    // if (getViewType() == 1000) {
-    //     glScissor(getPanelL() + screen_width / 2 - scissor_x / 2 * hud_scale, screen_height / 2 - scissor_y, scissor_x * hud_scale, scissor_x * 0.8671875 * hud_scale);
-    // } else {
-    //     glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,
-    //               -FOV_off_y,
-    //               offset_x + glass_width * hud_scale,
-    //               offset_y + screen_height / 2 + glass_height * hud_scale / 2);
-    // }
-
-    //glEnable(GL_SCISSOR_TEST);
+    // #ifdef NO_FRAMEBUFFER
+    //     glScissor(0, 0, TEXTURE_WIDTH, TEXTURE_WIDTH);
+    //     // if (getViewType() == 1000) {
+    //     //     glScissor(getPanelL() + screen_width / 2 - scissor_x / 2 * hud_scale, screen_height / 2 - scissor_y, scissor_x * hud_scale, scissor_x * 0.8671875 * hud_scale);
+    //     // } else {
+    //     //     glScissor((screen_width / 2) - (glass_width * hud_scale / 2) + offset_x - FOV_off_x,
+    //     //               -FOV_off_y,
+    //     //               offset_x + glass_width * hud_scale,
+    //     //               offset_y + screen_height / 2 + glass_height * hud_scale / 2);
+    //     // }
+    //
+    //     glEnable(GL_SCISSOR_TEST);
+    // #endif
     return 1;
 }
 
@@ -351,6 +354,56 @@ void DrawGlassObject(float width) {
     glPopMatrix();
 }
 
+void DrawGlassObjectViggen(float width) {
+
+    // viggen 136mm bred 68 halva
+    // 180mm hög, ser ut att va ca 12cm hög som man ser den eftersom den är vinklad
+    float scale = width / 280.0f;
+    float center = 20.0f;
+    float centerUV = center / scale / 280.0f;
+    //centerUV = 0.0f;
+
+    glPushMatrix();
+    glTranslatef(0, width * 0.857142857143f, 0);
+    glBegin(GL_POLYGON);
+    //glColor4fv(colorglass);
+    glTexCoord2f(0.242857142857f, centerUV + 0.485714285714f);
+    glVertex2f(-68 * scale, center - 138 * scale);
+    glTexCoord2f(0.242857142857f, centerUV + 0.485714285714f);
+    glVertex2f(-68 * scale, center - 138 * scale);
+
+    glTexCoord2f(0.242857142857f, centerUV + 0.660714285714f);
+    glVertex2f(-68 * scale, center - 55 * scale);
+    glTexCoord2f(0.242857142857f, centerUV + 0.798214285714f);
+    glVertex2f(-68 * scale, center - 16.5 * scale);
+
+    // böjen
+    glTexCoord2f(0.242857142857f, centerUV + 0.835428571429f);
+    glVertex2f(-68 * scale, center - 6.08 * scale);
+    glTexCoord2f(0.364285714286f, centerUV + 0.849714285714f);
+    glVertex2f(-38 * scale, center - 2.08 * scale);
+    glTexCoord2f(0.5f, centerUV + 0.857142857143f);
+    glVertex2f(-0 * scale, center - 0.00 * scale);
+
+    // andra sidan
+    glTexCoord2f(1.0f - 0.364285714286f, centerUV + 0.849714285714f);
+    glVertex2f(38 * scale, center - 2.08 * scale);
+    glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.835428571429f);
+    glVertex2f(68 * scale, center - 6.08 * scale);
+
+    glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.798214285714f);
+    glVertex2f(68 * scale, center - 16.5 * scale);
+    glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.660714285714f);
+    glVertex2f(68 * scale, center - 55 * scale);
+
+    glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.485714285714f);
+    glVertex2f(68 * scale, center - 138 * scale);
+    glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.485714285714f);
+    glVertex2f(68 * scale, center - 138 * scale);
+
+    glEnd();
+    glPopMatrix();
+}
 int LoadTexture(const char* filename) {
     int texture;
     int width, height;

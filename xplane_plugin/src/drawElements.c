@@ -380,6 +380,9 @@ void DrawVector() {
     float x_pos = 0.0;
     float alpha = CalcFOVAngle(myGetAlpha());
     float beta = CalcFOVAngle(myGetBeta());
+    float tail_length = 15;
+    float wing_length = 34;
+    float body_radius = 8;
     float tail_pos = airspeed - getLandingSpeed() + 10;
     float angle = getRoll();
     float alphaA = getAlphaA();
@@ -397,7 +400,7 @@ void DrawVector() {
         // Halva fenan fel motsvarar ca 2 alfa enheter
         // Fenan är 20 pixlar lång
         float landningsAlfa = viggen_landning_alfa;
-        tail_pos = 8 + (landningsAlfa - alphaA) * 5.0f;
+        tail_pos = body_radius + (landningsAlfa - alphaA) * 5.0f;
     } else {
         // JAS
         tail_pos = airspeed - getLandingSpeed() + 0;
@@ -420,7 +423,7 @@ void DrawVector() {
     if (viggen_mode >= 1) {
         // Med Viggen när man landar så ska vektorns position övergå till att visa sjunkhastighet relaterat till 2.96 meter per sekund
         // Detta sker vid ca 20 meter RHM
-        if (radaralt < 20 && local_vy<0.0f && gear) {
+        if (radaralt < 20 && local_vy < 0.0f && gear) {
             float y_pos2 = CalcFOVAngle(getPitch());
             //y_pos = CalcFOVAngle(local_vy);
             x_pos = sin(to_radians(-angle)) * CalcFOVAngle(-local_vy);
@@ -430,7 +433,7 @@ void DrawVector() {
         }
         if (markKontakt() >= 1) {
             float y_pos2 = CalcFOVAngle(getPitch());
-            y_pos = y_pos2 + CalcFOVAngle(8); // AD bromsningsvinkel 16
+            y_pos = y_pos2 + CalcFOVAngle(8);
         }
     }
     int utanfor = 0;
@@ -463,9 +466,9 @@ void DrawVector() {
     //glRotatef(-angle, 0, 0, 1);
 
     if (!markKontakt() && utanfor == 0) {
-        DrawCircle(8);
+        DrawCircle(body_radius);
     } else if (viggen_mode >= 1) {
-        DrawCircle(8); // viggen ritar alltid en cirkel
+        DrawCircle(body_radius); // viggen ritar alltid en cirkel
     }
     if (utanfor == 1) {
 
@@ -477,27 +480,27 @@ void DrawVector() {
     glLineWidth(line_width);
     glBegin(GL_LINES);
 
-    glVertex2f(8, 0);
-    glVertex2f(31, 0);
+    glVertex2f(body_radius, 0);
+    glVertex2f(wing_length, 0);
 
-    glVertex2f(-8, 0);
-    glVertex2f(-31, 0);
+    glVertex2f(-body_radius, 0);
+    glVertex2f(-wing_length, 0);
 
     if (gear) {
         if (viggen_mode >= 1) {
             // Viggen ritarn ingen fena på marken i vissa lägen
             //if (!markKontakt()) {
             glVertex2f(0, tail_pos - 0);
-            glVertex2f(0, tail_pos + 20);
+            glVertex2f(0, tail_pos + tail_length);
             //}
         } else {
             glVertex2f(0, tail_pos - 0);
-            glVertex2f(0, tail_pos + 20);
+            glVertex2f(0, tail_pos + tail_length);
         }
 
     } else {
-        glVertex2f(0, 20 - 10);
-        glVertex2f(0, 20 + 10);
+        glVertex2f(0, body_radius);
+        glVertex2f(0, body_radius + tail_length);
     }
 
     glEnd();
@@ -1263,7 +1266,7 @@ void DrawGroundCollision() {
 
         glPopMatrix();
     } else {
-        if (!gear && radaralt < 575) {
+        if (!gear && radaralt < 575 && viggen_mode < 1) {
             glPushMatrix();
             SetGLTransparentLines();
             glColor4fv(color);
@@ -1434,10 +1437,10 @@ void DrawHorizionLinesViggen() {
             glBegin(GL_LINES);
 
             glVertex2f(400, CalcFOVAngle(i));
-            glVertex2f(200, CalcFOVAngle(i));
+            glVertex2f(140, CalcFOVAngle(i));
 
             glVertex2f(-400, CalcFOVAngle(i));
-            glVertex2f(-200, CalcFOVAngle(i));
+            glVertex2f(-140, CalcFOVAngle(i));
             glEnd();
         }
     }
@@ -1451,10 +1454,10 @@ void DrawHorizionLinesViggen() {
             glBegin(GL_LINES);
 
             glVertex2f(400, CalcFOVAngle(i));
-            glVertex2f(200, CalcFOVAngle(i));
+            glVertex2f(140, CalcFOVAngle(i));
 
             glVertex2f(-400, CalcFOVAngle(i));
-            glVertex2f(-200, CalcFOVAngle(i));
+            glVertex2f(-140, CalcFOVAngle(i));
             glEnd();
         }
     }
@@ -1573,8 +1576,23 @@ void drawSpeedAlphaViggen(float x, float y) {
     }
     DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y + 120)), 1, color);
 
-    sprintf(tempText, "M %.2f", mach);
-    DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y - 120)) - ((textHeight(1.0) * text_scale)), 1, color);
+    if (!dr_gear) {
+        sprintf(tempText, "M %.2f", mach);
+        DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y - 120)) - ((textHeight(1.0) * text_scale)), 1, color);
+    }
+
+    if (dr_pitch > 9 || dr_pitch < -9) {
+        int alt = dr_altitude; // * 0.3048;
+        if (metric) {
+            alt = feetTom(dr_altitude);
+        } else {
+            alt = dr_altitude;
+        }
+        alt = alt / 10;
+        alt = alt * 10;
+        snprintf(tempText, 13, "%03d", alt);
+        DrawHUDText(tempText, &fontMain, 135, -10, 1, color);
+    }
 }
 
 void drawADHelp() {
