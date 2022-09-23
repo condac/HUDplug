@@ -39,6 +39,7 @@ extern int image_blend1;
 extern int image_blend2;
 extern float viggen_landning_alfa;
 extern float fov_trim;
+extern float blur;
 
 extern float glass_darkness;
 

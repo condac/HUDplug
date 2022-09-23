@@ -80,6 +80,12 @@ int CalculateCenter(void) {
     //glTranslatef((screen_width / 2) - FOV_off_x, (screen_height / 2) - FOV_off_y, 0);
     glTranslatef(TEXTURE_WIDTH / 2, TEXTURE_WIDTH * (2.0f / 3.0f), 0);
 
+    // Slumpbrus genom förflyttning i sidled
+    float randomfloat = (float)rand()/(float)(RAND_MAX/line_width);
+    float randomfloat2 = (float)rand()/(float)(RAND_MAX/line_width);
+    glTranslatef(randomfloat/2.0f, randomfloat2/2.0f, 0);
+    
+    glScalef(TEXTURE_WIDTH/1024.0f, TEXTURE_WIDTH/1024.0f, 0);
     // #ifdef NO_FRAMEBUFFER
     //     glScissor(0, 0, TEXTURE_WIDTH, TEXTURE_WIDTH);
     //     // if (getViewType() == 1000) {

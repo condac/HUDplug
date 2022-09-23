@@ -307,10 +307,25 @@ int dr_gear = 0;
 float dr_pitch = 0;
 float dr_altitude = 0;
 
+float dr_vx = 0;
+float dr_vy = 0;
+float dr_vz = 0;
+
+float dr_theta = 0;
+float dr_phi = 0;
+float dr_psi = 0;
+
+
 void updateDatarefs() {
     dr_gear = getGear();
     dr_pitch = getPitch();
     dr_altitude = getAltitude();
+    dr_vx = getVX();
+    dr_vy = getVY();
+    dr_vz = getVZ();
+    dr_theta = getPitch();
+    dr_phi = getRoll();
+    dr_psi = getTrueHeading();
 }
 
 void drawHUD() {
@@ -431,8 +446,9 @@ void drawFramebuffer() {
         XPLMGenerateTextureNumbers((int*)&fboTexture, 1); //glGenTextures(1, &fboTexture);
         XPLMBindTexture2d(fboTexture, 0);                 //glBindTexture(GL_RENDERBUFFER, fboTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, TEXTURE_WIDTH, TEXTURE_WIDTH, 0, GL_RGB, GL_FLOAT, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D);
         // Attached texture to first color attachment and the depth to the depth attachment
         glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fboDepth);
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTexture, 0);
@@ -451,8 +467,9 @@ void drawFramebuffer() {
         XPLMGenerateTextureNumbers((int*)&fboTexture_blur, 1); //glGenTextures(1, &fboTexture);
         XPLMBindTexture2d(fboTexture_blur, 0);                 //glBindTexture(GL_RENDERBUFFER, fboTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEXTURE_WIDTH_BLUR, TEXTURE_WIDTH_BLUR, 0, GL_RGBA, GL_FLOAT, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D);
         // Attached texture to first color attachment and the depth to the depth attachment
         glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fboDepth_blur);
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTexture_blur, 0);
@@ -524,9 +541,9 @@ void drawFramebuffer() {
 
         // BLUR
         glBindFramebuffer(GL_FRAMEBUFFER, fbo_blur);
-        debugLog("render bind framebuffer \n");
+        //debugLog("render bind framebuffer \n");
         glDrawBuffer(GL_COLOR_ATTACHMENT0);
-        debugLog("render glDrawBuffers\n");
+        //debugLog("render glDrawBuffers\n");
         glPushAttrib(GL_VIEWPORT_BIT);
         glViewport(0, 0, TEXTURE_WIDTH_BLUR, TEXTURE_WIDTH_BLUR);
         glMatrixMode(GL_PROJECTION);
@@ -539,8 +556,10 @@ void drawFramebuffer() {
         XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         XPLMBindTexture2d(fboTexture, 0);
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glColor4f(1.0f, 1.0f, 1.0f, blur/4);
 
         glBegin(GL_QUADS);
         glTexCoord2f(0.0f, 0.0f);
@@ -552,7 +571,65 @@ void drawFramebuffer() {
         glTexCoord2f(1.0f, 0.0f);
         glVertex2i(TEXTURE_WIDTH_BLUR, 0);
         glEnd();
+        
+        // rita bilden flera gånger i olika positioner för att jämna ut det mer
+        
+        glPushMatrix();
+        glTranslatef(0.75,0.3,0);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex2i(0, 0);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex2i(0, TEXTURE_WIDTH_BLUR);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex2i(TEXTURE_WIDTH_BLUR, TEXTURE_WIDTH_BLUR);
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex2i(TEXTURE_WIDTH_BLUR, 0);
+        glEnd();
         glPopMatrix();
+        
+        glPushMatrix();
+        glTranslatef(-0.4,0.8,0);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex2i(0, 0);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex2i(0, TEXTURE_WIDTH_BLUR);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex2i(TEXTURE_WIDTH_BLUR, TEXTURE_WIDTH_BLUR);
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex2i(TEXTURE_WIDTH_BLUR, 0);
+        glEnd();
+        glPopMatrix();
+        
+        glPushMatrix();
+        glTranslatef(-0.65,-0.15,0);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex2i(0, 0);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex2i(0, TEXTURE_WIDTH_BLUR);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex2i(TEXTURE_WIDTH_BLUR, TEXTURE_WIDTH_BLUR);
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex2i(TEXTURE_WIDTH_BLUR, 0);
+        glEnd();
+        glPopMatrix();
+        
+        glPushMatrix();
+        glTranslatef(0.23,-0.65,0);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex2i(0, 0);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex2i(0, TEXTURE_WIDTH_BLUR);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex2i(TEXTURE_WIDTH_BLUR, TEXTURE_WIDTH_BLUR);
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex2i(TEXTURE_WIDTH_BLUR, 0);
+        glEnd();
+        glPopMatrix();
+        
         // unbind FBO
         glPopMatrix();
         glMatrixMode(GL_PROJECTION);
@@ -714,6 +791,18 @@ void drawHudTexture() {
     // Slut riktiga bilden
 }
 void drawBlurTexture() {
+    #ifndef NO_FRAMEBUFFER
+    XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
+    glBlendFunc(modes[image_blend1], modes[image_blend2]);
+    //glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
+    glPushMatrix();
+    XPLMBindTexture2d(fboTexture_blur, 0);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
+
+    DrawGlassObject(280);
+    glPopMatrix();
+    #endif
 }
 
 int DrawPanelCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) {
@@ -744,6 +833,7 @@ int DrawPanelCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) 
     glScalef(hud_scale, hud_scale, 0); // skalan från configfilen
 
     drawGlassTexture();
+    drawBlurTexture();
 
     drawHudTexture();
 
@@ -784,6 +874,7 @@ int DrawScreenCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon)
     // sprintf(temp, "FOV_off_x %f getFOV(%f) glass:%f screen_height %f", FOV_off_x, fov,GLASS_FOV,  screen_h);
     // drawLineText(temp, 10, 10, 1.0, 1);
     drawGlassTexture();
+    drawBlurTexture();
 
     drawHudTexture();
 

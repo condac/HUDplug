@@ -16,7 +16,7 @@ INC += -ISDK/CHeaders/XPLM -ISDK/CHeaders/Widgets
 CFLAGS += -Wall -O2 -fPIC -D$(OS) $(INC) -fvisibility=hidden
 LDFLAGS += -Wl,--version-script=exports.txt
 LDDYNFLAGS += -shared
-LIBS += -ludev -lpthread -lrt -lGLEW
+LIBS +=  -lm -ludev -lpthread -lrt -lGLEW -lGLU
 TARGET ?= lin.xpl
 
 else ifeq ($(OS), MACOSX)

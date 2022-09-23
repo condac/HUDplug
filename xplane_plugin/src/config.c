@@ -39,6 +39,7 @@ float offset_y = 0;
 float error_y = 1.0;
 float viggen_landning_alfa = 12;
 float fov_trim = 1.0f;
+float blur = 1.0f;
 
 void readConfig() {
     debugLog("readConfig \n");
@@ -249,6 +250,13 @@ void parseLine(char* line) {
         XPLMDebugString(line + 9);
         sscanf(line + 9, "%f", &i);
         fov_trim = i;
+    }
+    if (strncmp("blur=", line, 5) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 5);
+        sscanf(line + 5, "%f", &i);
+        blur = i;
     }
 }
 

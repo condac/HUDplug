@@ -265,14 +265,16 @@ void DrawModesJAS() {
         //DrawMarkindikator();
     }
 
-    TranslateToCenter();
+;
     DrawVector();
 
-    TranslateToCenter();
+
     DrawGroundCollision();
 
-    TranslateToCenter();
+
     DrawHorizionLines();
+    drawPrick();
+    HUD_NoseVector();
 }
 void DrawViggenMode1() {
     // Viggen mode 1

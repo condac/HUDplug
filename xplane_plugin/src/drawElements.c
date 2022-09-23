@@ -4,7 +4,7 @@
 #include "fonts.h"
 #include "datarefs.h"
 #include <math.h>
-
+#include <complex.h> 
 int stab_error;
 
 void DrawTest() {
@@ -535,12 +535,9 @@ void DrawHorizionLines() {
     float smallTextScale = 0.75;
     int gear = getGear();
     float vdef = getILSv();
-    float prickx = getPrickX();
-    float pricky = getPrickY();
-    float x_pos = CalcFOVAngle(prickx);
-    float y_prick = CalcFOVAngle(pricky);
-    float banax = CalcFOVAngle(getBanaX());
-    float banay = CalcFOVAngle(getBanaY());
+
+
+
     int screen_width;
     int screen_height;
     XPLMGetScreenSize(&screen_width, &screen_height);
@@ -577,45 +574,7 @@ void DrawHorizionLines() {
 
     glEnd();
 
-    // ILS indikator
-
-    if (getPrickActive() == 1 && markKontakt() == 0) {
-
-        int utanfor = 0;
-        if (x_pos > TEXTURE_WIDTH / 6) {
-            x_pos = TEXTURE_WIDTH / 6;
-            utanfor = 1;
-        }
-        if (x_pos < -glass_width / 6) {
-            x_pos = -glass_width / 6;
-            utanfor = 1;
-        }
-        if (y_pos - y_prick < -1024 / 3) {
-            y_prick = y_pos + 1024 / 3 - 100;
-            utanfor = 1;
-            //y_prick = y_pos;
-        }
-        if (y_pos - y_prick > -CalcFOVAngle(-19)) {
-            // den här är nedåt
-            y_prick = y_pos + CalcFOVAngle(-19);
-            utanfor = 1;
-            //     y_prick = y_pos-glass_height / 2;
-            //
-        }
-        if (utanfor == 1) {
-            DrawFillCircleXY(6, x_pos, y_prick);
-        } else {
-            DrawFillCircleXY(5, x_pos, y_prick);
-        }
-
-        // Landingsbanan inringad
-        glLineWidth(line_width);
-        float storlek = interpolate(20.0f, 70.0f, 3500.0f, 20.0f, getBanaDist());
-        if (storlek < 20) {
-            storlek = 20;
-        }
-        DrawBanaXY(storlek, banax, banay);
-    }
+    
 
     glLineWidth(line_width);
     // Compas lines
@@ -1641,4 +1600,157 @@ void drawADHelp() {
         glRotatef(-angle, 0, 0, 1);
         glPopMatrix();
     }
+}
+
+void drawPrick() {
+    
+
+    float y_pos = CalcFOVAngle(getPitch());
+    float angle = getRoll();
+    //float heading = getHeading();
+    //char tempText[10];
+    //float smallTextScale = 0.75;
+    //int gear = getGear();
+    float prickx = getPrickX();
+    float pricky = getPrickY();
+    float x_pos = CalcFOVAngle(prickx);
+    float y_prick = CalcFOVAngle(pricky);
+    float banax = CalcFOVAngle(getBanaX());
+    float banay = CalcFOVAngle(getBanaY());
+    // ILS indikator
+
+    glPushMatrix();
+    
+    
+    
+    
+    if (getPrickActive() == 1 && markKontakt() == 0) {
+        SetGLTransparentLines();
+        //DrawFillCircleXY(5, 0, -100);
+        glColor4fv(color);
+        glPushMatrix();
+        glRotatef(angle, 0, 0, 1);
+        glTranslatef(0, -y_pos, 0);
+        
+        // Landingsbanan inringad
+        glLineWidth(line_width);
+        float storlek = interpolate(20.0f, 70.0f, 3500.0f, 20.0f, getBanaDist());
+        if (storlek < 20) {
+            storlek = 20;
+        }
+        DrawBanaXY(storlek, banax, banay);
+        
+        
+        int utanfor = 0;
+        if (x_pos > CalcFOVAngle(13) ) {
+            x_pos = CalcFOVAngle(13);
+            utanfor = 1;
+            y_pos = y_pos/10;
+        }
+        if (x_pos < CalcFOVAngle(-13)) {
+            x_pos = CalcFOVAngle(-13);
+            utanfor = 1;
+            y_pos = y_pos/10;
+        }
+        if (y_pos - y_prick < CalcFOVAngle(-10)) {
+            y_prick = CalcFOVAngle(10);
+            utanfor = 1;
+            //y_prick = y_pos;
+        }
+        if (y_pos - y_prick > -CalcFOVAngle(-19)) {
+            
+            // den här är nedåt i bilden
+            y_prick = CalcFOVAngle(-19);
+            utanfor = 1;
+            //     y_prick = y_pos-glass_height / 2;
+            //
+        }
+        if (utanfor == 1) {
+            glPopMatrix();
+            glRotatef(angle, 0, 0, 1);
+            glTranslatef(0, -100, 0);
+            glLineWidth(line_width);
+            glBegin(GL_LINES);
+            
+            glVertex2f(x_pos/2, y_prick/2);
+            
+            glVertex2f(x_pos, y_prick);
+
+            glEnd();
+            DrawFillCircleXY(6, x_pos, y_prick);
+            
+            
+        } else {
+            DrawFillCircleXY(5, x_pos, y_prick);
+            glPopMatrix();
+        }
+
+        
+    }
+    glPopMatrix();
+}
+
+float norm3(float *fv) {
+    float s = sqrt((fv[0]*fv[0])+(fv[1]*fv[1])+(fv[2]*fv[2]));
+    if (s != 0) {
+        fv[0] = fv[0]/s;
+        fv[1] = fv[1]/s;
+        fv[2] = fv[2]/s;
+    }
+    
+    return s;
+
+}
+void HUD_NoseVector() {
+    float vx = dr_vx;
+    float vy = dr_vy;
+    float vz = dr_vz;
+	float theta = dr_theta;
+    float psi = dr_psi;
+    float phi = dr_phi;
+	float hx;
+    float hy;
+    
+	int i;
+	
+	float v[3] = { vx, vy, vz };
+	norm3(v);
+	
+	theta 	*= M_PI / 180.0;
+	psi 	*= M_PI / 180.0;
+	phi 	*= M_PI / 180.0;
+	
+    float s_theta = sin(theta);
+    float c_theta = cos(theta);
+
+    float s_phi = sin(phi);
+    float c_phi = cos(phi);
+
+    float s_psi = sin(psi);
+    float c_psi = cos(psi);
+
+	float n[3] = { c_theta*c_psi, c_theta*s_psi, s_theta };
+	norm3(n);
+					
+	float xh[3] = { c_theta*s_psi, c_theta*c_psi, 0 };
+	float yh[3] = { -s_theta*c_psi, -s_theta*s_psi, c_theta };
+	
+	norm3(xh);
+	norm3(yh);
+
+	float hx_s = 0.0, hy_s = 0.0;
+		
+	for (i = 0; i < 3; i++) {
+		hx_s += (v[i] - n[i])*xh[i];
+		hy_s += (v[i] - n[i])*yh[i];
+	}
+
+    hx = asin( hx_s*c_phi - hy_s*s_phi) * 180.0 / M_PI;
+    hy = asin(hy_s*c_phi + hx_s*s_phi) * 180.0 / M_PI;
+	DrawFillCircleXY(15, hx, hy);
+    char tempText[100];
+
+    sprintf(tempText, "test x%f y%f", hx, hy); // $ is replaced with alpha sign in bitmap
+    DrawHUDText(tempText, &fontMain, 0, 0, 1, color);
+
 }
