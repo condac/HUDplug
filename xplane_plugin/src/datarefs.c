@@ -875,3 +875,33 @@ int getViewType() {
     }
     return XPLMGetDatai(dr);
 }
+float getTruePsi() {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "sim/flightmodel/position/true_psi";
+        findDataRef(name, &dr);
+        init = 1;
+    }
+    return XPLMGetDataf(dr);
+}
+float getTruePhi() {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "sim/flightmodel/position/true_phi";
+        findDataRef(name, &dr);
+        init = 1;
+    }
+    return XPLMGetDataf(dr);
+}
+float getTrueTheta() {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "sim/flightmodel/position/true_theta";
+        findDataRef(name, &dr);
+        init = 1;
+    }
+    return XPLMGetDataf(dr);
+}

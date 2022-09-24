@@ -4,7 +4,7 @@
 #include "fonts.h"
 #include "datarefs.h"
 #include <math.h>
-#include <complex.h> 
+#include <complex.h>
 int stab_error;
 
 void DrawTest() {
@@ -378,7 +378,7 @@ void DrawVector() {
     float airspeed = getIAS();
     float y_pos = 0.0;
     float x_pos = 0.0;
-    float alpha = CalcFOVAngle(myGetAlpha());
+    //float alpha = CalcFOVAngle(myGetAlpha());
     float beta = CalcFOVAngle(myGetBeta());
     float tail_length = 15;
     float wing_length = 34;
@@ -406,7 +406,7 @@ void DrawVector() {
         tail_pos = airspeed - getLandingSpeed() + 0;
     }
     if (getGroundSpeed() < 5) {
-        alpha = 0;
+        //alpha = 0;
         beta = 0;
     }
 
@@ -415,10 +415,14 @@ void DrawVector() {
     //y_pos = fov_pixels * getAlphaA();
     glColor4fv(color);
 
-    x_pos = sin(to_radians(-angle)) * alpha;
-    y_pos = cos(to_radians(-angle)) * alpha;
-    x_pos = x_pos + cos(to_radians(angle)) * beta;
-    y_pos = y_pos + sin(to_radians(angle)) * beta;
+    // x_pos = sin(to_radians(-angle)) * alpha;
+    // y_pos = cos(to_radians(-angle)) * alpha;
+    // x_pos = x_pos + cos(to_radians(angle)) * beta;
+    // y_pos = y_pos + sin(to_radians(angle)) * beta;
+    
+    x_pos = CalcFOVAngle(-dr_vectorBeta);
+    y_pos = CalcFOVAngle(-dr_vectorAlpha);
+    
 
     if (viggen_mode >= 1) {
         // Med Viggen när man landar så ska vektorns position övergå till att visa sjunkhastighet relaterat till 2.96 meter per sekund
@@ -536,8 +540,6 @@ void DrawHorizionLines() {
     int gear = getGear();
     float vdef = getILSv();
 
-
-
     int screen_width;
     int screen_height;
     XPLMGetScreenSize(&screen_width, &screen_height);
@@ -573,8 +575,6 @@ void DrawHorizionLines() {
     glVertex2f(-590, 0);
 
     glEnd();
-
-    
 
     glLineWidth(line_width);
     // Compas lines
@@ -1603,7 +1603,6 @@ void drawADHelp() {
 }
 
 void drawPrick() {
-    
 
     float y_pos = CalcFOVAngle(getPitch());
     float angle = getRoll();
@@ -1620,10 +1619,7 @@ void drawPrick() {
     // ILS indikator
 
     glPushMatrix();
-    
-    
-    
-    
+
     if (getPrickActive() == 1 && markKontakt() == 0) {
         SetGLTransparentLines();
         //DrawFillCircleXY(5, 0, -100);
@@ -1631,7 +1627,7 @@ void drawPrick() {
         glPushMatrix();
         glRotatef(angle, 0, 0, 1);
         glTranslatef(0, -y_pos, 0);
-        
+
         // Landingsbanan inringad
         glLineWidth(line_width);
         float storlek = interpolate(20.0f, 70.0f, 3500.0f, 20.0f, getBanaDist());
@@ -1639,18 +1635,17 @@ void drawPrick() {
             storlek = 20;
         }
         DrawBanaXY(storlek, banax, banay);
-        
-        
+
         int utanfor = 0;
-        if (x_pos > CalcFOVAngle(13) ) {
+        if (x_pos > CalcFOVAngle(13)) {
             x_pos = CalcFOVAngle(13);
             utanfor = 1;
-            y_pos = y_pos/10;
+            y_pos = y_pos / 10;
         }
         if (x_pos < CalcFOVAngle(-13)) {
             x_pos = CalcFOVAngle(-13);
             utanfor = 1;
-            y_pos = y_pos/10;
+            y_pos = y_pos / 10;
         }
         if (y_pos - y_prick < CalcFOVAngle(-10)) {
             y_prick = CalcFOVAngle(10);
@@ -1658,7 +1653,7 @@ void drawPrick() {
             //y_prick = y_pos;
         }
         if (y_pos - y_prick > -CalcFOVAngle(-19)) {
-            
+
             // den här är nedåt i bilden
             y_prick = CalcFOVAngle(-19);
             utanfor = 1;
@@ -1671,86 +1666,107 @@ void drawPrick() {
             glTranslatef(0, -100, 0);
             glLineWidth(line_width);
             glBegin(GL_LINES);
-            
-            glVertex2f(x_pos/2, y_prick/2);
-            
+
+            glVertex2f(x_pos / 2, y_prick / 2);
+
             glVertex2f(x_pos, y_prick);
 
             glEnd();
             DrawFillCircleXY(6, x_pos, y_prick);
-            
-            
+
         } else {
             DrawFillCircleXY(5, x_pos, y_prick);
             glPopMatrix();
         }
-
-        
     }
     glPopMatrix();
 }
 
-float norm3(float *fv) {
-    float s = sqrt((fv[0]*fv[0])+(fv[1]*fv[1])+(fv[2]*fv[2]));
-    if (s != 0) {
-        fv[0] = fv[0]/s;
-        fv[1] = fv[1]/s;
-        fv[2] = fv[2]/s;
-    }
-    
-    return s;
 
+float norm(float v[3]) {
+
+    int i;
+    float square_sum = 0.0;
+
+    for (i = 0; i < 3; i++)
+        square_sum += v[i] * v[i];
+
+    if (square_sum > 0.0) {
+        square_sum = sqrt(square_sum);
+        for (i = 0; i < 3; i++)
+            v[i] /= square_sum;
+        return square_sum;
+    } else {
+        return 0;
+    }
 }
-void HUD_NoseVector() {
-    float vx = dr_vx;
-    float vy = dr_vy;
-    float vz = dr_vz;
-	float theta = dr_theta;
-    float psi = dr_psi;
-    float phi = dr_phi;
-	float hx;
-    float hy;
-    
-	int i;
-	
-	float v[3] = { vx, vy, vz };
-	norm3(v);
-	
-	theta 	*= M_PI / 180.0;
-	psi 	*= M_PI / 180.0;
-	phi 	*= M_PI / 180.0;
-	
+
+void HUD_HeadingVector(float vx, float vy, float vz,      //
+                       float theta, float psi, float phi, //
+                       float* hx, float* hy) {
+    int i;
+
+    float v[3] = {vx, vy, vz};
+    norm(v);
+
+    theta *= M_PI / 180.0;
+    psi *= M_PI / 180.0;
+    phi *= M_PI / 180.0;
+
     float s_theta = sin(theta);
     float c_theta = cos(theta);
 
-    float s_phi = sin(phi);
-    float c_phi = cos(phi);
+    float s_phi = sin(-phi);
+    float c_phi = cos(-phi);
 
     float s_psi = sin(psi);
     float c_psi = cos(psi);
 
-	float n[3] = { c_theta*c_psi, c_theta*s_psi, s_theta };
-	norm3(n);
-					
-	float xh[3] = { c_theta*s_psi, c_theta*c_psi, 0 };
-	float yh[3] = { -s_theta*c_psi, -s_theta*s_psi, c_theta };
-	
-	norm3(xh);
-	norm3(yh);
+    float n[3] = {
+        c_theta * s_psi,
+        s_theta,
+        -c_theta * c_psi,
+    };
 
-	float hx_s = 0.0, hy_s = 0.0;
-		
-	for (i = 0; i < 3; i++) {
-		hx_s += (v[i] - n[i])*xh[i];
-		hy_s += (v[i] - n[i])*yh[i];
-	}
+    norm(n);
 
-    hx = asin( hx_s*c_phi - hy_s*s_phi) * 180.0 / M_PI;
-    hy = asin(hy_s*c_phi + hx_s*s_phi) * 180.0 / M_PI;
-	DrawFillCircleXY(15, hx, hy);
-    char tempText[100];
+    float xh[3] = {
+        c_theta * c_psi,
+        0.0,
+        c_theta * s_psi,
+    };
+    float yh[3] = {-s_theta * s_psi, c_theta, s_theta * c_psi};
 
-    sprintf(tempText, "test x%f y%f", hx, hy); // $ is replaced with alpha sign in bitmap
-    DrawHUDText(tempText, &fontMain, 0, 0, 1, color);
+    norm(xh);
+    norm(yh);
 
+    float hx_s = 0.0, hy_s = 0.0;
+
+    float vn_diff[3], n_dot_v = 0.0;
+
+    for (i = 0; i < 3; i++) {
+
+        vn_diff[i] = v[i] - n[i];
+        n_dot_v += n[i] * v[i];
+
+        hx_s += vn_diff[i] * xh[i];
+        hy_s += vn_diff[i] * yh[i];
+    }
+
+    if (hx_s * hx_s + hy_s * hy_s < 1.0e-6) {
+        *hx = 0.0;
+        *hy = 0.0;
+        return;
+    }
+
+    float alpha = acos(n_dot_v) * 180 / M_PI;
+
+    *hx = hx_s * c_phi + hy_s * s_phi;
+    *hy = hy_s * c_phi - hx_s * s_phi;
+
+    float h[3] = {*hx, *hy, 0.0};
+    float norm_h = norm(h);
+
+    *hx *= alpha / norm_h;
+    *hy *= alpha / norm_h;
 }

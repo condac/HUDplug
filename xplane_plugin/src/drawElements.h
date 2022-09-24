@@ -28,7 +28,9 @@ void DrawCompassViggen(float x, float y);
 void drawSpeedAlphaViggen(float x, float y);
 void drawADHelp();
 void drawPrick();
-void HUD_NoseVector() ;
+void HUD_NoseVector();
+void HUD_HeadingVector(float vx, float vy, float vz, float theta, float psi, float phi, float* hx, float* hy);
+
 
 float interpolate(float x1, float y1, float x2, float y2, float value);
 float constrain(float val, float lower, float upper);

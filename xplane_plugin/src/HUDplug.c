@@ -315,6 +315,12 @@ float dr_theta = 0;
 float dr_phi = 0;
 float dr_psi = 0;
 
+float dr_truetheta = 0;
+float dr_truephi = 0;
+float dr_truepsi = 0;
+
+float dr_vectorAlpha = 0;
+float dr_vectorBeta = 0;
 
 void updateDatarefs() {
     dr_gear = getGear();
@@ -326,6 +332,13 @@ void updateDatarefs() {
     dr_theta = getPitch();
     dr_phi = getRoll();
     dr_psi = getTrueHeading();
+    
+    dr_truetheta = getTrueTheta();
+    dr_truephi = getTruePhi();
+    dr_truepsi = getTruePsi();
+    
+    HUD_HeadingVector(dr_vx, dr_vy, dr_vz, dr_theta, dr_psi, dr_phi, &dr_vectorBeta, &dr_vectorAlpha);
+
 }
 
 void drawHUD() {

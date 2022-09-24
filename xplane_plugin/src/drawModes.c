@@ -274,7 +274,7 @@ void DrawModesJAS() {
 
     DrawHorizionLines();
     drawPrick();
-    HUD_NoseVector();
+
 }
 void DrawViggenMode1() {
     // Viggen mode 1

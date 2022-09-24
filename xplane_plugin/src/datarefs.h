@@ -167,4 +167,14 @@ float getPanelL();
 float getPanelR();
 float getPanelT();
 float getPanelB();
+
+extern float dr_truetheta;
+extern float dr_truepsi;
+extern float dr_truephi;
+ float getTruePsi();
+ float getTruePhi();
+ float getTrueTheta();
+extern float dr_vectorAlpha;
+extern float dr_vectorBeta;
+
 #endif

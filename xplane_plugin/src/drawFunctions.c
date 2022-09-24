@@ -81,9 +81,9 @@ int CalculateCenter(void) {
     glTranslatef(TEXTURE_WIDTH / 2, TEXTURE_WIDTH * (2.0f / 3.0f), 0);
 
     // Slumpbrus genom förflyttning i sidled
-    float randomfloat = (float)rand()/(float)(RAND_MAX/line_width);
-    float randomfloat2 = (float)rand()/(float)(RAND_MAX/line_width);
-    glTranslatef(randomfloat/2.0f, randomfloat2/2.0f, 0);
+    // float randomfloat = (float)rand()/(float)(RAND_MAX/line_width);
+    // float randomfloat2 = (float)rand()/(float)(RAND_MAX/line_width);
+    // glTranslatef(randomfloat/2.0f, randomfloat2/2.0f, 0);
     
     glScalef(TEXTURE_WIDTH/1024.0f, TEXTURE_WIDTH/1024.0f, 0);
     // #ifdef NO_FRAMEBUFFER
