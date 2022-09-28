@@ -249,7 +249,7 @@ void DrawModesJAS() {
         DrawSpeed(0, y_pos);
         DrawAlpha(SPEED_POS_X, y_pos);
         DrawAltitude(0, y_pos);
-        DrawNAVText(glass_width / 2 - 30, 280);
+        DrawNAVText(glass_width / 2 - 60, 180);
         // DrawFuelTime(-glass_width / 2 + 30, 310);
     } else {
         TranslateToCenter();
@@ -258,7 +258,7 @@ void DrawModesJAS() {
         DrawSpeed(0, 0);
         DrawAlpha(SPEED_POS_X, 0);
         DrawAltitude(0, 0);
-        DrawNAVText(glass_width / 2 - 30, -450);
+        DrawNAVText(glass_width / 2 - 60, -450);
         // DrawFuelTime(-glass_width / 2 + 30, -750);
 
         //TranslateToCenter();
@@ -302,7 +302,7 @@ void DrawViggenMode1() {
     } else {
 
         DrawCompassViggen(0, 320);
-        drawSpeedAlphaViggen(-200, -50);
+        drawSpeedAlphaViggen(-200, -60);
         //DrawSpeed(-50, 0);
         //DrawSpeed(0, 0);
         //DrawAlpha(SPEED_POS_X-50, 0);

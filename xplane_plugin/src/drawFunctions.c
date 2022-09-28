@@ -311,6 +311,17 @@ float max2(float value1, float value2) {
     return value2;
 }
 
+float fix180(float input) {
+    
+    if (input <-180.0f) {
+        input = input +360;
+    }
+    if (input >180) {
+        input = input -360;
+    }	
+    return input;
+}
+
 void DrawGlassObject(float width) {
 
     float scale = width / 280.0f;
@@ -373,9 +384,9 @@ void DrawGlassObjectViggen(float width) {
     glTranslatef(0, width * 0.857142857143f, 0);
     glBegin(GL_POLYGON);
     //glColor4fv(colorglass);
-    glTexCoord2f(0.242857142857f, centerUV + 0.485714285714f);
+    glTexCoord2f(0.242857142857f, centerUV + 0.364285714286f);
     glVertex2f(-68 * scale, center - 138 * scale);
-    glTexCoord2f(0.242857142857f, centerUV + 0.485714285714f);
+    glTexCoord2f(0.242857142857f, centerUV + 0.364285714286f);
     glVertex2f(-68 * scale, center - 138 * scale);
 
     glTexCoord2f(0.242857142857f, centerUV + 0.660714285714f);
@@ -402,9 +413,9 @@ void DrawGlassObjectViggen(float width) {
     glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.660714285714f);
     glVertex2f(68 * scale, center - 55 * scale);
 
-    glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.485714285714f);
+    glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.364285714286f);
     glVertex2f(68 * scale, center - 138 * scale);
-    glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.485714285714f);
+    glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.364285714286f);
     glVertex2f(68 * scale, center - 138 * scale);
 
     glEnd();

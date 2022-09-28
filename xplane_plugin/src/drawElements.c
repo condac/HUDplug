@@ -142,6 +142,7 @@ void DrawCompass(float x, float y) {
 
     // NAV 1 riktning
     float offset = (nav1_heading)-heading;
+    offset = fix180(offset);
     float rate = 80 / 10;
     offset = lim(offset * rate, -150, 150);
 
@@ -403,11 +404,27 @@ void DrawVector() {
         tail_pos = body_radius + (landningsAlfa - alphaA) * 5.0f;
     } else {
         // JAS
-        tail_pos = airspeed - getLandingSpeed() + 0;
+        if (dr_gear) {
+            tail_pos = airspeed - getLandingSpeed() + 0;
+        }else {
+            if (dr_jas_a14>0) {
+                tail_pos = body_radius + (14 - alphaA) * 5.0f;
+            }else {
+                tail_pos = body_radius + (12 - alphaA) * 5.0f;
+            }
+        }
+        
+        
     }
+    
+    x_pos = CalcFOVAngle(-dr_vectorBeta);
+    y_pos = CalcFOVAngle(-dr_vectorAlpha);
+    
     if (getGroundSpeed() < 5) {
         //alpha = 0;
         beta = 0;
+        x_pos = 0;
+        y_pos = 0;
     }
 
     tail_pos = fmin(tail_pos, 30); // Fenans längd ska motsvara 20km/h
@@ -420,8 +437,7 @@ void DrawVector() {
     // x_pos = x_pos + cos(to_radians(angle)) * beta;
     // y_pos = y_pos + sin(to_radians(angle)) * beta;
     
-    x_pos = CalcFOVAngle(-dr_vectorBeta);
-    y_pos = CalcFOVAngle(-dr_vectorAlpha);
+    
     
 
     if (viggen_mode >= 1) {
@@ -898,6 +914,11 @@ void DrawSpeed(float x, float y) {
     }
     //DrawHUDText(temp, &fontMain, (SPEED_POS_X - 30)  , (SPEED_POS_Y  ) - (textHeight(1.0) / 2), 2, color);
     drawLineText(temp, (SPEED_POS_X - 18), (y) - (textHeight(1.0) / 2), 1.0, 2);
+    if (dr_jas_autopilot_afk_mode >=1) {
+        sprintf(temp, "AFK");
+        drawLineText(temp, (SPEED_POS_X - 18), (y) - (textHeight(1.0) / 2)+textHeight(1.2), 1.0, 2);
+    }
+    
 
     sprintf(temp2, "%.2f", mach);
     if (temp2[0] == '0') {
@@ -1174,9 +1195,9 @@ void DrawGroundCollision() {
 
         glColor4fv(color);
         glLineWidth(line_width);
-
+        float rolloffset =  cos(to_radians(angle/2));
         glRotatef(angle, 0, 0, 1);
-        glTranslatef(0, fmin(fmax(-y_pos - markvinkeln, -300.0), 100), 0);
+        glTranslatef(0, fmin(fmax(-y_pos - markvinkeln, -300.0*rolloffset), 100*rolloffset), 0);
         //glTranslatef(0, -50, 0);
 
         if (gneed > 9) {
@@ -1277,8 +1298,8 @@ void DrawFuelTime(float x, float y) {
 void DrawNAVText(float x, float y) {
     char temp[260];
     char textId[160];
-    float nav1_distance = getNAV1Distance();
-    float nav1_eta = getNAV1ETA();
+    float nav1_distance = getNAVxDistance()/1000;
+    float nav1_eta = getNAVxETA();
     //float vx = getVX();
 
     int sec, h, m, s;
@@ -1293,9 +1314,13 @@ void DrawNAVText(float x, float y) {
     SetGLTransparentLines();
     SetGLText();
     glColor4fv(color);
-    getNAV1Id(textId);
-    if (strlen(textId) > 1) {
-        sprintf(temp, "%s  %.1fkm - %02d:%02d:%02d", textId, nm2km(nav1_distance), h, m, s);
+    getNAVxNamn(textId);
+    if (textId[0] != 0) {
+        sprintf(temp, "%s %.1fkm - %02d:%02d:%02d", textId, nav1_distance, h, m, s);
+        DrawHUDText(temp, &fontMain, x, y, 2, color);
+    }
+    else {
+        sprintf(temp, "%.1fkm - %02d:%02d:%02d", nav1_distance, h, m, s);
         DrawHUDText(temp, &fontMain, x, y, 2, color);
     }
 }
@@ -1523,7 +1548,7 @@ void drawSpeedAlphaViggen(float x, float y) {
     float alpha = myGetAlpha();
     float mach = getMachSpeed();
 
-    char tempText[32];
+    char tempText[132];
 
     sprintf(tempText, "& %.0f", alpha); // $ is replaced with alpha sign in bitmap
     DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y + 120)) + ((textHeight(1.0) * text_scale) * 2), 1, color);
@@ -1552,6 +1577,21 @@ void drawSpeedAlphaViggen(float x, float y) {
         alt = alt * 10;
         snprintf(tempText, 13, "%03d", alt);
         DrawHUDText(tempText, &fontMain, 135, -10, 1, color);
+    }
+    float trim = getPitchTrim();
+    static float trim_prev;
+    if (trim_prev != trim) {
+        trim_prev = trim;
+        sprintf(tempText, "TRIM %.0f", trim * 100);
+        DrawHUDText(tempText, &fontMain, (0), ((180)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
+    }
+    // if (getSpeedBrake()) {
+    //     sprintf(temp, "LUFTBROMS UTE");
+    //     DrawHUDText(temp, &fontMain, (0), ((200)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
+    // }
+    if (getParkBrake()) {
+        sprintf(tempText, "PARKERINGSBROMS");
+        DrawHUDText(tempText, &fontMain, (0), ((225 - 80)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
     }
 }
 
@@ -1620,7 +1660,7 @@ void drawPrick() {
 
     glPushMatrix();
 
-    if (getPrickActive() == 1 && markKontakt() == 0) {
+    if (getPrickActive() >= 1 && markKontakt() == 0) {
         SetGLTransparentLines();
         //DrawFillCircleXY(5, 0, -100);
         glColor4fv(color);

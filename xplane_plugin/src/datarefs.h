@@ -171,10 +171,17 @@ float getPanelB();
 extern float dr_truetheta;
 extern float dr_truepsi;
 extern float dr_truephi;
- float getTruePsi();
- float getTruePhi();
- float getTrueTheta();
+float getTruePsi();
+float getTruePhi();
+float getTrueTheta();
 extern float dr_vectorAlpha;
 extern float dr_vectorBeta;
+extern int dr_jas_autopilot_afk_mode;
+int getAfkMode();
+extern int dr_jas_a14;
+int getA14();
+void getNAVxNamn(char* namn);
+float getNAVxDistance();
+float getNAVxETA();
 
-#endif
+#endif //DATAREF_H_INCLUDED

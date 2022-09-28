@@ -45,6 +45,8 @@ float kmhToknots(float in);
 float feetTom(float in);
 float m2feet(float in);
 float nm2km(float nm);
+float fix180(float input);
+
 
 void CalculateColors();
 float to_radians(float degrees);

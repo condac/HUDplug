@@ -156,7 +156,7 @@ int findDataRef(const char* name, XPLMDataRef* result) {
         debugLog("\n");
         return -1;
     }
-    return 0;
+    return 1;
 }
 
 int registerDataRefs() {
@@ -795,113 +795,166 @@ int getWindowWidth() {
 
 float getProjectionMatrix(int index) {
     static XPLMDataRef dr;
-    static int init = 0;
-    if (init == 0) {
+    static int init = -1;
+    if (init == -1) {
         char name[] = "sim/graphics/view/projection_matrix";
-        findDataRef(name, &dr);
-        init = 1;
+        init = findDataRef(name, &dr);
     }
     return getArrayValuef(dr, index);
 }
 float getProjectionMatrix3d(int index) {
     static XPLMDataRef dr;
-    static int init = 0;
-    if (init == 0) {
+    static int init = -1;
+    if (init == -1) {
         char name[] = "sim/graphics/view/projection_matrix_3d";
-        findDataRef(name, &dr);
-        init = 1;
+        init = findDataRef(name, &dr);
     }
     return getArrayValuef(dr, index);
 }
 float getModelMatrix(int index) {
     static XPLMDataRef dr;
-    static int init = 0;
-    if (init == 0) {
+    static int init = -1;
+    if (init == -1) {
         char name[] = "sim/graphics/view/modelview_matrix";
-        findDataRef(name, &dr);
-        init = 1;
+        init = findDataRef(name, &dr);
     }
     return getArrayValuef(dr, index);
 }
 
 float getPanelL() {
     static XPLMDataRef dr;
-    static int init = 0;
-    if (init == 0) {
+    static int init = -1;
+    if (init == -1) {
         char name[] = "sim/graphics/view/panel_total_pnl_l";
-        findDataRef(name, &dr);
-        init = 1;
+        init = findDataRef(name, &dr);
     }
     return XPLMGetDataf(dr);
 }
 float getPanelR() {
     static XPLMDataRef dr;
-    static int init = 0;
-    if (init == 0) {
+    static int init = -1;
+    if (init == -1) {
         char name[] = "sim/graphics/view/panel_total_pnl_r";
-        findDataRef(name, &dr);
-        init = 1;
+        init = findDataRef(name, &dr);
     }
     return XPLMGetDataf(dr);
 }
 float getPanelT() {
     static XPLMDataRef dr;
-    static int init = 0;
-    if (init == 0) {
+    static int init = -1;
+    if (init == -1) {
         char name[] = "sim/graphics/view/panel_total_pnl_t";
-        findDataRef(name, &dr);
-        init = 1;
+        init = findDataRef(name, &dr);
     }
     return XPLMGetDataf(dr);
 }
 float getPanelB() {
     static XPLMDataRef dr;
-    static int init = 0;
-    if (init == 0) {
+    static int init = -1;
+    if (init == -1) {
         char name[] = "sim/graphics/view/panel_total_pnl_b";
-        findDataRef(name, &dr);
-        init = 1;
+        init = findDataRef(name, &dr);
     }
     return XPLMGetDataf(dr);
 }
 
 int getViewType() {
     static XPLMDataRef dr;
-    static int init = 0;
-    if (init == 0) {
+    static int init = -1;
+    if (init == -1) {
         char name[] = "sim/graphics/view/view_type";
-        findDataRef(name, &dr);
-        init = 1;
+        init = findDataRef(name, &dr);
     }
     return XPLMGetDatai(dr);
 }
 float getTruePsi() {
     static XPLMDataRef dr;
-    static int init = 0;
-    if (init == 0) {
+    static int init = -1;
+    if (init == -1) {
         char name[] = "sim/flightmodel/position/true_psi";
-        findDataRef(name, &dr);
-        init = 1;
+        init = findDataRef(name, &dr);
     }
     return XPLMGetDataf(dr);
 }
 float getTruePhi() {
     static XPLMDataRef dr;
-    static int init = 0;
-    if (init == 0) {
+    static int init = -1;
+    if (init == -1) {
         char name[] = "sim/flightmodel/position/true_phi";
-        findDataRef(name, &dr);
-        init = 1;
+        init = findDataRef(name, &dr);
     }
     return XPLMGetDataf(dr);
 }
 float getTrueTheta() {
     static XPLMDataRef dr;
+    static int init = -1;
+    if (init == -1) {
+        char name[] = "sim/flightmodel/position/true_theta";
+        init = findDataRef(name, &dr);
+    }
+    return XPLMGetDataf(dr);
+}
+
+int getAfkMode() {
+    static XPLMDataRef dr;
+    static int init = -1;
+    if(init == 1) {
+        return XPLMGetDatai(dr);
+    }
+    if (init == -1) {
+        char name[] = "JAS/autopilot/afk_mode";
+        init = findDataRef(name, &dr);
+    }
+    return 0;
+}
+int getA14() {
+    static XPLMDataRef dr;
+    static int init = -1;
+    if(init == 1) {
+        return XPLMGetDatai(dr);
+    }
+    if (init == -1) {
+        char name[] = "JAS/a14";
+        init = findDataRef(name, &dr);
+    }
+    return 0;
+}
+
+void getNAVxNamn(char* namn) {
+    static XPLMDataRef dr;
+    static int init = -1;
+    if(init == 1) {
+        namn[0] = getArrayValuei(dr, 0);
+        namn[1] = getArrayValuei(dr, 1);
+        namn[2] = getArrayValuei(dr, 2);
+        namn[3] = getArrayValuei(dr, 3);
+        //debugLog("banan %d\n", getArrayValuei(dr, 0));
+    }
+    if (init == -1) {
+        char name[] = "JAS/si/nav/namn";
+        init = findDataRef(name, &dr);
+        //debugLog("banan init %d\n", init);
+    }
+    // return 0;
+}
+
+float getNAVxDistance() {
+    static XPLMDataRef dr;
     static int init = 0;
     if (init == 0) {
-        char name[] = "sim/flightmodel/position/true_theta";
-        findDataRef(name, &dr);
-        init = 1;
+        char name[] = "JAS/si/nav/dist";
+        init = findDataRef(name, &dr);
+    }
+    return XPLMGetDataf(dr);
+}
+
+
+float getNAVxETA() {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "JAS/si/nav/eta";
+        init = findDataRef(name, &dr);
     }
     return XPLMGetDataf(dr);
 }

@@ -321,6 +321,8 @@ float dr_truepsi = 0;
 
 float dr_vectorAlpha = 0;
 float dr_vectorBeta = 0;
+int dr_jas_autopilot_afk_mode = 0;
+int dr_jas_a14 = 0;
 
 void updateDatarefs() {
     dr_gear = getGear();
@@ -339,6 +341,9 @@ void updateDatarefs() {
     
     HUD_HeadingVector(dr_vx, dr_vy, dr_vz, dr_theta, dr_psi, dr_phi, &dr_vectorBeta, &dr_vectorAlpha);
 
+    dr_jas_autopilot_afk_mode = getAfkMode();
+    dr_jas_a14 = getA14();
+    
 }
 
 void drawHUD() {
@@ -798,7 +803,11 @@ void drawHudTexture() {
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
 
-    DrawGlassObject(280);
+    if (viggen_mode >= 1) {
+        DrawGlassObjectViggen(280);
+    } else {
+        DrawGlassObject(280);
+    }
     glPopMatrix();
 #endif
     // Slut riktiga bilden
