@@ -406,20 +406,18 @@ void DrawVector() {
         // JAS
         if (dr_gear) {
             tail_pos = airspeed - getLandingSpeed() + 0;
-        }else {
-            if (dr_jas_a14>0) {
+        } else {
+            if (dr_jas_a14 > 0) {
                 tail_pos = body_radius + (14 - alphaA) * 5.0f;
-            }else {
+            } else {
                 tail_pos = body_radius + (12 - alphaA) * 5.0f;
             }
         }
-        
-        
     }
-    
+
     x_pos = CalcFOVAngle(-dr_vectorBeta);
     y_pos = CalcFOVAngle(-dr_vectorAlpha);
-    
+
     if (getGroundSpeed() < 5) {
         //alpha = 0;
         beta = 0;
@@ -436,9 +434,6 @@ void DrawVector() {
     // y_pos = cos(to_radians(-angle)) * alpha;
     // x_pos = x_pos + cos(to_radians(angle)) * beta;
     // y_pos = y_pos + sin(to_radians(angle)) * beta;
-    
-    
-    
 
     if (viggen_mode >= 1) {
         // Med Viggen när man landar så ska vektorns position övergå till att visa sjunkhastighet relaterat till 2.96 meter per sekund
@@ -649,68 +644,15 @@ void DrawHorizionLines() {
         }
     }
 
-    for (int i = 10; i < 90; i += 10) {
-        // if ((i > getPitch() - 35) && (i < getPitch() + 30)) {
-        //     glLineWidth(line_width);
-        //     glBegin(GL_LINES);
-        //
-        //     glVertex2f(40  , CalcFOVAngle(i));
-        //     glVertex2f(200  , CalcFOVAngle(i));
-        //
-        //     glVertex2f(-40  , CalcFOVAngle(i));
-        //     glVertex2f(-200  , CalcFOVAngle(i));
-        //     glEnd();
-        //
-        // }
-        DrawCircleUp(CalcFOVAngle(i), 0, CalcFOVAngle(90), heading);
-    }
-
-    for (int i = -10; i > -90; i -= 10) {
-        // if ((i > getPitch() - 35) && (i < getPitch() + 30)) {
-        //     glLineWidth(line_width);
-        //     glBegin(GL_LINES);
-        //
-        //     glVertex2f(15  , CalcFOVAngle(i));
-        //     glVertex2f(400 - 15  , CalcFOVAngle(i));
-        //
-        //     // en knöl uppåt
-        //     //mitten
-        //     glVertex2f(0  , CalcFOVAngle(i) + (40  ));
-        //     glVertex2f(15  , CalcFOVAngle(i));
-        //
-        //     glVertex2f(0  , CalcFOVAngle(i) + (40  ));
-        //     glVertex2f(-15  , CalcFOVAngle(i));
-        //
-        //     // höger
-        //     glVertex2f(400  , CalcFOVAngle(i) + (40  ));
-        //     glVertex2f(400 + 15  , CalcFOVAngle(i));
-        //
-        //     glVertex2f(400  , CalcFOVAngle(i) + (40  ));
-        //     glVertex2f(400 - 15  , CalcFOVAngle(i));
-        //
-        //     glVertex2f(400 + 15 + 80  , CalcFOVAngle(i));
-        //     glVertex2f(400 + 15  , CalcFOVAngle(i));
-        //
-        //     // andra sidan
-        //     glVertex2f(-15  , CalcFOVAngle(i));
-        //     glVertex2f(-400 + 15  , CalcFOVAngle(i));
-        //
-        //     // en knöl uppåt
-        //     // vänster
-        //     glVertex2f(-400  , CalcFOVAngle(i) + (40  ));
-        //     glVertex2f(-400 - 15  , CalcFOVAngle(i));
-        //
-        //     glVertex2f(-400  , CalcFOVAngle(i) + (40  ));
-        //     glVertex2f(-400 + 15  , CalcFOVAngle(i));
-        //
-        //     glVertex2f(-400 - 15 - 80  , CalcFOVAngle(i));
-        //     glVertex2f(-400 - 15  , CalcFOVAngle(i));
-        //
-        //     glEnd();
-        //
-        // }
-        DrawCircleDown(CalcFOVAngle(i), 0, CalcFOVAngle(-90), heading);
-    }
+    // for (int i = 10; i < 90; i += 10) {
+    //
+    //     DrawCircleUp(CalcFOVAngle(i), 0, CalcFOVAngle(90), heading);
+    // }
+    //
+    // for (int i = -10; i > -90; i -= 10) {
+    //
+    //     DrawCircleDown(CalcFOVAngle(i), 0, CalcFOVAngle(-90), heading);
+    // }
 
     // Cirkel vid 90 grader
     DrawCircleXY(200, 0, CalcFOVAngle(90));
@@ -719,6 +661,7 @@ void DrawHorizionLines() {
     DrawCircleXY(200, 0, CalcFOVAngle(-90));
     float textradius_pos = 180;
 
+    // Kompass pilar eller krysset när man kikar rakt ner
     glLineWidth(line_width);
     glBegin(GL_LINES);
 
@@ -785,8 +728,74 @@ void DrawHorizionLines() {
     // glPopMatrix();
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 
+    // Nya linjerna
+
     glTranslatef(0, y_pos, 0);
     glRotatef(-angle, 0, 0, 1);
+
+    SetGLTransparentLines();
+    glColor4fv(color);
+    for (float pitch = 10; pitch < 90; pitch += 10) {
+        glLineWidth(line_width);
+        glBegin(GL_LINE_STRIP);
+
+        float starthead = floor((dr_psi - 50) / 10) * 10;
+
+        for (float head = starthead; head < starthead + 100; head += 10) {
+            float delta_degrees_x, delta_degrees_y;
+            HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, head, &delta_degrees_x, &delta_degrees_y);
+            delta_degrees_x = CalcFOVAngle(delta_degrees_x);
+            delta_degrees_y = CalcFOVAngle(delta_degrees_y);
+            glVertex2f(delta_degrees_x, delta_degrees_y);
+        }
+        glEnd();
+    }
+
+    for (float pitch = -10; pitch > -90; pitch -= 10) {
+        glLineWidth(line_width);
+        glBegin(GL_LINE_STRIP);
+
+        float optimering = 50;
+        float starthead = floor((dr_psi - optimering) / 10) * 10;
+        float pilx = (0.83 / 2) * (1.0 / cos(to_radians(pitch)));
+        float steg = 10;
+        if (pitch < -60) {
+            steg = 30;
+            optimering = 180;
+            starthead = floor((dr_psi - optimering) / 10) * 10;
+        }
+        for (float head = starthead; head < starthead + optimering * 2; head += steg) {
+            // float delta = head -(dr_psi-180);
+            // delta = fix180(delta);
+            // if (delta>50 && delta > -50) {
+            float delta_degrees_x, delta_degrees_y;
+            HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch + 1, head, &delta_degrees_x, &delta_degrees_y);
+            delta_degrees_x = CalcFOVAngle(delta_degrees_x);
+            delta_degrees_y = CalcFOVAngle(delta_degrees_y);
+            glVertex2f(delta_degrees_x, delta_degrees_y);
+            HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, head + pilx, &delta_degrees_x, &delta_degrees_y);
+            delta_degrees_x = CalcFOVAngle(delta_degrees_x);
+            delta_degrees_y = CalcFOVAngle(delta_degrees_y);
+            glVertex2f(delta_degrees_x, delta_degrees_y);
+            for (float px = head + pilx; px < head + steg - pilx; px += steg / 4.0) {
+                HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, px, &delta_degrees_x, &delta_degrees_y);
+                delta_degrees_x = CalcFOVAngle(delta_degrees_x);
+                delta_degrees_y = CalcFOVAngle(delta_degrees_y);
+                glVertex2f(delta_degrees_x, delta_degrees_y);
+            }
+            HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, head + steg - pilx, &delta_degrees_x, &delta_degrees_y);
+            delta_degrees_x = CalcFOVAngle(delta_degrees_x);
+            delta_degrees_y = CalcFOVAngle(delta_degrees_y);
+            glVertex2f(delta_degrees_x, delta_degrees_y);
+            HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch + 1, head + steg, &delta_degrees_x, &delta_degrees_y);
+            delta_degrees_x = CalcFOVAngle(delta_degrees_x);
+            delta_degrees_y = CalcFOVAngle(delta_degrees_y);
+            glVertex2f(delta_degrees_x, delta_degrees_y);
+
+            // }
+        }
+        glEnd();
+    }
 
     // char buffer[255];
     // sprintf(buffer, "Roll: %f, Pitch %f, FOV %f, FOVPixel %f, y_pos %f", getRoll(), getPitch(), getFOV(), fov_pixels, y_pos);
@@ -914,11 +923,10 @@ void DrawSpeed(float x, float y) {
     }
     //DrawHUDText(temp, &fontMain, (SPEED_POS_X - 30)  , (SPEED_POS_Y  ) - (textHeight(1.0) / 2), 2, color);
     drawLineText(temp, (SPEED_POS_X - 18), (y) - (textHeight(1.0) / 2), 1.0, 2);
-    if (dr_jas_autopilot_afk_mode >=1) {
+    if (dr_jas_autopilot_afk_mode >= 1) {
         sprintf(temp, "AFK");
-        drawLineText(temp, (SPEED_POS_X - 18), (y) - (textHeight(1.0) / 2)+textHeight(1.2), 1.0, 2);
+        drawLineText(temp, (SPEED_POS_X - 18), (y) - (textHeight(1.0) / 2) + textHeight(1.2), 1.0, 2);
     }
-    
 
     sprintf(temp2, "%.2f", mach);
     if (temp2[0] == '0') {
@@ -1195,9 +1203,9 @@ void DrawGroundCollision() {
 
         glColor4fv(color);
         glLineWidth(line_width);
-        float rolloffset =  cos(to_radians(angle/2));
+        float rolloffset = cos(to_radians(angle / 2));
         glRotatef(angle, 0, 0, 1);
-        glTranslatef(0, fmin(fmax(-y_pos - markvinkeln, -300.0*rolloffset), 100*rolloffset), 0);
+        glTranslatef(0, fmin(fmax(-y_pos - markvinkeln, -300.0 * rolloffset), 100 * rolloffset), 0);
         //glTranslatef(0, -50, 0);
 
         if (gneed > 9) {
@@ -1298,7 +1306,7 @@ void DrawFuelTime(float x, float y) {
 void DrawNAVText(float x, float y) {
     char temp[260];
     char textId[160];
-    float nav1_distance = getNAVxDistance()/1000;
+    float nav1_distance = getNAVxDistance() / 1000;
     float nav1_eta = getNAVxETA();
     //float vx = getVX();
 
@@ -1318,8 +1326,7 @@ void DrawNAVText(float x, float y) {
     if (textId[0] != 0) {
         sprintf(temp, "%s %.1fkm - %02d:%02d:%02d", textId, nav1_distance, h, m, s);
         DrawHUDText(temp, &fontMain, x, y, 2, color);
-    }
-    else {
+    } else {
         sprintf(temp, "%.1fkm - %02d:%02d:%02d", nav1_distance, h, m, s);
         DrawHUDText(temp, &fontMain, x, y, 2, color);
     }
@@ -1722,7 +1729,6 @@ void drawPrick() {
     glPopMatrix();
 }
 
-
 float norm(float v[3]) {
 
     int i;
@@ -1737,16 +1743,31 @@ float norm(float v[3]) {
             v[i] /= square_sum;
         return square_sum;
     } else {
-        return 0;
+        return 0.0;
     }
 }
 
-void HUD_HeadingVector(float vx, float vy, float vz,      //
-                       float theta, float psi, float phi, //
-                       float* hx, float* hy) {
+void GetDirectionVector(float theta_rad, float psi_rad, float phi_rad, //
+                        float dir_vector[3]) {
+
+    float s_theta = sin(theta_rad);
+    float c_theta = cos(theta_rad);
+
+    float s_psi = sin(psi_rad);
+    float c_psi = cos(psi_rad);
+
+    dir_vector[0] = c_theta * s_psi;
+    dir_vector[1] = s_theta;
+    dir_vector[2] = -c_theta * c_psi;
+
+    norm(dir_vector);
+}
+
+void HUD_HeadingVector(float vx, float vy, float vz, float theta, float psi, float phi, float* delta_degrees_x, float* delta_degrees_y) {
     int i;
 
     float v[3] = {vx, vy, vz};
+
     norm(v);
 
     theta *= M_PI / 180.0;
@@ -1756,19 +1777,15 @@ void HUD_HeadingVector(float vx, float vy, float vz,      //
     float s_theta = sin(theta);
     float c_theta = cos(theta);
 
-    float s_phi = sin(-phi);
-    float c_phi = cos(-phi);
-
     float s_psi = sin(psi);
     float c_psi = cos(psi);
 
-    float n[3] = {
-        c_theta * s_psi,
-        s_theta,
-        -c_theta * c_psi,
-    };
+    float s_phi = sin(-phi);
+    float c_phi = cos(-phi);
 
-    norm(n);
+    float n[3];
+
+    GetDirectionVector(theta, psi, phi, n);
 
     float xh[3] = {
         c_theta * c_psi,
@@ -1781,32 +1798,43 @@ void HUD_HeadingVector(float vx, float vy, float vz,      //
     norm(yh);
 
     float hx_s = 0.0, hy_s = 0.0;
-
-    float vn_diff[3], n_dot_v = 0.0;
+    float vn_diff, n_dot_v = 0.0;
 
     for (i = 0; i < 3; i++) {
 
-        vn_diff[i] = v[i] - n[i];
+        vn_diff = v[i] - n[i];
         n_dot_v += n[i] * v[i];
 
-        hx_s += vn_diff[i] * xh[i];
-        hy_s += vn_diff[i] * yh[i];
+        hx_s += vn_diff * xh[i];
+        hy_s += vn_diff * yh[i];
     }
 
     if (hx_s * hx_s + hy_s * hy_s < 1.0e-6) {
-        *hx = 0.0;
-        *hy = 0.0;
-        return;
+        *delta_degrees_x = 0.0;
+        *delta_degrees_y = 0.0;
+
+    } else {
+        //printf("n_dot_v: %f\n", n_dot_v);
+        float alpha = acos(n_dot_v) * 180.0 / M_PI;
+
+        //printf("alpha: %f\n", alpha);
+
+        *delta_degrees_x = hx_s * c_phi + hy_s * s_phi;
+        *delta_degrees_y = hy_s * c_phi - hx_s * s_phi;
+
+        float h[3] = {*delta_degrees_x, *delta_degrees_y, 0.0};
+        float norm_h = norm(h);
+
+        *delta_degrees_x *= alpha / norm_h;
+        *delta_degrees_y *= alpha / norm_h;
     }
+}
 
-    float alpha = acos(n_dot_v) * 180 / M_PI;
+void HUD_GuideCircle(float theta, float psi, float phi, float theta_sphere, float psi_sphere, float* delta_degrees_x, float* delta_degrees_y) {
 
-    *hx = hx_s * c_phi + hy_s * s_phi;
-    *hy = hy_s * c_phi - hx_s * s_phi;
+    float sphere_coord_vector[3];
 
-    float h[3] = {*hx, *hy, 0.0};
-    float norm_h = norm(h);
+    GetDirectionVector(theta_sphere * M_PI / 180, psi_sphere * M_PI / 180, 0.0, sphere_coord_vector);
 
-    *hx *= alpha / norm_h;
-    *hy *= alpha / norm_h;
+    HUD_HeadingVector(sphere_coord_vector[0], sphere_coord_vector[1], sphere_coord_vector[2], theta, psi, phi, delta_degrees_x, delta_degrees_y);
 }

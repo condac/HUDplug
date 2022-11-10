@@ -30,7 +30,7 @@ void drawADHelp();
 void drawPrick();
 void HUD_NoseVector();
 void HUD_HeadingVector(float vx, float vy, float vz, float theta, float psi, float phi, float* hx, float* hy);
-
+void HUD_GuideCircle(float theta, float psi, float phi, float theta_sphere, float psi_sphere, float* delta_degrees_x, float* delta_degrees_y);
 
 float interpolate(float x1, float y1, float x2, float y2, float value);
 float constrain(float val, float lower, float upper);
