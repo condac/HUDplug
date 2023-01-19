@@ -736,65 +736,76 @@ void DrawHorizionLines() {
     SetGLTransparentLines();
     glColor4fv(color);
     for (float pitch = 10; pitch < 90; pitch += 10) {
-        glLineWidth(line_width);
-        glBegin(GL_LINE_STRIP);
+        if (abs(pitch - dr_theta) < 40) {
+            glLineWidth(line_width);
+            glBegin(GL_LINE_STRIP);
 
-        float starthead = floor((dr_psi - 50) / 10) * 10;
+            float optimering = 50;
+            float starthead = floor((dr_psi - optimering) / 10) * 10;
+            float steg = 5;
+            if (pitch > 60) {
+                steg = 5;
+                optimering = 181;
+                starthead = floor((dr_psi - optimering) / 10) * 10;
+            }
 
-        for (float head = starthead; head < starthead + 100; head += 10) {
-            float delta_degrees_x, delta_degrees_y;
-            HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, head, &delta_degrees_x, &delta_degrees_y);
-            delta_degrees_x = CalcFOVAngle(delta_degrees_x);
-            delta_degrees_y = CalcFOVAngle(delta_degrees_y);
-            glVertex2f(delta_degrees_x, delta_degrees_y);
-        }
-        glEnd();
-    }
-
-    for (float pitch = -10; pitch > -90; pitch -= 10) {
-        glLineWidth(line_width);
-        glBegin(GL_LINE_STRIP);
-
-        float optimering = 50;
-        float starthead = floor((dr_psi - optimering) / 10) * 10;
-        float pilx = (0.83 / 2) * (1.0 / cos(to_radians(pitch)));
-        float steg = 10;
-        if (pitch < -60) {
-            steg = 30;
-            optimering = 180;
-            starthead = floor((dr_psi - optimering) / 10) * 10;
-        }
-        for (float head = starthead; head < starthead + optimering * 2; head += steg) {
-            // float delta = head -(dr_psi-180);
-            // delta = fix180(delta);
-            // if (delta>50 && delta > -50) {
-            float delta_degrees_x, delta_degrees_y;
-            HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch + 1, head, &delta_degrees_x, &delta_degrees_y);
-            delta_degrees_x = CalcFOVAngle(delta_degrees_x);
-            delta_degrees_y = CalcFOVAngle(delta_degrees_y);
-            glVertex2f(delta_degrees_x, delta_degrees_y);
-            HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, head + pilx, &delta_degrees_x, &delta_degrees_y);
-            delta_degrees_x = CalcFOVAngle(delta_degrees_x);
-            delta_degrees_y = CalcFOVAngle(delta_degrees_y);
-            glVertex2f(delta_degrees_x, delta_degrees_y);
-            for (float px = head + pilx; px < head + steg - pilx; px += steg / 4.0) {
-                HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, px, &delta_degrees_x, &delta_degrees_y);
+            for (float head = starthead; head <= starthead + optimering * 2; head += steg) {
+                float delta_degrees_x, delta_degrees_y;
+                HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, head, &delta_degrees_x, &delta_degrees_y);
                 delta_degrees_x = CalcFOVAngle(delta_degrees_x);
                 delta_degrees_y = CalcFOVAngle(delta_degrees_y);
                 glVertex2f(delta_degrees_x, delta_degrees_y);
             }
-            HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, head + steg - pilx, &delta_degrees_x, &delta_degrees_y);
-            delta_degrees_x = CalcFOVAngle(delta_degrees_x);
-            delta_degrees_y = CalcFOVAngle(delta_degrees_y);
-            glVertex2f(delta_degrees_x, delta_degrees_y);
-            HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch + 1, head + steg, &delta_degrees_x, &delta_degrees_y);
-            delta_degrees_x = CalcFOVAngle(delta_degrees_x);
-            delta_degrees_y = CalcFOVAngle(delta_degrees_y);
-            glVertex2f(delta_degrees_x, delta_degrees_y);
-
-            // }
+            glEnd();
         }
-        glEnd();
+    }
+
+    for (float pitch = -10; pitch > -90; pitch -= 10) {
+        if (abs(pitch - dr_theta) < 40) {
+            glLineWidth(line_width);
+            glBegin(GL_LINE_STRIP);
+
+            float optimering = 50;
+            float starthead = floor((dr_psi - optimering) / 10) * 10;
+            float pilx = (0.83 / 2) * (1.0 / cos(to_radians(pitch)));
+            float steg = 10;
+            if (pitch < -60) {
+                steg = 30;
+                optimering = 180;
+                starthead = floor((dr_psi - optimering) / 10) * 10;
+            }
+            for (float head = starthead; head < starthead + optimering * 2; head += steg) {
+                // float delta = head -(dr_psi-180);
+                // delta = fix180(delta);
+                // if (delta>50 && delta > -50) {
+                float delta_degrees_x, delta_degrees_y;
+                HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch + 1, head, &delta_degrees_x, &delta_degrees_y);
+                delta_degrees_x = CalcFOVAngle(delta_degrees_x);
+                delta_degrees_y = CalcFOVAngle(delta_degrees_y);
+                glVertex2f(delta_degrees_x, delta_degrees_y);
+                HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, head + pilx, &delta_degrees_x, &delta_degrees_y);
+                delta_degrees_x = CalcFOVAngle(delta_degrees_x);
+                delta_degrees_y = CalcFOVAngle(delta_degrees_y);
+                glVertex2f(delta_degrees_x, delta_degrees_y);
+                for (float px = head + pilx; px < head + steg - pilx; px += steg / 4.0) {
+                    HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, px, &delta_degrees_x, &delta_degrees_y);
+                    delta_degrees_x = CalcFOVAngle(delta_degrees_x);
+                    delta_degrees_y = CalcFOVAngle(delta_degrees_y);
+                    glVertex2f(delta_degrees_x, delta_degrees_y);
+                }
+                HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch, head + steg - pilx, &delta_degrees_x, &delta_degrees_y);
+                delta_degrees_x = CalcFOVAngle(delta_degrees_x);
+                delta_degrees_y = CalcFOVAngle(delta_degrees_y);
+                glVertex2f(delta_degrees_x, delta_degrees_y);
+                HUD_GuideCircle(dr_theta, dr_psi, dr_phi, pitch + 1, head + steg, &delta_degrees_x, &delta_degrees_y);
+                delta_degrees_x = CalcFOVAngle(delta_degrees_x);
+                delta_degrees_y = CalcFOVAngle(delta_degrees_y);
+                glVertex2f(delta_degrees_x, delta_degrees_y);
+
+                // }
+            }
+            glEnd();
+        }
     }
 
     // char buffer[255];
