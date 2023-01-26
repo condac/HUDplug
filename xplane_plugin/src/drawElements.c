@@ -1552,7 +1552,7 @@ void DrawCompassViggen(float x, float y) {
 
 void drawSpeedAlphaViggen(float x, float y) {
     float airspeed = getIAS();
-    float alpha = myGetAlpha();
+    float alpha = getAlphaA();
     float mach = getMachSpeed();
 
     char tempText[132];
