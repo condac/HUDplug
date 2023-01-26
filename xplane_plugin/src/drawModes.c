@@ -339,14 +339,14 @@ void DrawViggenMode2() {
         DrawAlpha(150, 0);
         //DrawAltitude(0, y_pos);
         //DrawNAVText(-100, 280);
-        //DrawFuelTime(-450, 300);
+        DrawFuelTime(-450, 300);
     } else {
         DrawCompassViggen(0, 320);
         DrawSpeed(0, 0);
         DrawAlpha(150, 0);
         //DrawAltitude(0, 0);
         //DrawNAVText(-100, -450);
-        //DrawFuelTime(-450, -750);
+        DrawFuelTime(-450, -750);
     }
 
     DrawVector();

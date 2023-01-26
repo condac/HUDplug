@@ -392,9 +392,9 @@ void DrawVector() {
     // float prickx = getPrickX();
     // float pricky = getPrickY();
     int gear = getGear();
-    int screen_width;
-    int screen_height;
-    XPLMGetScreenSize(&screen_width, &screen_height);
+    // int screen_width;
+    // int screen_height;
+    // XPLMGetScreenSize(&screen_width, &screen_height);
 
     if (viggen_mode >= 1) {
         // Fenan ska ligga diktan vid alfa 12, (eller alfa 15 om valt)
@@ -404,7 +404,7 @@ void DrawVector() {
         tail_pos = body_radius + (landningsAlfa - alphaA) * 5.0f;
     } else {
         // JAS
-        if (dr_gear) {
+        if (markKontakt() >= 1) {
             tail_pos = airspeed - getLandingSpeed() + 0;
         } else {
             if (dr_jas_a14 > 0) {
@@ -428,7 +428,7 @@ void DrawVector() {
     tail_pos = fmin(tail_pos, 30); // Fenans längd ska motsvara 20km/h
     tail_pos = fmax(tail_pos, -40);
     //y_pos = fov_pixels * getAlphaA();
-    glColor4fv(color);
+
 
     // x_pos = sin(to_radians(-angle)) * alpha;
     // y_pos = cos(to_radians(-angle)) * alpha;
@@ -474,7 +474,7 @@ void DrawVector() {
     // if (alphaA < -10) {
     //     utanfor = 1;
     // }
-
+    glColor4fv(color);
     glPushMatrix();
     //glRotatef(angle, 0, 0, 1);
     glTranslatef(-x_pos, -y_pos, 0);
@@ -520,23 +520,12 @@ void DrawVector() {
 
     glEnd();
 
-    // // ILS indikator
-    //
-    // if (getPrickActive() == 1 && markKontakt() == 0) {
-    //     DrawFillCircleXY(5, CalcFOVAngle(prickx), pricky);
-    // }
 
     glRotatef(angle, 0, 0, 1);
     glTranslatef(x_pos, y_pos, 0); // set position back
     glRotatef(-angle, 0, 0, 1);
     glPopMatrix();
-    // char buffer[255];
-    // sprintf(buffer, "Alpha: %f, Beta %f, Pitch %f, FOV %f, FOVPixel %f, y_pos %f", getAlphaA(), getBetaA(), getPitch(), getFOV(), fov_pixels, y_pos);
-    // XPLMDrawString(color, -200, 300, buffer, NULL, xplmFont_Basic);
-    // sprintf(buffer, "Vx: %f, Vy %f, Vz %f, newalpha %f, newbeta %f, heading %f, truehead %f", getVX(), getVY(), getVZ(), myGetAlpha(), myGetBeta(), newhead, 0.0);
-    // XPLMDrawString(color, -200, 350, buffer, NULL, xplmFont_Basic);
-    // sprintf(buffer, "LandingSpeed: %f, Mass %f, speed1 %f, speed2 %f, mass1 %f, mass2 %f", getLandingSpeed(), getTotalWeight(), landing_speed1, landing_speed2, landing_weight1, landing_weight2);
-    // XPLMDrawString(color, -200, 250, buffer, NULL, xplmFont_Basic);
+
 }
 
 void DrawHorizionLines() {

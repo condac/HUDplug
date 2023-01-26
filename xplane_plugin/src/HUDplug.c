@@ -510,7 +510,7 @@ void drawFramebuffer() {
         LoadTexture("./mask2.bmp");
         texturemask = LoadTexture("./res/masksvart.bmp");
     } else {
-
+        // Ladda fbo där vi ritar hud grafiken
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         //debugLog("render bind framebuffer \n");
         glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -535,6 +535,7 @@ void drawFramebuffer() {
 
         glBlendFunc(GL_ZERO, GL_SRC_COLOR); // tar bort färgen
 
+        // Laddar texturemask som är den svartvita bild som skapar fade kanter i glaskanten
         XPLMBindTexture2d(texturemask, 0);
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -681,6 +682,7 @@ float MyFlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 }
 
 void drawGlassTexture() {
+    // Denna funktion ritar endast en glasskiva bakom som mörkar ner bilden.
     if (draw_glass == 1 || draw_glass == 3) {
         // Glasskivan
         //glBlendEquationSeparate(GL_MIN, GL_FUNC_ADD);
@@ -727,10 +729,11 @@ void drawGlassTexture() {
         //glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
 
         if (viggen_mode >= 1) {
+            glTranslatef(0, -280.0f * (2.0f / 3.0f) , 0.0f);
             if (dr_gear) {
                 glTranslatef(0, -40, 0.0f);
+                DrawGlassObjectViggen2(280, -40);
             }
-            glTranslatef(0, -280.0f * (2.0f / 3.0f) - 25.0f, 0.0f);
             DrawGlassObjectViggen(280);
         } else {
             glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
@@ -772,22 +775,22 @@ void drawHudTexture() {
     glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
 
     //glTranslatef(screen_w, 0.0f, 0.0f);
-    if (viggen_mode == 1) {
-        if (dr_gear) {
-            glScissor(screen_width / 2 - fox_pixlar_x * VIGGEN_HUD_FOV / 2 * hud_scale,
-                      screen_height / 2 - fox_pixlar_x * 20,
-                      fox_pixlar_x * VIGGEN_HUD_FOV * hud_scale,
-                      fox_pixlar_x * 20);
-        } else {
-            glScissor(screen_width / 2 - fox_pixlar_x * VIGGEN_HUD_FOV / 2 * hud_scale,
-                      screen_height / 2 - fox_pixlar_x * VIGGEN_HUD_FOV * 0.6666f,
-                      fox_pixlar_x * VIGGEN_HUD_FOV * hud_scale,
-                      fox_pixlar_x * VIGGEN_HUD_FOV);
-        }
-        glEnable(GL_SCISSOR_TEST);
-    } else {
-        glDisable(GL_SCISSOR_TEST);
-    }
+    // if (viggen_mode == 1) {
+    //     if (dr_gear) {
+    //         glScissor(screen_width / 2 - fox_pixlar_x * VIGGEN_HUD_FOV / 2 * hud_scale,
+    //                   screen_height / 2 - fox_pixlar_x * 20,
+    //                   fox_pixlar_x * VIGGEN_HUD_FOV * hud_scale,
+    //                   fox_pixlar_x * 20);
+    //     } else {
+    //         glScissor(screen_width / 2 - fox_pixlar_x * VIGGEN_HUD_FOV / 2 * hud_scale,
+    //                   screen_height / 2 - fox_pixlar_x * VIGGEN_HUD_FOV * 0.6666f,
+    //                   fox_pixlar_x * VIGGEN_HUD_FOV * hud_scale,
+    //                   fox_pixlar_x * VIGGEN_HUD_FOV);
+    //     }
+    //     glEnable(GL_SCISSOR_TEST);
+    // } else {
+    //     glDisable(GL_SCISSOR_TEST);
+    // }
 
     drawHUD();
 
@@ -804,7 +807,13 @@ void drawHudTexture() {
     glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
 
     if (viggen_mode >= 1) {
-        DrawGlassObjectViggen(280);
+        if (dr_gear) {
+            glTranslatef(0, -40, 0.0f);
+            DrawGlassObjectViggen2(280, -40);
+        }else {
+            DrawGlassObjectViggen2(280, 0);
+        }
+        
     } else {
         DrawGlassObject(280);
     }

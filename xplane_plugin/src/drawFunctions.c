@@ -372,20 +372,30 @@ void DrawGlassObject(float width) {
 }
 
 void DrawGlassObjectViggen(float width) {
+    DrawGlassObjectViggen2( width,  0);
+}
+
+void DrawGlassObjectViggen2(float width, float centerOffset) {
 
     // viggen 136mm bred 68 halva
     // 180mm hög, ser ut att va ca 12cm hög som man ser den eftersom den är vinklad
     float scale = width / 280.0f;
     float center = 20.0f;
-    float centerUV = center / scale / 280.0f;
+    float centerUV = (center+centerOffset) / scale / 280.0f;
     //centerUV = 0.0f;
 
     glPushMatrix();
     glTranslatef(0, width * 0.857142857143f, 0);
     glBegin(GL_POLYGON);
     //glColor4fv(colorglass);
-    glTexCoord2f(0.242857142857f, centerUV + 0.364285714286f);
-    glVertex2f(-68 * scale, center - 138 * scale);
+    if (centerOffset < 0.0f) {
+        glTexCoord2f(0.242857142857f, centerUV + 0.0f);
+        glVertex2f(-68 * scale, center - 240 * scale);
+    } else {
+        glTexCoord2f(0.242857142857f, centerUV + 0.364285714286f);
+        glVertex2f(-68 * scale, center - 138 * scale);
+    }
+    
     glTexCoord2f(0.242857142857f, centerUV + 0.364285714286f);
     glVertex2f(-68 * scale, center - 138 * scale);
 
@@ -415,9 +425,14 @@ void DrawGlassObjectViggen(float width) {
 
     glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.364285714286f);
     glVertex2f(68 * scale, center - 138 * scale);
-    glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.364285714286f);
-    glVertex2f(68 * scale, center - 138 * scale);
-
+    
+    if (centerOffset < 0.0f) {
+        glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.0f);
+        glVertex2f(68 * scale, center - 240 * scale);
+    } else {
+        glTexCoord2f(1.0f - 0.242857142857f, centerUV + 0.364285714286f);
+        glVertex2f(68 * scale, center - 138 * scale);
+    }
     glEnd();
     glPopMatrix();
 }

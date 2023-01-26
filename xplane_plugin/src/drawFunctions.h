@@ -56,6 +56,7 @@ float lim(float value, float lower, float upper);
 float max2(float value1, float value2);
 void DrawGlassObject(float width);
 void DrawGlassObjectViggen(float width);
+void DrawGlassObjectViggen2(float width, float centerOffset);
 int LoadTexture(const char* filename);
 
 #endif
