@@ -896,7 +896,7 @@ int DrawScreenCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon)
     glTranslatef(screen_width / 2, offset_y + screen_height / 2, 0.0f);
 
     //drawLineText("scale_hud", 0, 0, 1.0, 1);
-    glTranslatef(FOV_off_x * (screen_h / fov), -FOV_off_y * (screen_h / fov), 0.0f);
+    glTranslatef(-FOV_off_x * (screen_h / fov), -FOV_off_y * (screen_h / fov), 0.0f);
 
     glScalef(scale_hud, scale_hud, 0); // skalan baserat på nuvarande FOV
 
