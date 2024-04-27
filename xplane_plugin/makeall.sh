@@ -103,3 +103,4 @@ cd ..
 
 cp -r $TARGETDIR ~/.local/share/Steam/SteamApps/common/X-Plane\ 11/Resources/plugins/
 cp -r $TARGETDIR ~/.steam/steam/steamapps/common/X-Plane\ 11/Resources/plugins/
+cp -r $TARGETDIR ~/X-Plane\ 12/Resources/plugins/
