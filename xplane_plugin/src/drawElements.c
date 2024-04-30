@@ -429,7 +429,6 @@ void DrawVector() {
     tail_pos = fmax(tail_pos, -40);
     //y_pos = fov_pixels * getAlphaA();
 
-
     // x_pos = sin(to_radians(-angle)) * alpha;
     // y_pos = cos(to_radians(-angle)) * alpha;
     // x_pos = x_pos + cos(to_radians(angle)) * beta;
@@ -520,12 +519,10 @@ void DrawVector() {
 
     glEnd();
 
-
     glRotatef(angle, 0, 0, 1);
     glTranslatef(x_pos, y_pos, 0); // set position back
     glRotatef(-angle, 0, 0, 1);
     glPopMatrix();
-
 }
 
 void DrawHorizionLines() {
@@ -1550,6 +1547,56 @@ void DrawCompassViggen(float x, float y) {
     glPopMatrix();
 }
 
+void DrawGViggen(float x, float y) {
+    char temp[20];
+    float gforce = getGForce();
+
+    glColor4fv(color);
+
+    SetGLText(); // turn on blending
+
+    sprintf(temp, "G %.1f", gforce);
+    DrawHUDText(temp, &fontMain, (x)*HUD_SCALE, ((y + 65)) + ((textHeight(1.0) * text_scale)), 0, color);
+
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+}
+void DrawSpeedViggen(float x, float y) {
+    float airspeed = getIAS();
+
+    glColor4fv(color);
+
+    SetGLText(); // turn on blending
+
+    char tempText[132];
+
+    //sprintf(tempText, "%.0f", airspeed);
+    if (metric) {
+        sprintf(tempText, "%.0f", knotsTokmh(airspeed));
+    } else {
+        sprintf(tempText, "%.0f", airspeed);
+    }
+    DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y + 120)), 1, color);
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+}
+
+void DrawAlphaViggen(float x, float y) {
+    char temp[20];
+    float alpha = getAlphaA();
+
+    glColor4fv(color);
+
+    SetGLText(); // turn on blending
+
+    if (getIAS() > 50) {
+        sprintf(temp, "& %.0f", alpha);
+    } else {
+        sprintf(temp, "& X");
+    }
+
+    DrawHUDText(temp, &fontMain, (x)*HUD_SCALE, ((y + 120)) + ((textHeight(1.0) * text_scale) * 2), 1, color);
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+}
+
 void drawSpeedAlphaViggen(float x, float y) {
     float airspeed = getIAS();
     float alpha = getAlphaA();
@@ -1599,6 +1646,37 @@ void drawSpeedAlphaViggen(float x, float y) {
     if (getParkBrake()) {
         sprintf(tempText, "PARKERINGSBROMS");
         DrawHUDText(tempText, &fontMain, (0), ((225 - 80)) - ((textHeight(1.0) * text_scale) * 2), 1, color);
+    }
+}
+
+void DrawMachViggen(float x, float y) {
+  
+    float mach = getMachSpeed();
+    char tempText[132];
+    sprintf(tempText, "M %.2f", mach);
+    DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y - 120)) - ((textHeight(1.0) * text_scale)), 1, color);
+}
+
+void DrawTextViggen(float x, float y) {
+    float airspeed = getIAS();
+    float alpha = getAlphaA();
+
+    char tempText[132];
+
+    float trim = getPitchTrim();
+    static float trim_prev;
+    if (trim_prev != trim) {
+        trim_prev = trim;
+        sprintf(tempText, "TRIM %.0f", trim * 100);
+        DrawHUDText(tempText, &fontMain, (0), ((y)) - ((textHeight(1.2) * text_scale) * 1), 1, color);
+    }
+    if (getSpeedBrake()) {
+        sprintf(tempText, "LUFTBROMS UTE");
+        DrawHUDText(tempText, &fontMain, (0), ((y)) - ((textHeight(1.2) * text_scale) * 2), 1, color);
+    }
+    if (getParkBrake()) {
+        sprintf(tempText, "PARKERINGSBROMS");
+        DrawHUDText(tempText, &fontMain, (0), ((y)) - ((textHeight(1.2) * text_scale) * 3), 1, color);
     }
 }
 

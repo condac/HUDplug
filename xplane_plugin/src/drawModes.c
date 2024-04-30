@@ -320,6 +320,7 @@ void DrawViggenMode2() {
 
     int gear = getGear();
     int mark = markKontakt();
+
     float y_pos = CalcFOVAngle(-myGetAlpha());
 
     if (mark) {
@@ -331,24 +332,34 @@ void DrawViggenMode2() {
     if (y_pos < -600) {
         y_pos = -600;
     }
-    if (gear) {
+    if (dr_gear) {
         // Landings mod
         DrawCompassViggen(0, y_pos + 220);
-        //drawSpeedAlphaViggen(SPEED_POS_X, -50);
-        DrawSpeed(0, 0);
-        DrawAlpha(150, 0);
+        //drawSpeedAlphaViggen(-200, -170);
+        DrawTextViggen(-200, 50);
+        DrawAlphaViggen(-200, -170);
+        DrawSpeedViggen(-200, -190);
+        //DrawSpeed(-50, 0);
+        //DrawAlpha(SPEED_POS_X-50, 0);
         //DrawAltitude(0, y_pos);
-        //DrawNAVText(-100, 280);
-        DrawFuelTime(-450, 300);
+        drawADHelp();
+
     } else {
+
         DrawCompassViggen(0, 320);
-        DrawSpeed(0, 0);
-        DrawAlpha(150, 0);
+        //drawSpeedAlphaViggen(-200, -60);
+        DrawTextViggen(-200, 150);
+        DrawAlphaViggen(-180, -70);
+        DrawGViggen(-200, -70);
+        DrawSpeedViggen(-200, -180);
+        DrawMachViggen(-200, -60);
+        //DrawSpeed(-50, 0);
+        //DrawSpeed(0, 0);
+        //DrawAlpha(SPEED_POS_X-50, 0);
         //DrawAltitude(0, 0);
         //DrawNAVText(-100, -450);
-        DrawFuelTime(-450, -750);
+        //DrawFuelTime(-450, -750);
     }
-
     DrawVector();
     DrawGroundCollision();
     DrawHorizionLinesViggen();
