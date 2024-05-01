@@ -36,6 +36,8 @@ int draw_test = 0;
 int metric = 1;
 float offset_x = 0;
 float offset_y = 0;
+float offset_panel_x = 0;
+float offset_panel_y = 0;
 float error_y = 1.0;
 float viggen_landning_alfa = 12;
 float fov_trim = 1.0f;
@@ -215,6 +217,20 @@ void parseLine(char* line) {
         XPLMDebugString(line + 9);
         sscanf(line + 9, "%f", &i);
         offset_y = i;
+    }
+    if (strncmp("offset_panel_x=", line, 15) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 15);
+        sscanf(line + 15, "%f", &i);
+        offset_panel_x = i;
+    }
+    if (strncmp("offset_panel_y=", line, 15) == 0) {
+        //hud_scale
+        float i = 0;
+        XPLMDebugString(line + 15);
+        sscanf(line + 15, "%f", &i);
+        offset_panel_y = i;
     }
     if (strncmp("error_y=", line, 8) == 0) {
         //hud_scale

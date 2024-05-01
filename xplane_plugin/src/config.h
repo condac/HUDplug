@@ -34,6 +34,8 @@ extern float line_scale;
 extern float line_text_scale;
 extern float offset_x;
 extern float offset_y;
+extern float offset_panel_x;
+extern float offset_panel_y;
 extern float error_y;
 extern int image_blend1;
 extern int image_blend2;

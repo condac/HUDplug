@@ -318,7 +318,7 @@ void DrawViggenMode2() {
 
     // Viggen mode 2 är en overklig variant där vi lyft in det vi saknar i fysisk instrumentering
 
-    int gear = getGear();
+    // int gear = getGear();
     int mark = markKontakt();
 
     float y_pos = CalcFOVAngle(-myGetAlpha());
@@ -361,7 +361,7 @@ void DrawViggenMode2() {
         //DrawFuelTime(-450, -750);
     }
     DrawVector();
-    DrawGroundCollision();
+    //DrawGroundCollision();
     DrawHorizionLinesViggen();
 }
 

@@ -766,8 +766,8 @@ void drawHudTexture() {
 
     float sc = 280.0f / TEXTURE_WIDTH;
     //float screen_w = screen_width / 2.0f / sc;
-    float fov = getFOV();
-    float fox_pixlar_x = screen_height / fov;
+    // float fov = getFOV();
+    // float fox_pixlar_x = screen_height / fov;
 
     glScalef(sc, sc, 0);
     glTranslatef(-TEXTURE_WIDTH / 2, -TEXTURE_WIDTH / 2, 0.0f);
@@ -854,7 +854,8 @@ int DrawPanelCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) 
 
     glPushMatrix();
 
-    glTranslatef(PANEL_WIDTH / 2, offset_y + 512 * ((float)screen_height / (float)screen_width), 0.0f);
+    glTranslatef( (PANEL_WIDTH / 2) ,  TEXTURE_HEIGHT * ((float)screen_height / (float)screen_width), 0.0f);
+    glTranslatef( offset_panel_x, offset_panel_y, 0.0f);
 
     //drawLineText("scale_hud", 0, 0, 1.0, 1);
     glTranslatef(FOV_off_x * (screen_h / fov), -FOV_off_y * (screen_h / fov), 0.0f);

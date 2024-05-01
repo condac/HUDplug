@@ -25,7 +25,7 @@ void DrawCompass(float x, float y);
 void DrawNAVText(float x, float y);
 void DrawHorizionLinesViggen();
 void DrawCompassViggen(float x, float y);
-//void drawSpeedAlphaViggen(float x, float y);
+void drawSpeedAlphaViggen(float x, float y);
 void DrawTextViggen(float x, float y);
 void DrawGViggen(float x, float y);
 void DrawAlphaViggen(float x, float y);

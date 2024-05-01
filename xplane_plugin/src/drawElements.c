@@ -1650,7 +1650,9 @@ void drawSpeedAlphaViggen(float x, float y) {
 }
 
 void DrawMachViggen(float x, float y) {
-  
+    glColor4fv(color);
+
+    SetGLText(); // turn on blending
     float mach = getMachSpeed();
     char tempText[132];
     sprintf(tempText, "M %.2f", mach);
@@ -1658,8 +1660,8 @@ void DrawMachViggen(float x, float y) {
 }
 
 void DrawTextViggen(float x, float y) {
-    float airspeed = getIAS();
-    float alpha = getAlphaA();
+    // float airspeed = getIAS();
+    // float alpha = getAlphaA();
 
     char tempText[132];
 
@@ -1670,10 +1672,10 @@ void DrawTextViggen(float x, float y) {
         sprintf(tempText, "TRIM %.0f", trim * 100);
         DrawHUDText(tempText, &fontMain, (0), ((y)) - ((textHeight(1.2) * text_scale) * 1), 1, color);
     }
-    if (getSpeedBrake()) {
-        sprintf(tempText, "LUFTBROMS UTE");
-        DrawHUDText(tempText, &fontMain, (0), ((y)) - ((textHeight(1.2) * text_scale) * 2), 1, color);
-    }
+    // if (getSpeedBrake()) {
+    //     sprintf(tempText, "LUFTBROMS UTE");
+    //     DrawHUDText(tempText, &fontMain, (0), ((y)) - ((textHeight(1.2) * text_scale) * 2), 1, color);
+    // }
     if (getParkBrake()) {
         sprintf(tempText, "PARKERINGSBROMS");
         DrawHUDText(tempText, &fontMain, (0), ((y)) - ((textHeight(1.2) * text_scale) * 3), 1, color);
