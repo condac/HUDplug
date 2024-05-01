@@ -1577,6 +1577,19 @@ void DrawSpeedViggen(float x, float y) {
     }
     DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y + 120)), 1, color);
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+    
+    if (dr_pitch > 9 || dr_pitch < -9) {
+        int alt = dr_altitude; // * 0.3048;
+        if (metric) {
+            alt = feetTom(dr_altitude);
+        } else {
+            alt = dr_altitude;
+        }
+        alt = alt / 10;
+        alt = alt * 10;
+        snprintf(tempText, 13, "%03d", alt);
+        DrawHUDText(tempText, &fontMain, 135, -10, 1, color);
+    }
 }
 
 void DrawAlphaViggen(float x, float y) {
