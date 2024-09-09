@@ -311,6 +311,7 @@ void DrawViggenMode1() {
         //DrawFuelTime(-450, -750);
     }
     DrawVector();
+    DrawViggenRotateSpeed();
     DrawGroundCollision();
     DrawHorizionLinesViggen();
 }
@@ -337,8 +338,8 @@ void DrawViggenMode2() {
         DrawCompassViggen(0, y_pos + 220);
         //drawSpeedAlphaViggen(-200, -170);
         DrawTextViggen(-200, 50);
-        DrawAlphaViggen(-200, -170);
-        DrawSpeedViggen(-200, -190);
+        // DrawAlphaViggen(-200, -300);
+        // DrawSpeedViggen(-200, -360);
         //DrawSpeed(-50, 0);
         //DrawAlpha(SPEED_POS_X-50, 0);
         //DrawAltitude(0, y_pos);
@@ -349,10 +350,7 @@ void DrawViggenMode2() {
         DrawCompassViggen(0, 320);
         //drawSpeedAlphaViggen(-200, -60);
         DrawTextViggen(-200, 150);
-        DrawAlphaViggen(-180, -70);
-        DrawGViggen(-200, -70);
-        DrawSpeedViggen(-200, -180);
-        DrawMachViggen(-200, -60);
+
         //DrawSpeed(-50, 0);
         //DrawSpeed(0, 0);
         //DrawAlpha(SPEED_POS_X-50, 0);
@@ -360,8 +358,20 @@ void DrawViggenMode2() {
         //DrawNAVText(-100, -450);
         //DrawFuelTime(-450, -750);
     }
+    DrawAlphaViggen(-350, -550);
+    DrawGViggen(250, -550);
+    DrawSpeedViggen(-350, -550);
+    DrawMachViggen(-350, -550);
+    
+    DrawNAVText(100, 180);
+    
     DrawVector();
-    //DrawGroundCollision();
+    DrawViggenRotateSpeed();
+    
+    DrawGroundCollision();
+    
+    drawPrick();
+    DrawViggenStolpar();
     DrawHorizionLinesViggen();
 }
 
@@ -401,6 +411,8 @@ void DrawViggenMode3() {
     }
 
     DrawVector();
+    DrawViggenRotateSpeed();
     DrawGroundCollision();
+    drawPrick();
     DrawHorizionLinesViggen();
 }

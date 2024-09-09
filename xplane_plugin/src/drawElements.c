@@ -447,7 +447,7 @@ void DrawVector() {
         }
         if (markKontakt() >= 1) {
             float y_pos2 = CalcFOVAngle(getPitch());
-            y_pos = y_pos2 + CalcFOVAngle(8);
+            y_pos = y_pos2 + CalcFOVAngle(7.5);
         }
     }
     int utanfor = 0;
@@ -503,10 +503,13 @@ void DrawVector() {
     if (gear) {
         if (viggen_mode >= 1) {
             // Viggen ritarn ingen fena på marken i vissa lägen
-            //if (!markKontakt()) {
-            glVertex2f(0, tail_pos - 0);
-            glVertex2f(0, tail_pos + tail_length);
-            //}
+            if (markKontakt()) {
+                // glVertex2f(0, tail_pos - 0);
+                // glVertex2f(0, tail_pos + tail_length);
+            } else {
+                glVertex2f(0, tail_pos - 0);
+                glVertex2f(0, tail_pos + tail_length);
+            }
         } else {
             glVertex2f(0, tail_pos - 0);
             glVertex2f(0, tail_pos + tail_length);
@@ -523,6 +526,81 @@ void DrawVector() {
     glTranslatef(x_pos, y_pos, 0); // set position back
     glRotatef(-angle, 0, 0, 1);
     glPopMatrix();
+}
+
+void DrawViggenRotateSpeed() {
+
+    static int mode = 0;
+
+    if (markKontakt()) {
+        float airspeed = getIAS();
+        if (airspeed < 5) {
+            mode = 0;
+        }
+        // char tempText[10];
+        // sprintf(tempText, "%.0f", takeoffspeed);
+        // drawLineText(tempText, 0, -textHeight(1.0), 1.0, 1);
+        if (mode == 0) {
+            SetGLTransparentLines();
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_POLYGON_SMOOTH);
+            glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+            glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+
+            float y_pos = 0.0;
+            float x_pos = 0.0;
+            float tail_length = 15;
+            float post_width = 50;
+            float tail_pos = 0;
+            float angle = getRoll();
+            float weight = getTotalWeight();
+
+            float m = 0.01; // Slope
+            float c = 70;   // Intercept
+
+            // Calculate the takeoff speed
+            float takeoffspeed = m * weight + c;
+            tail_pos = knotsTokmh(airspeed) / takeoffspeed;
+
+            x_pos = 0;
+            y_pos = 0;
+
+            float y_pos2 = CalcFOVAngle(getPitch());
+            y_pos = y_pos2 + CalcFOVAngle(10);
+            glColor4fv(color);
+            glPushMatrix();
+            //glRotatef(angle, 0, 0, 1);
+            glTranslatef(-x_pos, -y_pos, 0);
+            //glRotatef(-angle, 0, 0, 1);
+
+            glLineWidth(line_width);
+            glBegin(GL_LINES);
+
+            glVertex2f(post_width, 0);
+            glVertex2f(post_width, tail_length);
+
+            glVertex2f(-post_width, 0);
+            glVertex2f(-post_width, tail_length);
+
+            glVertex2f(0, 0);
+            glVertex2f(0, tail_length);
+
+            glVertex2f(0, 0);
+            glVertex2f(tail_pos * post_width, 0);
+
+            glVertex2f(0, 0);
+            glVertex2f(-tail_pos * post_width, 0);
+
+            glEnd();
+            glRotatef(angle, 0, 0, 1);
+            glTranslatef(x_pos, y_pos, 0); // set position back
+            glRotatef(-angle, 0, 0, 1);
+            glPopMatrix();
+        }
+
+    } else {
+        mode = 1;
+    }
 }
 
 void DrawHorizionLines() {
@@ -1305,6 +1383,8 @@ void DrawNAVText(float x, float y) {
     char textId[160];
     float nav1_distance = getNAVxDistance() / 1000;
     float nav1_eta = getNAVxETA();
+
+    int nav1_heading = getNAVxHeading();
     //float vx = getVX();
 
     int sec, h, m, s;
@@ -1320,12 +1400,22 @@ void DrawNAVText(float x, float y) {
     SetGLText();
     glColor4fv(color);
     getNAVxNamn(textId);
-    if (textId[0] != 0) {
-        sprintf(temp, "%s %.1fkm - %02d:%02d:%02d", textId, nav1_distance, h, m, s);
-        DrawHUDText(temp, &fontMain, x, y, 2, color);
+    if (viggen_mode >= 1) {
+        if (textId[0] != 0) {
+            sprintf(temp, "%s %.1fkm - %03d", textId, nav1_distance, nav1_heading);
+            DrawHUDText(temp, &fontMain, x, y, 0, color);
+        } else {
+            sprintf(temp, "%.1fkm - %03d", nav1_distance, nav1_heading);
+            DrawHUDText(temp, &fontMain, x, y, 0, color);
+        }
     } else {
-        sprintf(temp, "%.1fkm - %02d:%02d:%02d", nav1_distance, h, m, s);
-        DrawHUDText(temp, &fontMain, x, y, 2, color);
+        if (textId[0] != 0) {
+            sprintf(temp, "%s %.1fkm - %02d:%02d:%02d", textId, nav1_distance, h, m, s);
+            DrawHUDText(temp, &fontMain, x, y, 2, color);
+        } else {
+            sprintf(temp, "%.1fkm - %02d:%02d:%02d", nav1_distance, h, m, s);
+            DrawHUDText(temp, &fontMain, x, y, 2, color);
+        }
     }
 }
 
@@ -1333,7 +1423,8 @@ void DrawHorizionLinesViggen() {
     // Viggen mode
     float airspeed = getIAS();
     float altitude = getAltitude();
-    float alpha = myGetAlpha();
+    float alpha = getAlphaA();
+    float beta = getBetaA();
     float y_pos = CalcFOVAngle(alpha);
     float angle = getRoll();
     float pitch = getPitch();
@@ -1342,6 +1433,19 @@ void DrawHorizionLinesViggen() {
     float tail_pos = airspeed - LANDING_SPEED;
     int gear = getGear();
     float vdef = getILSv();
+    float prickoffset_x = 0;
+    float x_pos = CalcFOVAngle(sin(to_radians(-angle)) * alpha);
+    if (getPrickActive() == 1 && viggen_mode > 0) {
+      x_pos = CalcFOVAngle(sin(to_radians(-angle)) * alpha) - CalcFOVAngle(cos(to_radians(-angle)) *beta);
+      
+      float prickx = getPrickX();
+    
+      prickoffset_x = prickx -dr_vectorBeta;
+      prickoffset_x = fmin(prickoffset_x, 5);
+      prickoffset_x = fmax(prickoffset_x, -5);
+      prickoffset_x = CalcFOVAngle(prickoffset_x);// + CalcFOVAngle(cos(to_radians(-angle)) * -beta);
+      
+    } 
 
     tail_pos = fmin(tail_pos, 40);
     tail_pos = fmax(tail_pos, -40);
@@ -1351,12 +1455,12 @@ void DrawHorizionLinesViggen() {
     glColor4fv(color);
     glPushMatrix();
     glRotatef(angle, 0, 0, 1);
-    glTranslatef(0, -y_pos, 0);
+    glTranslatef(x_pos + prickoffset_x, -y_pos, 0);
 
     // 0 horizonten
     float yy = 0;
     if (gear) {
-        yy = CalcFOVAngle(-3);
+        yy = CalcFOVAngle(-2.85);
 
         // Heldragen linje vid hjorizonten när landställ är nere
         glLineWidth(line_width * 2);
@@ -1392,11 +1496,20 @@ void DrawHorizionLinesViggen() {
     glVertex2f(-line_width, yy);
     glVertex2f(line_width, yy);
 
-    glVertex2f(45, yy);
-    glVertex2f(480, yy);
+    // 3 graders landningslinje/ horizontlinje
+    if (gear) {
+        glVertex2f(CalcFOVAngle(1), yy);
+        glVertex2f(CalcFOVAngle(5), yy);
 
-    glVertex2f(-45, yy);
-    glVertex2f(-480, yy);
+        glVertex2f(CalcFOVAngle(-1), yy);
+        glVertex2f(CalcFOVAngle(-5), yy);
+    } else {
+        glVertex2f(CalcFOVAngle(1), yy);
+        glVertex2f(480, yy);
+
+        glVertex2f(CalcFOVAngle(-1), yy);
+        glVertex2f(-480, yy);
+    }
 
     glEnd();
     glLineWidth(line_width);
@@ -1414,7 +1527,7 @@ void DrawHorizionLinesViggen() {
     alt = alt / 10;
     alt = alt * 10;
     snprintf(tempText, 13, "%03d", alt);
-    DrawHUDText(tempText, &fontMain, 135, yy + line_width * 3, 1, color);
+    DrawHUDText(tempText, &fontMain, CalcFOVAngle(4), yy + line_width * 3, 1, color);
 
     //XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
     SetGLTransparentLines();
@@ -1456,8 +1569,8 @@ void DrawHorizionLinesViggen() {
     for (int i = 5; i < 90; i += 5) {
         if ((i > pitch - 28) && (i < pitch + 28)) {
 
-            sprintf(tempText, "%d", i);
-            DrawHUDText(tempText, &fontMain, 200 / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
+            sprintf(tempText, "+%d", i);
+            DrawHUDText(tempText, &fontMain, 200 / smallTextScale, 5 + (CalcFOVAngle(i) / smallTextScale), 1, color);
         }
     }
     start = -5;
@@ -1468,7 +1581,7 @@ void DrawHorizionLinesViggen() {
         if ((i > pitch - 28) && (i < pitch + 28)) {
 
             sprintf(tempText, "%d", i);
-            DrawHUDText(tempText, &fontMain, 200 / smallTextScale, CalcFOVAngle(i) / smallTextScale, 1, color);
+            DrawHUDText(tempText, &fontMain, 200 / smallTextScale, -20 + (CalcFOVAngle(i) / smallTextScale), 1, color);
         }
     }
     glPopMatrix();
@@ -1479,7 +1592,7 @@ void DrawCompassViggen(float x, float y) {
     int gear = getGear();
     float angle = getRoll();
 
-    float heading = getHeading();
+    float heading = getTrueHeading();
     float pitch = getPitch();
     char tempText[32];
 
@@ -1556,7 +1669,7 @@ void DrawGViggen(float x, float y) {
     SetGLText(); // turn on blending
 
     sprintf(temp, "G %.1f", gforce);
-    DrawHUDText(temp, &fontMain, (x)*HUD_SCALE, ((y + 65)) + ((textHeight(1.0) * text_scale)), 0, color);
+    DrawHUDText(temp, &fontMain, (x)*HUD_SCALE, y + ((textHeight(1.0) * text_scale)), 0, color);
 
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
@@ -1571,13 +1684,12 @@ void DrawSpeedViggen(float x, float y) {
 
     //sprintf(tempText, "%.0f", airspeed);
     if (metric) {
-        sprintf(tempText, "%.0f", knotsTokmh(airspeed));
+        sprintf(tempText, "km/h %.0f", knotsTokmh(airspeed));
     } else {
         sprintf(tempText, "%.0f", airspeed);
     }
-    DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y + 120)), 1, color);
-    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
-    
+    DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y)), 0, color);
+
     if (dr_pitch > 9 || dr_pitch < -9) {
         int alt = dr_altitude; // * 0.3048;
         if (metric) {
@@ -1588,8 +1700,10 @@ void DrawSpeedViggen(float x, float y) {
         alt = alt / 10;
         alt = alt * 10;
         snprintf(tempText, 13, "%03d", alt);
-        DrawHUDText(tempText, &fontMain, 135, -10, 1, color);
+        DrawHUDText(tempText, &fontMain, 135, -300, 1, color);
     }
+
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
 
 void DrawAlphaViggen(float x, float y) {
@@ -1601,12 +1715,12 @@ void DrawAlphaViggen(float x, float y) {
     SetGLText(); // turn on blending
 
     if (getIAS() > 50) {
-        sprintf(temp, "& %.0f", alpha);
+        sprintf(temp, "   & %.0f", alpha);
     } else {
-        sprintf(temp, "& X");
+        sprintf(temp, "   & X");
     }
 
-    DrawHUDText(temp, &fontMain, (x)*HUD_SCALE, ((y + 120)) + ((textHeight(1.0) * text_scale) * 2), 1, color);
+    DrawHUDText(temp, &fontMain, (x)*HUD_SCALE, ((y)) + ((textHeight(1.0) * text_scale) * 2), 0, color);
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
 
@@ -1668,8 +1782,8 @@ void DrawMachViggen(float x, float y) {
     SetGLText(); // turn on blending
     float mach = getMachSpeed();
     char tempText[132];
-    sprintf(tempText, "M %.2f", mach);
-    DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y - 120)) - ((textHeight(1.0) * text_scale)), 1, color);
+    sprintf(tempText, "   M %.2f", mach);
+    DrawHUDText(tempText, &fontMain, (x)*HUD_SCALE, ((y)) - ((textHeight(1.0) * text_scale) * 2), 0, color);
 }
 
 void DrawTextViggen(float x, float y) {
@@ -1713,8 +1827,8 @@ void drawADHelp() {
         glLineWidth(line_width);
         glBegin(GL_LINES);
 
-        glVertex2f(0, 0);
-        glVertex2f(0, -20);
+        glVertex2f(-10, 0);
+        glVertex2f(10, 0);
 
         glEnd();
 
@@ -1818,6 +1932,95 @@ void drawPrick() {
             DrawFillCircleXY(5, x_pos, y_prick);
             glPopMatrix();
         }
+    }
+    glPopMatrix();
+}
+
+void DrawViggenStolpar() {
+
+    float pitch = getPitch();
+    float y_pos = CalcFOVAngle(pitch);
+    float angle = getRoll();
+    float alpha = getAlphaA();
+    
+    float beta = getBetaA();
+    //float heading = getHeading();
+    //char tempText[10];
+    //float smallTextScale = 0.75;
+    //int gear = getGear();
+    float prickx = getPrickX();
+    float pricky = getPrickY();
+    //float x_pos = CalcFOVAngle(prickx);
+    //float y_prick = CalcFOVAngle(pricky);
+    float x_pos = CalcFOVAngle(sin(to_radians(-angle)) * alpha) - CalcFOVAngle(cos(to_radians(-angle)) *beta);
+    // ILS indikator
+    //float y_vector = CalcFOVAngle(-dr_vectorAlpha);
+    float y_stolpe = CalcFOVAngle(dr_vectorAlpha + pitch - pricky);
+    float x_stolpe = -CalcFOVAngle(dr_vectorBeta - prickx);
+    //x_stolpe = 0;
+    float prickoffset_x = 0;
+    
+    if (getPrickActive() == 1 && viggen_mode > 0) {
+    //  prickoffset_x = 0-(dr_vectorBeta - prickx);
+      prickoffset_x = prickx -dr_vectorBeta;
+      prickoffset_x = fmin(prickoffset_x, 5);
+      prickoffset_x = fmax(prickoffset_x, -5);
+      prickoffset_x = CalcFOVAngle(prickoffset_x);// + CalcFOVAngle(cos(to_radians(-angle)) * -beta);
+      //prickoffset_x = x_stolpe;
+      //prickoffset_x = 0;
+    } 
+    
+    // char tempText[132];
+    // sprintf(tempText, "beta %.2f dr_veAl %.2f pricky %.2f", beta,dr_vectorBeta, prickoffset_x );
+    // DrawHUDText(tempText, &fontMain, -300, 0, 0, color);
+    //
+    glPushMatrix();
+
+    if (getPrickActive() == 1 && markKontakt() == 0) {
+        SetGLTransparentLines();
+        //DrawFillCircleXY(5, 0, -100);
+        glColor4fv(color);
+        glPushMatrix();
+        glRotatef(angle, 0, 0, 1);
+        glTranslatef(x_pos+prickoffset_x, -y_pos, 0);
+        if (getGear()) {
+            glTranslatef(0, -CalcFOVAngle(2.85), 0);
+            //y_stolpe = y_stolpe + CalcFOVAngle(-2.85);
+        }
+        glLineWidth(line_width);
+        glBegin(GL_LINES);
+
+        float st1 = -y_stolpe / 9;
+
+        float st2 = -y_stolpe / 5;
+        float st3 = -y_stolpe / 3;
+        // st1 = st1 *0.5;
+        // st2 = st2 *0.5;
+        // st3 = st3 *0.5;
+        glVertex2f(CalcFOVAngle(1), st1);
+        glVertex2f(CalcFOVAngle(1), st1 + CalcFOVAngle(-1));
+
+        glVertex2f(CalcFOVAngle(2), st2);
+        glVertex2f(CalcFOVAngle(2), st2 + CalcFOVAngle(-2));
+
+        glVertex2f(CalcFOVAngle(3), st3);
+        glVertex2f(CalcFOVAngle(3), st3 + CalcFOVAngle(-3));
+
+        glVertex2f(CalcFOVAngle(-1), st1);
+        glVertex2f(CalcFOVAngle(-1), st1 + CalcFOVAngle(-1));
+
+        glVertex2f(CalcFOVAngle(-2), st2);
+        glVertex2f(CalcFOVAngle(-2), st2 + CalcFOVAngle(-2));
+
+        glVertex2f(CalcFOVAngle(-3), st3);
+        glVertex2f(CalcFOVAngle(-3), st3 + CalcFOVAngle(-3));
+
+        glEnd();
+        if (getGear()) {
+            glTranslatef(0, CalcFOVAngle(2.85), 0);
+        }
+        glPopMatrix();
+        
     }
     glPopMatrix();
 }

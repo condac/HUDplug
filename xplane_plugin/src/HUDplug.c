@@ -696,7 +696,7 @@ void drawGlassTexture() {
         glColor4f(0.00, 0.00, 0.00, glass_darkness * 0.004 * 10);
         //glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
         glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
-        if (viggen_mode >= 1) {
+        if (viggen_mode == 1) {
             DrawGlassObjectViggen(280);
         } else {
             DrawGlassObject(280);
@@ -728,7 +728,7 @@ void drawGlassTexture() {
         
         //glTranslatef(512 - hud_x, 512 * ((float)screen_height / (float)screen_width) - hud_x * (2.0f / 3.0f), 0.0f);
 
-        if (viggen_mode >= 1) {
+        if (viggen_mode == 1) {
             glTranslatef(0, -280.0f * (2.0f / 3.0f) , 0.0f);
             if (dr_gear) {
                 glTranslatef(0, -40, 0.0f);
@@ -806,7 +806,7 @@ void drawHudTexture() {
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
 
-    if (viggen_mode >= 1) {
+    if (viggen_mode == 1) {
         if (dr_gear) {
             glTranslatef(0, -40, 0.0f);
             DrawGlassObjectViggen2(280, -40);
