@@ -362,15 +362,20 @@ void DrawViggenMode2() {
     DrawGViggen(250, -550);
     DrawSpeedViggen(-350, -550);
     DrawMachViggen(-350, -550);
+    DrawFuelViggen(250, -550);
     
     DrawNAVText(100, 180);
     
     DrawVector();
-    DrawViggenRotateSpeed();
+    //DrawViggenRotateSpeed();
     
     DrawGroundCollision();
+    if (getPrickActive() == 1 && viggen_mode > 0) {
+    }
+    else {
+      //drawPrick();
+    }
     
-    drawPrick();
     DrawViggenStolpar();
     DrawHorizionLinesViggen();
 }

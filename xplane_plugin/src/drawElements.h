@@ -31,6 +31,7 @@ void DrawGViggen(float x, float y);
 void DrawAlphaViggen(float x, float y);
 void DrawSpeedViggen(float x, float y);
 void DrawMachViggen(float x, float y);
+void DrawFuelViggen(float x, float y);
 void DrawViggenRotateSpeed() ;
 void drawADHelp();
 void drawPrick();

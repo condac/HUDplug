@@ -183,5 +183,6 @@ int getA14();
 void getNAVxNamn(char* namn);
 float getNAVxDistance();
 float getNAVxETA();
-
+float getNAVxAlt();
+float getFuelPct();
 #endif //DATAREF_H_INCLUDED

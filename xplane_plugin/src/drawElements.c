@@ -7,6 +7,7 @@
 #include <complex.h>
 int stab_error;
 
+float nav_x_lastpos = 0.0;
 void DrawTest() {
 
     SetGLTransparentLines();
@@ -397,13 +398,24 @@ void DrawVector() {
     // XPLMGetScreenSize(&screen_width, &screen_height);
 
     if (viggen_mode >= 1) {
+        // Viggen SFI del 1 sida 275 4.3.8 Fartfelsmarkör
+        // Fenan är 0.5 grader lång
+        // Maximalt utslag +-0.5 grader
+        // Maximal utstyrning av fartfelsmarkören motsvarar en avvikelse från referensanfallsvinkeln med 3.3 grader
+        tail_length = CalcFOVAngle(0.5);
+        float landningsAlfa = viggen_landning_alfa;
+        float fel = landningsAlfa - alphaA;
+        tail_pos = body_radius + (fel/3.3) * CalcFOVAngle(0.5);
+        //Fartvektorsymbolen består av en kropp med diametern 0,5grader
+        // samt två vingar med spännvidden 2grader.
+        body_radius = CalcFOVAngle(0.5) / 2;
+        wing_length = (CalcFOVAngle(2) - body_radius)/2;
+        
+    } else {
+        // JAS
         // Fenan ska ligga diktan vid alfa 12, (eller alfa 15 om valt)
         // Halva fenan fel motsvarar ca 2 alfa enheter
         // Fenan är 20 pixlar lång
-        float landningsAlfa = viggen_landning_alfa;
-        tail_pos = body_radius + (landningsAlfa - alphaA) * 5.0f;
-    } else {
-        // JAS
         if (markKontakt() >= 1) {
             tail_pos = airspeed - getLandingSpeed() + 0;
         } else {
@@ -531,75 +543,97 @@ void DrawVector() {
 void DrawViggenRotateSpeed() {
 
     static int mode = 0;
-
+    float airspeed = getIAS();
     if (markKontakt()) {
-        float airspeed = getIAS();
+        
         if (airspeed < 5) {
-            mode = 0;
-        }
-        // char tempText[10];
-        // sprintf(tempText, "%.0f", takeoffspeed);
-        // drawLineText(tempText, 0, -textHeight(1.0), 1.0, 1);
-        if (mode == 0) {
-            SetGLTransparentLines();
-            glEnable(GL_LINE_SMOOTH);
-            glEnable(GL_POLYGON_SMOOTH);
-            glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-            glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-
-            float y_pos = 0.0;
-            float x_pos = 0.0;
-            float tail_length = 15;
-            float post_width = 50;
-            float tail_pos = 0;
-            float angle = getRoll();
-            float weight = getTotalWeight();
-
-            float m = 0.01; // Slope
-            float c = 70;   // Intercept
-
-            // Calculate the takeoff speed
-            float takeoffspeed = m * weight + c;
-            tail_pos = knotsTokmh(airspeed) / takeoffspeed;
-
-            x_pos = 0;
-            y_pos = 0;
-
-            float y_pos2 = CalcFOVAngle(getPitch());
-            y_pos = y_pos2 + CalcFOVAngle(10);
-            glColor4fv(color);
-            glPushMatrix();
-            //glRotatef(angle, 0, 0, 1);
-            glTranslatef(-x_pos, -y_pos, 0);
-            //glRotatef(-angle, 0, 0, 1);
-
-            glLineWidth(line_width);
-            glBegin(GL_LINES);
-
-            glVertex2f(post_width, 0);
-            glVertex2f(post_width, tail_length);
-
-            glVertex2f(-post_width, 0);
-            glVertex2f(-post_width, tail_length);
-
-            glVertex2f(0, 0);
-            glVertex2f(0, tail_length);
-
-            glVertex2f(0, 0);
-            glVertex2f(tail_pos * post_width, 0);
-
-            glVertex2f(0, 0);
-            glVertex2f(-tail_pos * post_width, 0);
-
-            glEnd();
-            glRotatef(angle, 0, 0, 1);
-            glTranslatef(x_pos, y_pos, 0); // set position back
-            glRotatef(-angle, 0, 0, 1);
-            glPopMatrix();
+            mode = 1; // Calculate the takeoff speed
         }
 
-    } else {
-        mode = 1;
+    } 
+    else if (getPrickActive() == 1) {
+      mode = 2; // TILS distans
+    }
+    else {
+        mode = 0;
+    }
+    
+    if (mode > 0) {
+        SetGLTransparentLines();
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_POLYGON_SMOOTH);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+
+        // float y_pos = 0.0;
+        float y_pos2 = 0.0;
+        float x_pos = 0.0;
+        float tail_length = 15;
+        float post_width = CalcFOVAngle(2);
+        float tail_pos = 0;
+        // float angle = getRoll();
+        float weight = getTotalWeight();
+
+        float m = 0.01; // Slope
+        float c = 70;   // Intercept
+
+        if (mode == 1) {
+          // Calculate the takeoff speed
+          float takeoffspeed = m * weight + c;
+          tail_pos = knotsTokmh(airspeed) / takeoffspeed;
+          
+          y_pos2 = y_pos2 + CalcFOVAngle(10);
+        }
+        if (mode == 2) {
+          post_width = CalcFOVAngle(1);
+          // TILS distans
+          float distance = getNAVxDistance() / 9500;
+          tail_pos = distance;
+          
+          if (getNAVxDistance()>9500) {
+            y_pos2 = y_pos2 + CalcFOVAngle(3);
+          } else {
+            y_pos2 = y_pos2 + CalcFOVAngle(3+2.85);
+          }
+          
+        }
+        x_pos = 0;
+        // y_pos = 0;
+
+        
+        glColor4fv(color);
+        glPushMatrix();
+        //y_pos = CalcFOVAngle(pitch) + y_pos2;
+
+        glColor4fv(color);
+        glPushMatrix();
+        //glRotatef(angle, 0, 0, 1);
+        glTranslatef(-x_pos, -y_pos2, 0);
+        //glRotatef(-angle, 0, 0, 1);
+
+        glLineWidth(line_width);
+        glBegin(GL_LINES);
+
+        glVertex2f(post_width, 0);
+        glVertex2f(post_width, tail_length);
+
+        glVertex2f(-post_width, 0);
+        glVertex2f(-post_width, tail_length);
+
+        glVertex2f(0, 0);
+        glVertex2f(0, tail_length);
+
+        glVertex2f(0, 0);
+        glVertex2f(tail_pos * post_width, 0);
+
+        glVertex2f(0, 0);
+        glVertex2f(-tail_pos * post_width, 0);
+
+        glEnd();
+        //glRotatef(angle, 0, 0, 1);
+        glTranslatef(x_pos, y_pos2, 0); // set position back
+        //glRotatef(-angle, 0, 0, 1);
+        glPopMatrix();
     }
 }
 
@@ -1432,11 +1466,20 @@ void DrawHorizionLinesViggen() {
     float smallTextScale = 0.85;
     float tail_pos = airspeed - LANDING_SPEED;
     int gear = getGear();
-    float vdef = getILSv();
+    // float vdef = getILSv();
     float prickoffset_x = 0;
     float x_pos = CalcFOVAngle(sin(to_radians(-angle)) * alpha);
     if (getPrickActive() == 1 && viggen_mode > 0) {
       x_pos = CalcFOVAngle(sin(to_radians(-angle)) * alpha) - CalcFOVAngle(cos(to_radians(-angle)) *beta);
+      x_pos = CalcFOVAngle(sin(to_radians(-angle)) * myGetAlpha()) - CalcFOVAngle(cos(to_radians(-angle)) *myGetBeta());
+      // x_pos = CalcFOVAngle(myGetAlpha()) - CalcFOVAngle(myGetBeta());
+      x_pos = sin(to_radians(-angle)) * (-dr_vectorAlpha)  - (cos(to_radians(-angle)) * (-dr_vectorBeta) );
+      x_pos = fmin(x_pos, 10);
+      x_pos = fmax(x_pos, -10);
+      if (markKontakt()) {
+        x_pos = 0;
+      }
+      x_pos = CalcFOVAngle(x_pos);
       
       float prickx = getPrickX();
     
@@ -1459,7 +1502,7 @@ void DrawHorizionLinesViggen() {
 
     // 0 horizonten
     float yy = 0;
-    if (gear) {
+    if (gear && !(getPrickActive() == 1 && getNAVxDistance() > 9500) ) {
         yy = CalcFOVAngle(-2.85);
 
         // Heldragen linje vid hjorizonten när landställ är nere
@@ -1469,23 +1512,7 @@ void DrawHorizionLinesViggen() {
         glVertex2f(480, CalcFOVAngle(0));
         glEnd();
         glLineWidth(line_width);
-        // Landingssstolpar
-        if (ifILSEnabled() == 1 && markKontakt() == 0) {
-            float yy2 = yy - vdef * 20;
-            glBegin(GL_LINES);
-            glVertex2f(90, yy2);
-            glVertex2f(90, yy2 - 80);
-
-            glVertex2f(180, yy2);
-            glVertex2f(180, yy2 - 120);
-
-            glVertex2f(-90, yy2);
-            glVertex2f(-90, yy2 - 80);
-
-            glVertex2f(-180, yy2);
-            glVertex2f(-180, yy2 - 120);
-            glEnd();
-        }
+        
     } else {
         glLineWidth(line_width * 2);
     }
@@ -1497,7 +1524,7 @@ void DrawHorizionLinesViggen() {
     glVertex2f(line_width, yy);
 
     // 3 graders landningslinje/ horizontlinje
-    if (gear) {
+    if (gear && !(getPrickActive() == 1 && getNAVxDistance() > 9500) ) {
         glVertex2f(CalcFOVAngle(1), yy);
         glVertex2f(CalcFOVAngle(5), yy);
 
@@ -1511,7 +1538,9 @@ void DrawHorizionLinesViggen() {
         glVertex2f(-480, yy);
     }
 
+  
     glEnd();
+    DrawViggenRotateSpeed();
     glLineWidth(line_width);
     // Altitude text på 0 horizonten
 
@@ -1668,11 +1697,26 @@ void DrawGViggen(float x, float y) {
 
     SetGLText(); // turn on blending
 
-    sprintf(temp, "G %.1f", gforce);
+    sprintf(temp, " G %.1f", gforce);
     DrawHUDText(temp, &fontMain, (x)*HUD_SCALE, y + ((textHeight(1.0) * text_scale)), 0, color);
 
     XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
 }
+
+void DrawFuelViggen(float x, float y) {
+    char temp[20];
+    float fuelpct = getFuelPct();
+
+    glColor4fv(color);
+
+    SetGLText(); // turn on blending
+
+    sprintf(temp, "Br %.0f %%", fuelpct);
+    DrawHUDText(temp, &fontMain, (x)*HUD_SCALE, y - ((textHeight(1.0) * text_scale))* 2, 0, color);
+
+    XPLMSetGraphicsState(0, 0, 0, 0, 0, 0, 0); // turn off blending
+}
+
 void DrawSpeedViggen(float x, float y) {
     float airspeed = getIAS();
 
@@ -1949,14 +1993,29 @@ void DrawViggenStolpar() {
     //float smallTextScale = 0.75;
     //int gear = getGear();
     float prickx = getPrickX();
+    float navAlt = getNAVxAlt();
+    float altitude = getAltitude();
     float pricky = getPrickY();
     //float x_pos = CalcFOVAngle(prickx);
     //float y_prick = CalcFOVAngle(pricky);
     float x_pos = CalcFOVAngle(sin(to_radians(-angle)) * alpha) - CalcFOVAngle(cos(to_radians(-angle)) *beta);
+    x_pos = CalcFOVAngle(sin(to_radians(-angle)) * (-dr_vectorAlpha) ) - CalcFOVAngle(cos(to_radians(-angle)) * (-dr_vectorBeta) );
+    x_pos = sin(to_radians(-angle)) * (-dr_vectorAlpha)  - (cos(to_radians(-angle)) * (-dr_vectorBeta) );
+    x_pos = fmin(x_pos, 10);
+    x_pos = fmax(x_pos, -10);
+    if (markKontakt()) {
+      x_pos = 0;
+    }
+    x_pos = CalcFOVAngle(x_pos);
     // ILS indikator
     //float y_vector = CalcFOVAngle(-dr_vectorAlpha);
     float y_stolpe = CalcFOVAngle(dr_vectorAlpha + pitch - pricky);
-    float x_stolpe = -CalcFOVAngle(dr_vectorBeta - prickx);
+    float altdiff = feetTom(altitude) - navAlt;
+    y_stolpe = altdiff/10;
+    y_stolpe = fmin(y_stolpe, 3);
+    y_stolpe = fmax(y_stolpe, -3);
+    y_stolpe = CalcFOVAngle(y_stolpe);
+    // float x_stolpe = -CalcFOVAngle(dr_vectorBeta - prickx);
     //x_stolpe = 0;
     float prickoffset_x = 0;
     
@@ -1971,7 +2030,7 @@ void DrawViggenStolpar() {
     } 
     
     // char tempText[132];
-    // sprintf(tempText, "beta %.2f dr_veAl %.2f pricky %.2f", beta,dr_vectorBeta, prickoffset_x );
+    // sprintf(tempText, "a %.2f b %.2f c %.2f pricky %.2f", navAlt,altitude,altdiff, prickoffset_x );
     // DrawHUDText(tempText, &fontMain, -300, 0, 0, color);
     //
     glPushMatrix();
@@ -1985,6 +2044,9 @@ void DrawViggenStolpar() {
         glTranslatef(x_pos+prickoffset_x, -y_pos, 0);
         if (getGear()) {
             glTranslatef(0, -CalcFOVAngle(2.85), 0);
+            if (getNAVxDistance() > 9500) {
+              glTranslatef(0, CalcFOVAngle(2.85), 0);
+            }
             //y_stolpe = y_stolpe + CalcFOVAngle(-2.85);
         }
         glLineWidth(line_width);

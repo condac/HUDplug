@@ -958,3 +958,24 @@ float getNAVxETA() {
     }
     return XPLMGetDataf(dr);
 }
+
+float getNAVxAlt() {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "JAS/si/nav/alt";
+        init = findDataRef(name, &dr);
+    }
+    return XPLMGetDataf(dr);
+}
+
+
+float getFuelPct() {
+    static XPLMDataRef dr;
+    static int init = 0;
+    if (init == 0) {
+        char name[] = "JAS/fuel/pct";
+        init = findDataRef(name, &dr);
+    }
+    return XPLMGetDataf(dr);
+}
