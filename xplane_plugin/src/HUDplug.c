@@ -843,6 +843,9 @@ int DrawPanelCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) 
     if (getViewType() != 1000) { // 1000 är 2d panel view
         //return 1;
     }
+    if (getViewIsExternal() && hide_external == 1) {
+      // return 1;
+    }
     int screen_width;
     int screen_height;
     XPLMGetScreenSize(&screen_width, &screen_height);
@@ -879,8 +882,15 @@ int DrawScreenCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon)
         return 1;
     }
     if (getViewType() == 1000) { // 1000 är 2d panel view
+        ///return 1;
+    }
+    if (getViewType() == 1026) { // 1026 är 3d panel view
         return 1;
     }
+    if (getViewIsExternal() && hide_external == 1) {
+      return 1;
+    }
+        
     int screen_width;
     int screen_height;
     XPLMGetScreenSize(&screen_width, &screen_height);

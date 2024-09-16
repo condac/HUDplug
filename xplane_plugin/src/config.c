@@ -34,6 +34,7 @@ int th1 = 0;
 int g_sway = 0;
 int draw_test = 0;
 int metric = 1;
+int hide_external = 0;
 float offset_x = 0;
 float offset_y = 0;
 float offset_panel_x = 0;
@@ -86,6 +87,13 @@ void parseLine(char* line) {
         XPLMDebugString(line + 7);
         sscanf(line + 7, "%d", &i);
         metric = i;
+    }
+    if (strncmp("hide_external=", line, 14) == 0) {
+        //Viggen mode
+        int i = 0;
+        XPLMDebugString(line + 14);
+        sscanf(line + 14, "%d", &i);
+        hide_external = i;
     }
     if (strncmp("text_scale=", line, 11) == 0) {
         //text_scale

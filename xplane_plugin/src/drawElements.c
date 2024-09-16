@@ -1469,7 +1469,7 @@ void DrawHorizionLinesViggen() {
     // float vdef = getILSv();
     float prickoffset_x = 0;
     float x_pos = CalcFOVAngle(sin(to_radians(-angle)) * alpha);
-    if (getPrickActive() == 1 && viggen_mode > 0) {
+    if (getPrickActive() >= 1 && viggen_mode > 0) {
       x_pos = CalcFOVAngle(sin(to_radians(-angle)) * alpha) - CalcFOVAngle(cos(to_radians(-angle)) *beta);
       x_pos = CalcFOVAngle(sin(to_radians(-angle)) * myGetAlpha()) - CalcFOVAngle(cos(to_radians(-angle)) *myGetBeta());
       // x_pos = CalcFOVAngle(myGetAlpha()) - CalcFOVAngle(myGetBeta());
@@ -2019,7 +2019,7 @@ void DrawViggenStolpar() {
     //x_stolpe = 0;
     float prickoffset_x = 0;
     
-    if (getPrickActive() == 1 && viggen_mode > 0) {
+    if (getPrickActive() >= 1 && viggen_mode > 0) {
     //  prickoffset_x = 0-(dr_vectorBeta - prickx);
       prickoffset_x = prickx -dr_vectorBeta;
       prickoffset_x = fmin(prickoffset_x, 5);
@@ -2035,7 +2035,7 @@ void DrawViggenStolpar() {
     //
     glPushMatrix();
 
-    if (getPrickActive() == 1 && markKontakt() == 0) {
+    if (getPrickActive() >= 1 && markKontakt() == 0) {
         SetGLTransparentLines();
         //DrawFillCircleXY(5, 0, -100);
         glColor4fv(color);
