@@ -358,13 +358,13 @@ void DrawViggenMode2() {
         //DrawNAVText(-100, -450);
         //DrawFuelTime(-450, -750);
     }
-    DrawAlphaViggen(-350, -550);
-    DrawGViggen(250, -550);
-    DrawSpeedViggen(-350, -550);
-    DrawMachViggen(-350, -550);
-    DrawFuelViggen(250, -550);
+    DrawAlphaViggen(-350, -400);
+    DrawGViggen(250, -400);
+    DrawSpeedViggen(-350, -400);
+    DrawMachViggen(-350, -400);
+    DrawFuelViggen(250, -400);
     
-    DrawNAVText(100, 180);
+    DrawNAVText(50, 180);
     
     DrawVector();
     //DrawViggenRotateSpeed();

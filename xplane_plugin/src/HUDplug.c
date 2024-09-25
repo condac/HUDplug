@@ -718,7 +718,7 @@ void drawGlassTexture() {
         #else
         //glBlendEquationSeparate(GL_MIN, GL_FUNC_ADD);
         glBlendEquation(GL_MIN);
-        glColor4f(0.8, 0.7, 0.8, 0.5);
+        glColor4f(0.9, glass_darkness *0.7, 0.9, 1.0);
         #endif
         //glBlendEquation(GL_MIN);
         glPushMatrix();
