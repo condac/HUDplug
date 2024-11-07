@@ -851,7 +851,7 @@ int DrawPanelCallback(XPLMDrawingPhase inPhase, int inIsBefore, void* inRefcon) 
     XPLMGetScreenSize(&screen_width, &screen_height);
     float FOV_off_y = getFOVoff_y(); // måste multipliceras med antalet grader per pixel
     float FOV_off_x = getFOVoff_x();
-    float fov = getFOV();
+    float fov = panel_fov;//getFOV();
     float screen_h = (float)PANEL_WIDTH * ((float)screen_height / (float)screen_width);
     float scale_hud = (screen_h / 280.0f) * (GLASS_FOV / fov);
 
