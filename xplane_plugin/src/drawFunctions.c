@@ -436,6 +436,55 @@ void DrawGlassObjectViggen2(float width, float centerOffset) {
     glEnd();
     glPopMatrix();
 }
+
+void DrawGlassObjectViggen4(float width) {
+
+    float scale = width / 280.0f;
+    float center = 20.0f;
+    float centerUV = center / scale / 280.0f;
+    //centerUV = 0.0f;
+
+    glPushMatrix();
+    glTranslatef(0, width * 0.857142857143f, 0);
+    glBegin(GL_POLYGON);
+    //glColor4fv(colorglass);
+    glTexCoord2f(0.142857142857f, centerUV + 0.0f);
+    glVertex2f(-100 * scale, center - 240 * scale);
+    glTexCoord2f(0.142857142857f, centerUV + 0.321428571429f);
+    glVertex2f(-100 * scale, center - 150 * scale);
+
+    glTexCoord2f(0.142857142857f, centerUV + 0.660714285714f);
+    glVertex2f(-100 * scale, center - 55 * scale);
+    glTexCoord2f(0.142857142857f, centerUV + 0.798214285714f);
+    glVertex2f(-100 * scale, center - 16.5 * scale);
+
+    // böjen
+    glTexCoord2f(0.257142857143f, centerUV + 0.835428571429f);
+    glVertex2f(-68 * scale, center - 6.08 * scale);
+    glTexCoord2f(0.364285714286f, centerUV + 0.849714285714f);
+    glVertex2f(-38 * scale, center - 2.08 * scale);
+    glTexCoord2f(0.5f, centerUV + 0.857142857143f);
+    glVertex2f(-0 * scale, center - 0.00 * scale);
+
+    // andra sidan
+    glTexCoord2f(1.0f - 0.364285714286f, centerUV + 0.849714285714f);
+    glVertex2f(38 * scale, center - 2.08 * scale);
+    glTexCoord2f(1.0f - 0.257142857143f, centerUV + 0.835428571429f);
+    glVertex2f(68 * scale, center - 6.08 * scale);
+
+    glTexCoord2f(1.0f - 0.142857142857f, centerUV + 0.798214285714f);
+    glVertex2f(100 * scale, center - 16.5 * scale);
+    glTexCoord2f(1.0f - 0.142857142857f, centerUV + 0.660714285714f);
+    glVertex2f(100 * scale, center - 55 * scale);
+
+    glTexCoord2f(1.0f - 0.142857142857f, centerUV + 0.321428571429f);
+    glVertex2f(100 * scale, center - 150 * scale);
+    glTexCoord2f(1.0f - 0.142857142857f, centerUV + 0.0f);
+    glVertex2f(100 * scale, center - 240 * scale);
+
+    glEnd();
+    glPopMatrix();
+}
 int LoadTexture(const char* filename) {
     int texture;
     int width, height;

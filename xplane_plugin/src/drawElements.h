@@ -12,9 +12,12 @@
 
 void DrawTest();
 void DrawVector();
+void DrawVectorViggen();
+void DrawVectorViggenSymbol(float x, float y);
 void DrawMovementArrow(float trueHeading, float vx, float vy, float vz);
 void DrawHorizionLines();
 void DrawAltitude(float x, float y);
+void DrawAltitudeViggen(float x, float y);
 void DrawSpeed(float x, float y);
 void DrawAlpha(float x, float y);
 

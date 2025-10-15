@@ -421,3 +421,56 @@ void DrawViggenMode3() {
     drawPrick();
     DrawHorizionLinesViggen();
 }
+void DrawViggenMode4() {
+
+  // Viggen mode 4 är En ny JA37 baserat på en film från simulator
+
+  // int gear = getGear();
+  int mark = markKontakt();
+
+  float y_pos = CalcFOVAngle(-myGetAlpha());
+
+  if (mark) {
+      y_pos = CalcFOVAngle(-3);
+  }
+  if (y_pos > 20) {
+      y_pos = 20;
+  }
+  if (y_pos < -600) {
+      y_pos = -600;
+  }
+  if (dr_gear) {
+      // Landings mod
+      //DrawCompass(0, y_pos + 220);
+      DrawTextViggen(-200, 50);
+      //DrawAltitude(0, y_pos);
+      drawADHelp();
+
+  } else {
+
+      //DrawCompass(0, y_pos + 220);
+      DrawTextViggen(-200, 150);
+    //  DrawAltitude(0, y_pos);
+  }
+  DrawAlphaViggen(-350, -500);
+  DrawGViggen(250, -500);
+  DrawSpeedViggen(-350, -500);
+  //DrawMachViggen(-350, -400);
+  DrawFuelViggen(250, -500);
+  
+  DrawNAVText(50, 180);
+  
+  //DrawVectorViggen();
+  //DrawVector();
+  //DrawViggenRotateSpeed();
+  
+  DrawGroundCollision();
+  if (getPrickActive() == 1 && viggen_mode > 0) {
+  }
+  else {
+    //drawPrick();
+  }
+  
+  DrawViggenStolpar();
+  DrawHorizionLinesViggen();
+}

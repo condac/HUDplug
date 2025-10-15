@@ -63,7 +63,7 @@ GLuint fboBuff_blur;
 GLuint fboTexture_blur;
 int texturemask;
 
-GLuint nullptr;
+// GLuint nullptr;
 // This is our texture ID.  Texture IDs in OpenGL are just ints...but this is a global for the life of our plugin.
 static int g_tex_num = 0;
 int fboInit = 0;
@@ -415,7 +415,15 @@ void drawHUD() {
         DrawViggenMode3();
         glPopMatrix();
 
-    } else {
+    } else if (viggen_mode == 4) {
+        TranslateToCenter();
+        //DrawGlass();
+        glPushMatrix();
+
+        DrawViggenMode4();
+        glPopMatrix();
+
+    }  else {
         TranslateToCenter();
         //DrawGlass();
         glPushMatrix();
@@ -698,6 +706,8 @@ void drawGlassTexture() {
         glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
         if (viggen_mode == 1) {
             DrawGlassObjectViggen(280);
+        } else if (viggen_mode == 4) {
+            DrawGlassObjectViggen4(280);
         } else {
             DrawGlassObject(280);
         }
@@ -735,6 +745,9 @@ void drawGlassTexture() {
                 DrawGlassObjectViggen2(280, -40);
             }
             DrawGlassObjectViggen(280);
+        } else if (viggen_mode == 4) {
+          glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
+          DrawGlassObjectViggen4(280);
         } else {
             glTranslatef(0, -280 * (2.0f / 3.0f), 0.0f);
             DrawGlassObject(280);
@@ -813,6 +826,9 @@ void drawHudTexture() {
         }else {
             DrawGlassObjectViggen2(280, 0);
         }
+        
+    }else if (viggen_mode == 4) {
+        DrawGlassObjectViggen4(280);
         
     } else {
         DrawGlassObject(280);
